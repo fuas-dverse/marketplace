@@ -1,0 +1,17 @@
+{
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ],
+    "black-formatter.args": [ "--line-length", "88", "--target-version", "py310"],
+    "flake8.args": [ "--config", "setup.cfg" ]
+}

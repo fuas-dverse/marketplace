@@ -1,0 +1,5 @@
+name: dverse
+dependencies:
+  - python=3.10.14
+  - pip
+  - ipykernel

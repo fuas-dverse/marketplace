@@ -1,0 +1,44 @@
+{
+    "Ania": {
+        "username": "Ania",
+        "reputation_score": 4.5,
+        "product_listings": [
+            "1",
+            "2"
+        ],
+        "viewed_products": [
+            "1",
+            "3"
+        ]
+    },
+    "Pieter": {
+        "username": "Pieter",
+        "reputation_score": 4.7,
+        "product_listings": [
+            "3"
+        ],
+        "viewed_products": [
+            "1",
+            "2"
+        ]
+    },
+    "John": {
+        "username": "John",
+        "reputation_score": 0,
+        "product_listings": [],
+        "viewed_products": [
+            "1"
+        ]
+    },
+    "Ridi": {
+        "username": "Ridi",
+        "reputation_score": 0,
+        "product_listings": [],
+        "viewed_products": [
+            "1",
+            "3",
+            "2",
+            "1"
+        ]
+    }
+}

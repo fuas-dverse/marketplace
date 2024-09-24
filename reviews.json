@@ -1,0 +1,43 @@
+{
+    "1": [
+        {
+            "username": "Pieter",
+            "rating": 4,
+            "content": "Good laptop but could use more battery life."
+        },
+        {
+            "username": "Ania",
+            "rating": 5,
+            "content": "Love the performance!"
+        },
+        {
+            "username": "Ridi",
+            "rating": 1,
+            "content": "It came broken."
+        }
+    ],
+    "2": [
+        {
+            "username": "Pieter",
+            "rating": 5,
+            "content": "Best smartphone I've ever used."
+        },
+        {
+            "username": "Ania",
+            "rating": 4,
+            "content": "Great phone but the camera could be better."
+        },
+        {
+            "username": "John",
+            "rating": 5,
+            "content": "Perfect phone with amazing features!"
+        }
+    ],
+    "3": [
+        {
+            "username": "Ania",
+            "rating": 4,
+            "content": "Nice headphones, good sound quality."
+        }
+    ]
+}

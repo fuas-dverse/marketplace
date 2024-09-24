@@ -1,0 +1,26 @@
+{
+    "1": {
+        "title": "Laptop",
+        "description": "High-performance laptop for sale.",
+        "price": 1000,
+        "seller": "Ania",
+        "average_rating": 3.3333333333333335,
+        "rating_count": 3
+    },
+    "2": {
+        "title": "Smartphone",
+        "description": "Latest model smartphone with great features.",
+        "price": 700,
+        "seller": "Ania",
+        "average_rating": 4.8,
+        "rating_count": 3
+    },
+    "3": {
+        "title": "Headphones",
+        "description": "Noise-cancelling headphones for sale.",
+        "price": 200,
+        "seller": "Pieter",
+        "average_rating": 4.0,
+        "rating_count": 1
+    }
+}

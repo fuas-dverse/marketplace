@@ -22,5 +22,13 @@
         "seller": "Pieter",
         "average_rating": 4.0,
         "rating_count": 1
+    },
+    "4": {
+        "title": "TV",
+        "description": "Perfect for small living rooms.",
+        "price": 1500.0,
+        "seller": "Dylan",
+        "average_rating": 5.0,
+        "rating_count": 2
     }
 }

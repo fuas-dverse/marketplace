@@ -1,11 +1,21 @@
 import json
+import asyncio
+from nats.aio.client import Client as NATS
 
+# Initialize global variables
 users = {}
 product_listings = {}
 transactions = {}
 reviews = {}
 logged_in_user = None  # Stores the current logged-in user
 
+nats_client = NATS()
+
+async def connect_to_nats():
+    await nats_client.connect(servers=["nats://127.0.0.1:5222"])
+
+async def publish_event(subject, message):
+    await nats_client.publish(subject, json.dumps(message).encode())
 
 def load_data():
     global users, product_listings, transactions, reviews
@@ -33,7 +43,6 @@ def load_data():
     except FileNotFoundError:
         reviews = {}
 
-
 def save_data():
     with open('users.json', 'w') as f:
         json.dump(users, f, indent=4)
@@ -43,7 +52,6 @@ def save_data():
         json.dump(transactions, f, indent=4)
     with open('reviews.json', 'w') as f:
         json.dump(reviews, f, indent=4)
-
 
 def login():
     global logged_in_user
@@ -55,12 +63,10 @@ def login():
         print(f"User '{username}' not found. Please register.")
         logged_in_user = None
 
-
 def logout():
     global logged_in_user
     print(f"User '{logged_in_user}' has logged out.")
     logged_in_user = None
-
 
 def register_user(username):
     if username in users:
@@ -75,8 +81,7 @@ def register_user(username):
         print(f"User '{username}' registered successfully!")
         save_data()
 
-
-def create_product_listing(title, description, price):
+async def create_product_listing(title, description, price):
     if logged_in_user:
         product_id = str(len(product_listings) + 1)
         product_listings[product_id] = {
@@ -90,9 +95,15 @@ def create_product_listing(title, description, price):
         users[logged_in_user]["product_listings"].append(product_id)
         print(f"Product '{title}' added successfully.")
         save_data()
+
+        # Publish product creation event immediately
+        await publish_event("product.created", {
+            "product_id": product_id,
+            "title": title,
+            "seller": logged_in_user
+        })
     else:
         print("Please log in to create a product listing.")
-
 
 def view_product_listings():
     print("\nAvailable Products:")
@@ -100,8 +111,7 @@ def view_product_listings():
         print(f"ID: {product_id} | Title: {product['title']} | Price: {product['price']} | Seller: {product['seller']} | Rating: {product['average_rating']:.1f}")
     save_data()
 
-
-def add_product_review(listing_id, rating, content):
+async def add_product_review(listing_id, rating, content):
     if logged_in_user:
         review = {
             "username": logged_in_user,
@@ -120,26 +130,18 @@ def add_product_review(listing_id, rating, content):
 
         print(f"Review added for product ID {listing_id}. New average rating: {product['average_rating']:.1f}")
         save_data()
+
+        # Publish review event immediately
+        await publish_event("review.added", {
+            "product_id": listing_id,
+            "rating": rating,
+            "reviewer": logged_in_user,
+            "content": content
+        })
     else:
         print("Please log in to add a review.")
 
-
-def recommend_products():
-    if logged_in_user:
-        viewed_products = users[logged_in_user].get("viewed_products", [])
-        recommended = [product for product in product_listings.values() if product['average_rating'] >= 4.0 and product['seller'] != logged_in_user and str(product) not in viewed_products]
-
-        if recommended:
-            print("\nRecommended Products:")
-            for product in recommended:
-                print(f"Title: {product['title']}, Price: {product['price']}, Average Rating: {product['average_rating']:.1f}")
-        else:
-            print("No recommendations available.")
-    else:
-        print("Please log in to get recommendations.")
-
-
-def purchase_product(product_id):
+async def purchase_product(product_id):
     if logged_in_user:
         if product_id in product_listings:
             product = product_listings[product_id]
@@ -158,11 +160,16 @@ def purchase_product(product_id):
 
             print(f"Product '{product['title']}' purchased successfully.")
             save_data()
+
+            # Publish purchase event immediately
+            await publish_event("purchase.made", {
+                "product_id": product_id,
+                "buyer": logged_in_user
+            })
         else:
             print("Product not found.")
     else:
         print("Please log in to purchase a product.")
-
 
 def view_transactions():
     if logged_in_user:
@@ -174,9 +181,9 @@ def view_transactions():
     else:
         print("Please log in to view your transactions.")
 
-
-def main():
+async def main():
     load_data()
+    await connect_to_nats()
 
     while True:
         if logged_in_user:
@@ -184,10 +191,9 @@ def main():
             print("1. Create Product Listing")
             print("2. View Product Listings")
             print("3. Add Product Review")
-            print("4. Get Recommended Products")
-            print("5. Purchase Product")
-            print("6. View Transactions")
-            print("7. Log Out")
+            print("4. Purchase Product")
+            print("5. View Transactions")
+            print("6. Log Out")
         else:
             print("\n--- Decentralized Marketplace ---")
             print("1. Register User")
@@ -202,22 +208,20 @@ def main():
                 title = input("Enter product title: ")
                 description = input("Enter product description: ")
                 price = float(input("Enter product price: "))
-                create_product_listing(title, description, price)
+                await create_product_listing(title, description, price)
             elif choice == '2':
                 view_product_listings()
             elif choice == '3':
                 listing_id = input("Enter product listing ID: ")
                 rating = int(input("Enter rating (1-5): "))
                 content = input("Enter review content: ")
-                add_product_review(listing_id, rating, content)
+                await add_product_review(listing_id, rating, content)
             elif choice == '4':
-                recommend_products()
-            elif choice == '5':
                 product_id = input("Enter the product ID to purchase: ")
-                purchase_product(product_id)
-            elif choice == '6':
+                await purchase_product(product_id)
+            elif choice == '5':
                 view_transactions()
-            elif choice == '7':
+            elif choice == '6':
                 logout()
             else:
                 print("Invalid option. Please try again.")
@@ -236,6 +240,5 @@ def main():
             else:
                 print("Invalid option. Please try again.")
 
-
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

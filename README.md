@@ -1,3 +1,15 @@
+# Marketplace PoC
+
+To test the application:
+
+1. Run a NATS server.
+2. Make sure the port in the code is the same as yours.
+3. Topics you can subscribe to:
+   - nats sub product.created -s nats://localhost:5222
+   - nats sub review.added -s nats://localhost:5222
+   - nats sub product.purchased -s nats://localhost:5222
+4. Test out the possibilities with the terminal app and check the published events.
+
 # Python Project Template
 
 This is a good starter that has most of the tools we use in our organization already set up.
@@ -12,7 +24,6 @@ Use [Issues](https://github.com/fuas-dverse/python-template/issues) for improvin
 - [Flake8](https://github.com/PyCQA/flake8)
 - [Black](https://github.com/psf/black)
 - [Setuptools](https://setuptools.pypa.io)
-
 
 ## Getting started
 
@@ -42,7 +53,6 @@ conda env create -f environment.yaml
 conda activate dverse
 ```
 
-
 ### Pre-commit
 
 [Pre-commit](https://pre-commit.com) helps maintain Git hook scripts. It will get automatically installed. But you will have to run `pre-commit install` to install the hook on your own machine. The checks that are being done by the pre-commit script are described in `pre-commit-config.yaml`.
@@ -58,10 +68,8 @@ This script will run quite a few automated checks on your code, and it may even 
 
 This seems quite agressive but once you get used to it you just stop worrying about certain formatting issues, and the commits will be cleaner.
 
-
 ## Todo
 
 We will use this template to provide a basic Python set up for new code projects and offer a good starting point based on good practices.
 
 For now I prefer to get issues reported to me personally. You can verify [Issues](https://github.com/fuas-dverse/python-template/issues) to see what changes are planned.
-

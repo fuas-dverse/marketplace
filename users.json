@@ -8,7 +8,9 @@
         ],
         "viewed_products": [
             "1",
-            "3"
+            "3",
+            "3",
+            "4"
         ]
     },
     "Pieter": {
@@ -19,7 +21,8 @@
         ],
         "viewed_products": [
             "1",
-            "2"
+            "2",
+            "4"
         ]
     },
     "John": {
@@ -38,6 +41,16 @@
             "1",
             "3",
             "2",
+            "1"
+        ]
+    },
+    "Dylan": {
+        "username": "Dylan",
+        "reputation_score": 0,
+        "product_listings": [
+            "4"
+        ],
+        "viewed_products": [
             "1"
         ]
     }

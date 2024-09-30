@@ -8,7 +8,7 @@
         "rating_count": 3
     },
     "2": {
-        "title": "Smartphone",
+        "title": "OnePlus 9",
         "description": "Latest model smartphone with great features.",
         "price": 700,
         "seller": "Ania",
@@ -29,6 +29,22 @@
         "price": 1500.0,
         "seller": "Dylan",
         "average_rating": 5.0,
-        "rating_count": 2
+        "rating_count": 3
+    },
+    "5": {
+        "title": "jev",
+        "description": "eqncfqe",
+        "price": 200.0,
+        "seller": "Ridi",
+        "average_rating": 0,
+        "rating_count": 0
+    },
+    "6": {
+        "title": "IPhone 12",
+        "description": "Mid-range smartphone with great battery life",
+        "price": 1000.0,
+        "seller": "Dylan",
+        "average_rating": 0,
+        "rating_count": 0
     }
 }

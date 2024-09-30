@@ -5,9 +5,10 @@ To test the application:
 1. Run a NATS server.
 2. Make sure the port in the code is the same as yours.
 3. Topics you can subscribe to:
-   - nats sub product.created -s nats://localhost:5222
-   - nats sub review.added -s nats://localhost:5222
-   - nats sub product.purchased -s nats://localhost:5222
+   - nats sub product.created -s nats://localhost:4222
+   - nats sub review.added -s nats://localhost:4222
+   - nats sub product.purchased -s nats://localhost:4222
+   - nats sub query.made -s nats://localhost:4222
 4. Test out the possibilities with the terminal app and check the published events.
 
 # Python Project Template

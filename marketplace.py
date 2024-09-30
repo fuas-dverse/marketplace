@@ -1,6 +1,16 @@
+from transformers import pipeline
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 import json
 import asyncio
 from nats.aio.client import Client as NATS
+import torch
+
+# Determine if a GPU is available and assign device accordingly
+device = 0 if torch.cuda.is_available() else -1
+
+# Load the LLM (using Hugging Face pipeline here)
+query_model = pipeline('feature-extraction', model='sentence-transformers/all-MiniLM-L6-v2', device=device)
 
 # Initialize global variables
 users = {}
@@ -18,6 +28,68 @@ async def connect_to_nats():
 
 async def publish_event(subject, message):
     await nats_client.publish(subject, json.dumps(message).encode())
+
+
+def generate_embeddings(text):
+    """Generate embeddings using the LLM."""
+    # Set clean_up_tokenization_spaces explicitly to False
+    embeddings = query_model(text, clean_up_tokenization_spaces=False)
+    return np.mean(embeddings[0], axis=0)  # Get the mean of the token embeddings
+
+
+def find_best_products(query, product_listings):
+    """Find the best products based on the user's query using LLM embeddings."""
+    query_embedding = generate_embeddings(query)
+
+    product_similarities = []
+    for product_id, product in product_listings.items():
+        product_text = f"{product['title']} {product['description']}"
+        product_embedding = generate_embeddings(product_text)
+
+        # Calculate similarity between query and product
+        similarity = cosine_similarity([query_embedding], [product_embedding])[0][0]
+        product_similarities.append((product_id, similarity))
+
+    # Sort products by similarity score and then by rating
+    product_similarities.sort(key=lambda x: (-x[1], -product_listings[x[0]]['average_rating']))
+
+    return product_similarities[:5]  # Return top 5 matched products
+
+async def recommend_products_by_query(query):
+    """Recommend products based on a natural language query and publish the event."""
+    if logged_in_user:
+        best_products = find_best_products(query, product_listings)
+        
+        if best_products:
+            print("\nRecommended Products:")
+            recommendations = []
+            for product_id, similarity in best_products:
+                product = product_listings[product_id]
+                print(f"Title: {product['title']}, Price: {product['price']}, Rating: {product['average_rating']:.1f}, Relevance: {similarity:.2f}")
+                recommendations.append({
+                    "title": product['title'],
+                    "price": product['price'],
+                    "rating": product['average_rating'],
+                    "similarity": similarity
+                })
+                
+            # Publish query and recommendation event
+            await publish_event("query.made", {
+                "user": logged_in_user,
+                "query": query,
+                "recommendations": recommendations
+            })
+        else:
+            print("No matching products found.")
+            
+            # Publish query event even if no results
+            await publish_event("query.made", {
+                "user": logged_in_user,
+                "query": query,
+                "recommendations": []
+            })
+    else:
+        print("Please log in to get recommendations.")
 
 
 def load_data():
@@ -229,7 +301,8 @@ async def main():
             print("4. Purchase Product")
             print("5. View Transactions")
             print("6. Get Recommended Products")
-            print("7. Log Out")
+            print("7. Get Recommendations by Query")  # New option for query-based recommendations
+            print("8. Log Out")
         else:
             print("\n--- Decentralized Marketplace ---")
             print("1. Register User")
@@ -260,6 +333,9 @@ async def main():
             elif choice == '6':
                 recommend_products()
             elif choice == '7':
+                query = input("Enter your query: ")
+                await recommend_products_by_query(query)  # Call the query-based recommendation function
+            elif choice == '8':
                 logout()
             else:
                 print("Invalid option. Please try again.")
@@ -277,6 +353,7 @@ async def main():
                 break
             else:
                 print("Invalid option. Please try again.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

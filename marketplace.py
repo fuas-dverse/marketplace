@@ -10,7 +10,11 @@ import torch
 device = 0 if torch.cuda.is_available() else -1
 
 # Load the LLM (using Hugging Face pipeline here)
-query_model = pipeline('feature-extraction', model='sentence-transformers/all-MiniLM-L6-v2', device=device)
+query_model = pipeline(
+    'feature-extraction', 
+    model='sentence-transformers/all-MiniLM-L6-v2', 
+    device=device
+)
 
 # Initialize global variables
 users = {}
@@ -51,28 +55,35 @@ def find_best_products(query, product_listings):
         product_similarities.append((product_id, similarity))
 
     # Sort products by similarity score and then by rating
-    product_similarities.sort(key=lambda x: (-x[1], -product_listings[x[0]]['average_rating']))
+    product_similarities.sort(
+        key=lambda x: (-x[1], -product_listings[x[0]]['average_rating'])
+    )
 
     return product_similarities[:5]  # Return top 5 matched products
+
 
 async def recommend_products_by_query(query):
     """Recommend products based on a natural language query and publish the event."""
     if logged_in_user:
         best_products = find_best_products(query, product_listings)
-        
+
         if best_products:
             print("\nRecommended Products:")
             recommendations = []
             for product_id, similarity in best_products:
                 product = product_listings[product_id]
-                print(f"Title: {product['title']}, Price: {product['price']}, Rating: {product['average_rating']:.1f}, Relevance: {similarity:.2f}")
+                print(
+                    f"Title: {product['title']}, Price: {product['price']}, "
+                    f"Rating: {product['average_rating']:.1f}, "
+                    f"Relevance: {similarity:.2f}"
+                )
                 recommendations.append({
                     "title": product['title'],
                     "price": product['price'],
                     "rating": product['average_rating'],
                     "similarity": similarity
                 })
-                
+
             # Publish query and recommendation event
             await publish_event("query.made", {
                 "user": logged_in_user,
@@ -81,7 +92,7 @@ async def recommend_products_by_query(query):
             })
         else:
             print("No matching products found.")
-            
+
             # Publish query event even if no results
             await publish_event("query.made", {
                 "user": logged_in_user,
@@ -189,7 +200,11 @@ async def create_product_listing(title, description, price):
 def view_product_listings():
     print("\nAvailable Products:")
     for product_id, product in product_listings.items():
-        print(f"ID: {product_id} | Title: {product['title']} | Price: {product['price']} | Seller: {product['seller']} | Rating: {product['average_rating']:.1f}")
+        print(
+            f"ID: {product_id} | Title: {product['title']} | "
+            f"Price: {product['price']} | "
+            f"Seller: {product['seller']} | Rating: {product['average_rating']:.1f}"
+        )
     save_data()
 
 
@@ -208,9 +223,12 @@ async def add_product_review(listing_id, rating, content):
         # Update the product's average rating
         product = product_listings[listing_id]
         product['rating_count'] += 1
-        product['average_rating'] = ((product['average_rating'] * (product['rating_count'] - 1)) + rating) / product['rating_count']
+        product['average_rating'] = (
+            (product['average_rating'] * (product['rating_count'] - 1)) + rating
+        ) / product['rating_count']
 
-        print(f"Review added for product ID {listing_id}. New average rating: {product['average_rating']:.1f}")
+        print(f"Review added for product ID {listing_id}. "
+              f"New average rating: {product['average_rating']:.1f}")
         save_data()
 
         # Publish review event immediately
@@ -265,7 +283,10 @@ def view_transactions():
         for transaction_id, transaction in transactions.items():
             if transaction['buyer'] == logged_in_user:
                 product = product_listings[transaction['listing_id']]
-                print(f"Transaction ID: {transaction_id} | Product: {product['title']} | Price: {product['price']} | Status: {transaction['status']}")
+                print(
+                    f"Transaction ID: {transaction_id} | Product: {product['title']} | "
+                    f"Price: {product['price']} | Status: {transaction['status']}"
+                )
     else:
         print("Please log in to view your transactions.")
 
@@ -281,7 +302,8 @@ def recommend_products():
         if recommended:
             print("\nRecommended Products:")
             for product in recommended:
-                print(f"Title: {product['title']}, Price: {product['price']}, Average Rating: {product['average_rating']:.1f}")
+                print(f"Title: {product['title']}, Price: {product['price']}, "
+                      f"Average Rating: {product['average_rating']:.1f}")
         else:
             print("No recommendations available.")
     else:
@@ -301,7 +323,7 @@ async def main():
             print("4. Purchase Product")
             print("5. View Transactions")
             print("6. Get Recommended Products")
-            print("7. Get Recommendations by Query")  # New option for query-based recommendations
+            print("7. Get Recommendations by Query")
             print("8. Log Out")
         else:
             print("\n--- Decentralized Marketplace ---")
@@ -334,7 +356,7 @@ async def main():
                 recommend_products()
             elif choice == '7':
                 query = input("Enter your query: ")
-                await recommend_products_by_query(query)  # Call the query-based recommendation function
+                await recommend_products_by_query(query)
             elif choice == '8':
                 logout()
             else:

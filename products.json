@@ -36,13 +36,21 @@
         "description": "eqncfqe",
         "price": 200.0,
         "seller": "Ridi",
-        "average_rating": 0,
-        "rating_count": 0
+        "average_rating": 4.0,
+        "rating_count": 1
     },
     "6": {
         "title": "IPhone 12",
         "description": "Mid-range smartphone with great battery life",
         "price": 1000.0,
+        "seller": "Dylan",
+        "average_rating": 0,
+        "rating_count": 0
+    },
+    "7": {
+        "title": "Kettle",
+        "description": "to cook water",
+        "price": 20.0,
         "seller": "Dylan",
         "average_rating": 0,
         "rating_count": 0

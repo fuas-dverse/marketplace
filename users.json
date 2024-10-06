@@ -52,10 +52,12 @@
         "reputation_score": 0,
         "product_listings": [
             "4",
-            "6"
+            "6",
+            "7"
         ],
         "viewed_products": [
-            "1"
+            "1",
+            "5"
         ]
     }
 }

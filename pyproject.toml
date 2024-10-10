@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "PROJECT"
-version = "0.1.0"
+version = "0.2.0"
 description = "DESCRIPTION"
-authors = ["Joe User <joe.user@fontys.nl>"]
+authors = ["Anna Kowalewska <466069@student.fontys.nl>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

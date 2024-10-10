@@ -5,14 +5,15 @@ import json
 import asyncio
 from nats.aio.client import Client as NATS
 import torch
+import config
 
 # Determine if a GPU is available and assign device accordingly
-device = 0 if torch.cuda.is_available() else -1
+device = config.CUDA_DEVICE if torch.cuda.is_available() else -1
 
 # Load the LLM (using Hugging Face pipeline here)
 query_model = pipeline(
-    'feature-extraction', 
-    model='sentence-transformers/all-MiniLM-L6-v2', 
+    'feature-extraction',
+    model='sentence-transformers/all-MiniLM-L6-v2',
     device=device
 )
 
@@ -27,7 +28,7 @@ nats_client = NATS()
 
 
 async def connect_to_nats():
-    await nats_client.connect(servers=["nats://127.0.0.1:4222"])
+    await nats_client.connect(servers=[config.NATS_SERVER_URL])
 
 
 async def publish_event(subject, message):
@@ -106,38 +107,38 @@ async def recommend_products_by_query(query):
 def load_data():
     global users, product_listings, transactions, reviews
     try:
-        with open('users.json', 'r') as f:
+        with open(config.USERS_FILE, 'r') as f:
             users = json.load(f)
     except FileNotFoundError:
         users = {}
 
     try:
-        with open('products.json', 'r') as f:
+        with open(config.PRODUCTS_FILE, 'r') as f:
             product_listings = json.load(f)
     except FileNotFoundError:
         product_listings = {}
 
     try:
-        with open('transactions.json', 'r') as f:
+        with open(config.TRANSACTIONS_FILE, 'r') as f:
             transactions = json.load(f)
     except FileNotFoundError:
         transactions = {}
 
     try:
-        with open('reviews.json', 'r') as f:
+        with open(config.REVIEWS_FILE, 'r') as f:
             reviews = json.load(f)
     except FileNotFoundError:
         reviews = {}
 
 
 def save_data():
-    with open('users.json', 'w') as f:
+    with open(config.USERS_FILE, 'w') as f:
         json.dump(users, f, indent=4)
-    with open('products.json', 'w') as f:
+    with open(config.PRODUCTS_FILE, 'w') as f:
         json.dump(product_listings, f, indent=4)
-    with open('transactions.json', 'w') as f:
+    with open(config.TRANSACTIONS_FILE, 'w') as f:
         json.dump(transactions, f, indent=4)
-    with open('reviews.json', 'w') as f:
+    with open(config.REVIEWS_FILE, 'w') as f:
         json.dump(reviews, f, indent=4)
 
 

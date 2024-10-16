@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import config
-from models import Base, User, Product, Transaction, Review
+from fastapi_app.app.models import Base, User, Product, Transaction, Review
 
 # Create the PostgreSQL connection string
 DATABASE_URL = (

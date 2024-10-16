@@ -1,6 +1,3 @@
 from setuptools import setup
 
-setup(
-    name='PROJECT',
-    version='0.1.0'
-)
+setup(name="PROJECT", version="0.2.0")

@@ -59,5 +59,19 @@
             "1",
             "5"
         ]
+    },
+    "Filip": {
+        "username": "Filip",
+        "reputation_score": 0,
+        "product_listings": [],
+        "viewed_products": [
+            "3"
+        ]
+    },
+    "Anna": {
+        "username": "Anna",
+        "reputation_score": 0,
+        "product_listings": [],
+        "viewed_products": []
     }
 }

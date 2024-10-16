@@ -36,17 +36,36 @@ def create_user(db, username: str):
 
 
 # Add a new product
-def create_product(db, title: str, description: str, price: float, seller_id: int):
+def create_product(
+    db, title: str, description: str, price: float, seller_id: int,
+    average_rating: float = 0.0, rating_count: int = 0
+):
     new_product = Product(
         title=title,
         description=description,
         price=price,
-        seller_id=seller_id
+        seller_id=seller_id,
+        average_rating=average_rating,
+        rating_count=rating_count
     )
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
     return new_product
+
+
+def update_product(
+    db, product: Product, average_rating: float, rating_count: int
+):
+    if product is None:
+        return None
+
+    product.average_rating = average_rating
+    product.rating_count = rating_count
+
+    db.commit()
+    db.refresh(product)
+    return product
 
 
 # Add a new transaction

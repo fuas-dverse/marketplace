@@ -29,6 +29,8 @@ class Product(Base):
     description = Column(String)
     price = Column(Float)
     seller_id = Column(Integer, ForeignKey("users.id"))
+    average_rating = Column(Float)
+    rating_count = Column(Integer)
 
     # Relationships
     seller = relationship("User", back_populates="products")

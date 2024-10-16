@@ -6,6 +6,7 @@ import asyncio
 from nats.aio.client import Client as NATS
 import torch
 import config
+import requests
 
 # Determine if a GPU is available and assign device accordingly
 device = config.CUDA_DEVICE if torch.cuda.is_available() else -1
@@ -17,18 +18,15 @@ query_model = pipeline(
     device=device
 )
 
-# Initialize global variables
-users = {}
-product_listings = {}
-transactions = {}
-reviews = {}
 logged_in_user = None  # Stores the current logged-in user
 
 nats_client = NATS()
 
+server_url = config.FASTAPI_URL
+
 
 async def connect_to_nats():
-    await nats_client.connect(servers=[config.NATS_SERVER_URL])
+    await nats_client.connect(servers=config.NATS_SERVER_URL)
 
 
 async def publish_event(subject, message):
@@ -66,13 +64,14 @@ def find_best_products(query, product_listings):
 async def recommend_products_by_query(query):
     """Recommend products based on a natural language query and publish the event."""
     if logged_in_user:
-        best_products = find_best_products(query, product_listings)
+        products = requests.get(f"{server_url}/products").json()
+        best_products = find_best_products(query, products)
 
         if best_products:
             print("\nRecommended Products:")
             recommendations = []
             for product_id, similarity in best_products:
-                product = product_listings[product_id]
+                product = products[product_id]
                 print(
                     f"Title: {product['title']}, Price: {product['price']}, "
                     f"Rating: {product['average_rating']:.1f}, "
@@ -104,52 +103,24 @@ async def recommend_products_by_query(query):
         print("Please log in to get recommendations.")
 
 
-def load_data():
-    global users, product_listings, transactions, reviews
-    try:
-        with open(config.USERS_FILE, 'r') as f:
-            users = json.load(f)
-    except FileNotFoundError:
-        users = {}
-
-    try:
-        with open(config.PRODUCTS_FILE, 'r') as f:
-            product_listings = json.load(f)
-    except FileNotFoundError:
-        product_listings = {}
-
-    try:
-        with open(config.TRANSACTIONS_FILE, 'r') as f:
-            transactions = json.load(f)
-    except FileNotFoundError:
-        transactions = {}
-
-    try:
-        with open(config.REVIEWS_FILE, 'r') as f:
-            reviews = json.load(f)
-    except FileNotFoundError:
-        reviews = {}
-
-
-def save_data():
-    with open(config.USERS_FILE, 'w') as f:
-        json.dump(users, f, indent=4)
-    with open(config.PRODUCTS_FILE, 'w') as f:
-        json.dump(product_listings, f, indent=4)
-    with open(config.TRANSACTIONS_FILE, 'w') as f:
-        json.dump(transactions, f, indent=4)
-    with open(config.REVIEWS_FILE, 'w') as f:
-        json.dump(reviews, f, indent=4)
-
-
 def login():
     global logged_in_user
     username = input("Enter your username: ")
-    if username in users:
-        logged_in_user = username
-        print(f"Welcome back, {username}!")
+
+    response = requests.get(f"{server_url}/users/{username}")
+
+    if response.status_code == 200:
+        parsed_response = response.json()
+        user = parsed_response.get('user')
+
+        if user:
+            print(f"User '{username}' has logged in.")
+            logged_in_user = user
+        elif response.status_code == 404:
+            print(f"User '{username}' not found.")
+            logged_in_user = None
     else:
-        print(f"User '{username}' not found. Please register.")
+        print(f"Error logging in user '{username}'. Please try again. {response.text}")
         logged_in_user = None
 
 
@@ -160,144 +131,218 @@ def logout():
 
 
 def register_user(username):
-    if username in users:
-        print("User already exists.")
+    payload = {"username": username}
+    response = requests.post(url=f"{server_url}/users", json=payload)
+
+    if response.ok:
+        print(f"User '{username}' registered successfully.")
     else:
-        users[username] = {
-            "username": username,
-            "reputation_score": 0,
-            "product_listings": [],
-            "viewed_products": []
-        }
-        print(f"User '{username}' registered successfully!")
-        save_data()
+        print(f"Error registering user '{username}'. Please try again. {response.text}")
 
 
 async def create_product_listing(title, description, price):
     if logged_in_user:
-        product_id = str(len(product_listings) + 1)
-        product_listings[product_id] = {
+        payload = {
             "title": title,
             "description": description,
             "price": price,
-            "seller": logged_in_user,
-            "average_rating": 0,
-            "rating_count": 0
+            "seller_id": logged_in_user.get('id')
         }
-        users[logged_in_user]["product_listings"].append(product_id)
-        print(f"Product '{title}' added successfully.")
-        save_data()
+        response = requests.post(url=f"{server_url}/products", json=payload)
+        if response.ok:
+            print(f"Product '{title}' added successfully.")
 
-        # Publish product creation event immediately
-        await publish_event("product.created", {
-            "product_id": product_id,
-            "title": title,
-            "seller": logged_in_user
-        })
+            # Publish product creation event immediately
+            await publish_event("product.created", {
+                "title": title,
+                "seller_id": logged_in_user.get('id')
+            })
+        else:
+            print(f"Error adding product '{title}'. Please try again. {response.text}")
+
     else:
         print("Please log in to create a product listing.")
 
 
 def view_product_listings():
     print("\nAvailable Products:")
-    for product_id, product in product_listings.items():
-        print(
-            f"ID: {product_id} | Title: {product['title']} | "
-            f"Price: {product['price']} | "
-            f"Seller: {product['seller']} | Rating: {product['average_rating']:.1f}"
-        )
-    save_data()
 
+    response = requests.get(f"{server_url}/products")
 
-async def add_product_review(listing_id, rating, content):
-    if logged_in_user:
-        review = {
-            "username": logged_in_user,
-            "rating": rating,
-            "content": content
-        }
+    if response.ok:
+        try:
+            product_listings = response.json().get('products', [])
+        except requests.exceptions.JSONDecodeError:
+            print("Error: Received invalid JSON from the server.")
+            print("Response content:", response.text)
+            return
 
-        if listing_id not in reviews:
-            reviews[listing_id] = []
-        reviews[listing_id].append(review)
+        if not product_listings:
+            print("No products available.")
+            return
 
-        # Update the product's average rating
-        product = product_listings[listing_id]
-        product['rating_count'] += 1
-        product['average_rating'] = (
-            (product['average_rating'] * (product['rating_count'] - 1)) + rating
-        ) / product['rating_count']
-
-        print(f"Review added for product ID {listing_id}. "
-              f"New average rating: {product['average_rating']:.1f}")
-        save_data()
-
-        # Publish review event immediately
-        await publish_event("review.added", {
-            "product_id": listing_id,
-            "rating": rating,
-            "reviewer": logged_in_user,
-            "content": content
-        })
+        for product in product_listings:
+            print(
+                f"ID: {product['id']} | Title: {product['title']} | "
+                f"Price: {product['price']} | "
+                f"Seller: {product['seller_id']} | "
+                f"Rating: {product['average_rating']:.1f}"
+            )
     else:
+        print(f"Error fetching product listings. Please try again. {response.text}")
+
+
+async def add_product_review(product_id, rating, content):
+    if not logged_in_user:
         print("Please log in to add a review.")
+        return
+
+    if not (1 <= rating <= 5):
+        print("Invalid rating. Please enter a rating between 1 and 5.")
+        return
+
+    payload = {
+        "user_id": logged_in_user.get('id'),
+        "product_id": product_id,
+        "rating": rating,
+        "content": content,
+    }
+
+    try:
+        response = requests.post(url=f"{server_url}/reviews", json=payload)
+        response.raise_for_status()
+
+        if response.ok:
+            print(f"Review added for product ID {product_id}.")
+
+            product_response = requests.get(
+                f"{server_url}/products/{product_id}"
+            ).json()
+
+            # Update the product's average rating
+            product = product_response.get('product')
+
+            # Ensure product exists and has the required fields
+            if product and 'rating_count' in product and 'average_rating' in product:
+                print(
+                    f"Before update: rating_count={product['rating_count']}, "
+                    f"average_rating={product['average_rating']}"
+                )
+
+                # Initialize rating_count and average_rating if they are None
+                if product['rating_count'] is None:
+                    product['rating_count'] = 0
+                if product['average_rating'] is None:
+                    product['average_rating'] = 0.0
+
+                # Update the rating count and average rating
+                product['rating_count'] += 1
+                product['average_rating'] = (
+                    (product['average_rating'] * (product['rating_count'] - 1)) + rating
+                ) / product['rating_count']
+
+                response = requests.post(
+                    url=f"{server_url}/products/{product_id}/review/",
+                    json={
+                        "product": product,
+                        "average_rating": product['average_rating'],
+                        "rating_count": product['rating_count']
+                    }
+                )
+                if response.ok:
+                    print(f"Review added for product ID {product_id}.")
+                print(
+                    f"After update: rating_count={product['rating_count']}, "
+                    f"average_rating={product['average_rating']:.1f}"
+                )
+            else:
+                print("Error: Product data is missing or incomplete.")
+
+            print(f"New average rating: {product['average_rating']:.1f}")
+
+            # Publish review event immediately
+            await publish_event("review.added", {
+                "product_id": product_id,
+                "rating": rating,
+                "reviewer": logged_in_user.get('username'),
+                "content": content
+            })
+        else:
+            print(f"Error adding review. Please try again. {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error adding review: {str(e)}")
 
 
 async def purchase_product(product_id):
-    if logged_in_user:
-        if product_id in product_listings:
-            product = product_listings[product_id]
-            if product['seller'] == logged_in_user:
-                print("You cannot purchase your own product.")
-                return
+    if not logged_in_user:
+        print("Please log in to purchase a product.")
+        return
 
-            transaction_id = str(len(transactions) + 1)
-            transactions[transaction_id] = {
-                "buyer": logged_in_user,
-                "listing_id": product_id,
-                "status": "Completed"
-            }
+    # users = requests.get(f"{server_url}/users").json()
+    product = requests.get(f"{server_url}/products/{product_id}").json()
+    if product:
+        # if product['seller_id'] == logged_in_user.get('id'):
+        #     print("You cannot purchase your own product.")
+        #     return
 
-            # Add to viewed products
-            if 'viewed_products' not in users[logged_in_user]:
-                users[logged_in_user]['viewed_products'] = []
-            users[logged_in_user]['viewed_products'].append(product_id)
+        # if 'viewed_products' not in users[logged_in_user]:
+        #     users[logged_in_user]['viewed_products'] = []
+        # users[logged_in_user]['viewed_products'].append(product_id)
 
-            print(f"Product '{product['title']}' purchased successfully.")
-            save_data()
+        payload = {
+            "buyer_id": logged_in_user.get('id'),
+            "product_id": product_id,
+            "status": "Completed"
+        }
+        response = requests.post(url=f"{server_url}/transactions", json=payload)
+
+        if response.ok:
+            print(f"Product '{product_id}' purchased successfully.")
 
             # Publish purchase event immediately
             await publish_event("product.purchased", {
                 "product_id": product_id,
-                "title": product['title'],
-                "buyer": logged_in_user
+                "buyer": logged_in_user.get('id')
             })
         else:
-            print("Product not found.")
+            print(f"Error purchasing product '{product_id}'. "
+                  f"Please try again. {response.text}")
+    elif response.status_code == 404:
+        print("Product not found.")
     else:
-        print("Please log in to purchase a product.")
+        print(f"Error purchasing product. Please try again. {response.text}")
 
 
 def view_transactions():
-    if logged_in_user:
-        print(f"\nTransactions for {logged_in_user}:")
-        for transaction_id, transaction in transactions.items():
-            if transaction['buyer'] == logged_in_user:
-                product = product_listings[transaction['listing_id']]
-                print(
-                    f"Transaction ID: {transaction_id} | Product: {product['title']} | "
-                    f"Price: {product['price']} | Status: {transaction['status']}"
-                )
-    else:
+    if not logged_in_user:
         print("Please log in to view your transactions.")
+        return
+
+    transactions = requests.get(
+        url=f"{server_url}/transactions/",
+        json={"user_id": logged_in_user.get('id')}
+    ).json()
+
+    print(f"\nTransactions for {logged_in_user}:")
+    for transaction in transactions:
+        product = requests.get(
+            f"{server_url}/products/{transaction['product_id']}"
+        ).json()
+        print(
+            f"Transaction ID: {transaction['id']} | Product: {product['title']} | "
+            f"Price: {product['price']} | Status: {transaction['status']}"
+        )
 
 
 def recommend_products():
     if logged_in_user:
-        viewed_products = users[logged_in_user].get("viewed_products", [])
-        recommended = [product for product in product_listings.values()
+        user = requests.get(url=f"{server_url}/users/{logged_in_user.get('id')}").json()
+        viewed_products = user.get('viewed_products', [])
+        products = requests.get(f"{server_url}/products").json()
+
+        recommended = [product for product in products
                        if product['average_rating'] >= 4.0 and
-                       product['seller'] != logged_in_user and
+                       product['seller_id'] != logged_in_user.get('id') and
                        str(product) not in viewed_products]
 
         if recommended:
@@ -312,12 +357,11 @@ def recommend_products():
 
 
 async def main():
-    load_data()
     await connect_to_nats()
 
     while True:
         if logged_in_user:
-            print(f"\nLogged in as: {logged_in_user}")
+            print(f"\nLogged in as: {logged_in_user.get('username')}")
             print("1. Create Product Listing")
             print("2. View Product Listings")
             print("3. Add Product Review")
@@ -371,8 +415,7 @@ async def main():
             elif choice == '3':
                 view_product_listings()
             elif choice == '4':
-                print("Exiting and saving data...")
-                save_data()
+                print("Exiting...")
                 break
             else:
                 print("Invalid option. Please try again.")

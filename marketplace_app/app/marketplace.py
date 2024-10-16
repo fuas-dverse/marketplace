@@ -5,7 +5,7 @@ import json
 import asyncio
 from nats.aio.client import Client as NATS
 import torch
-import config
+import marketplace_app.app.config as config
 import requests
 
 # Determine if a GPU is available and assign device accordingly

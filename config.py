@@ -13,12 +13,6 @@ FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8000")
 # Device configuration (0 for GPU, -1 for CPU)
 CUDA_DEVICE = int(os.getenv("CUDA_DEVICE", 0))
 
-# File paths for storing data
-USERS_FILE = os.getenv("USERS_FILE", "users.json")
-PRODUCTS_FILE = os.getenv("PRODUCTS_FILE", "products.json")
-TRANSACTIONS_FILE = os.getenv("TRANSACTIONS_FILE", "transactions.json")
-REVIEWS_FILE = os.getenv("REVIEWS_FILE", "reviews.json")
-
 # PostgreSQL connection details
 POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "password")

@@ -16,7 +16,7 @@ query_model = pipeline(
     "feature-extraction", model="sentence-transformers/all-MiniLM-L6-v2", device=device
 )
 
-logged_in_user = None  # Stores the current logged-in user
+logged_in_user = None
 
 nats_client = NATS()
 

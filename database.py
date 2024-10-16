@@ -37,8 +37,13 @@ def create_user(db, username: str):
 
 # Add a new product
 def create_product(
-    db, title: str, description: str, price: float, seller_id: int,
-    average_rating: float = 0.0, rating_count: int = 0
+    db,
+    title: str,
+    description: str,
+    price: float,
+    seller_id: int,
+    average_rating: float = 0.0,
+    rating_count: int = 0,
 ):
     new_product = Product(
         title=title,
@@ -46,7 +51,7 @@ def create_product(
         price=price,
         seller_id=seller_id,
         average_rating=average_rating,
-        rating_count=rating_count
+        rating_count=rating_count,
     )
     db.add(new_product)
     db.commit()
@@ -54,9 +59,7 @@ def create_product(
     return new_product
 
 
-def update_product(
-    db, product: Product, average_rating: float, rating_count: int
-):
+def update_product(db, product: Product, average_rating: float, rating_count: int):
     if product is None:
         return None
 
@@ -71,9 +74,7 @@ def update_product(
 # Add a new transaction
 def create_transaction(db, buyer_id: int, product_id: int, status: str):
     new_transaction = Transaction(
-        buyer_id=buyer_id,
-        product_id=product_id,
-        status=status
+        buyer_id=buyer_id, product_id=product_id, status=status
     )
     db.add(new_transaction)
     db.commit()
@@ -84,10 +85,7 @@ def create_transaction(db, buyer_id: int, product_id: int, status: str):
 # Add a new review
 def create_review(db, user_id: int, product_id: int, rating: int, content: str):
     new_review = Review(
-        user_id=user_id,
-        product_id=product_id,
-        rating=rating,
-        content=content
+        user_id=user_id, product_id=product_id, rating=rating, content=content
     )
     db.add(new_review)
     db.commit()

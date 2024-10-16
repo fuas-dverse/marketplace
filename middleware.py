@@ -6,7 +6,7 @@ from database import (
     create_product,
     create_transaction,
     create_review,
-    update_product
+    update_product,
 )
 from models import User, Product, Transaction, Review
 from pydantic import BaseModel
@@ -33,6 +33,7 @@ class ReviewCreateRequest(BaseModel):
     rating: int
     content: str
 
+
 class TransactionCreateRequest(BaseModel):
     buyer_id: int
     product_id: int
@@ -43,9 +44,9 @@ class TransactionCreateRequest(BaseModel):
 def add_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
     user = create_user(db, username=user_data.username)
     return {
-            "message": "User created successfully",
-            "user": {"id": user.id, "username": user.username}
-        }
+        "message": "User created successfully",
+        "user": {"id": user.id, "username": user.username},
+    }
 
 
 @app.post("/products/")
@@ -57,12 +58,11 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
         price=product_data.price,
         seller_id=product_data.seller_id,
         average_rating=0.0,
-        rating_count=0
-
+        rating_count=0,
     )
     return {
         "message": "Product created successfully",
-        "product": {"id": product.id, "title": product.title}
+        "product": {"id": product.id, "title": product.title},
     }
 
 
@@ -71,7 +71,7 @@ def update_product_rating(
     product_id: int,
     average_rating: float,
     rating_count: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     product = db.query(Product).filter(Product.id == product_id).first()
 
@@ -83,41 +83,34 @@ def update_product_rating(
     return {
         "message": "Review added successfully",
         "new_average_rating": product.average_rating,
-        "rating_count": product.rating_count
+        "rating_count": product.rating_count,
     }
 
 
 @app.post("/transactions/")
 def add_transaction(
-    transaction_data: TransactionCreateRequest,
-    db: Session = Depends(get_db)
+    transaction_data: TransactionCreateRequest, db: Session = Depends(get_db)
 ):
     transaction = create_transaction(
         db,
         buyer_id=transaction_data.buyer_id,
         product_id=transaction_data.product_id,
-        status=transaction_data.status
+        status=transaction_data.status,
     )
     return {
         "message": "Transaction created successfully",
-        "transaction": {
-            "id": transaction.id,
-            "status": transaction.status
-        }
+        "transaction": {"id": transaction.id, "status": transaction.status},
     }
 
 
 @app.post("/reviews/")
-def add_review(
-    review_data: ReviewCreateRequest,
-    db: Session = Depends(get_db)
-):
+def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
     review = create_review(
         db,
         user_id=review_data.user_id,
         product_id=review_data.product_id,
         rating=review_data.rating,
-        content=review_data.content
+        content=review_data.content,
     )
 
     return {
@@ -127,8 +120,8 @@ def add_review(
             "rating": review.rating,
             "content": review.content,
             "user_id": review.user_id,
-            "product_id": review.product_id
-        }
+            "product_id": review.product_id,
+        },
     }
 
 
@@ -145,9 +138,10 @@ def get_products(db: Session = Depends(get_db)):
                     "price": product.price,
                     "seller_id": product.seller_id,
                     "average_rating": product.average_rating,
-                    "rating_count": product.rating_count
-                } for product in products
-            ]
+                    "rating_count": product.rating_count,
+                }
+                for product in products
+            ],
         }
     else:
         return {"message": "No products found"}, 404
@@ -165,8 +159,8 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
                 "price": product.price,
                 "seller_id": product.seller_id,
                 "average_rating": product.average_rating,
-                "rating_count": product.rating_count
-            }
+                "rating_count": product.rating_count,
+            },
         }
     else:
         return {"message": "Product not found"}, 404
@@ -184,10 +178,7 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
     if user:
         return {
             "message": "User found",
-            "user": {
-                "id": user.id,
-                "username": user.username
-            }
+            "user": {"id": user.id, "username": user.username},
         }
     else:
         return {"message": "User not found"}, 404

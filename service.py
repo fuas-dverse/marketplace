@@ -14,7 +14,7 @@ async def connect_to_nats():
 async def handle_query_event(msg):
     """Process the received query event."""
     event_data = json.loads(msg.data.decode())
-    
+
     user = event_data.get("user")
     query = event_data.get("query")
     recommendations = event_data.get("recommendations")
@@ -27,7 +27,7 @@ async def handle_query_event(msg):
 async def handle_product_event(msg):
     """Process the received product created event."""
     event_data = json.loads(msg.data.decode())
-    
+
     product_id = event_data.get("product_id")
     title = event_data.get("title")
     seller = event_data.get("seller")
@@ -65,10 +65,11 @@ async def subscribe_to_topics():
 async def main():
     await connect_to_nats()
     await subscribe_to_topics()
-   
+
     # Keep the service running to listen for incoming events
     while True:
         await asyncio.sleep(1)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

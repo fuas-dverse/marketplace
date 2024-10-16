@@ -13,9 +13,7 @@ device = config.CUDA_DEVICE if torch.cuda.is_available() else -1
 
 # Load the LLM (using Hugging Face pipeline here)
 query_model = pipeline(
-    'feature-extraction',
-    model='sentence-transformers/all-MiniLM-L6-v2',
-    device=device
+    "feature-extraction", model="sentence-transformers/all-MiniLM-L6-v2", device=device
 )
 
 logged_in_user = None  # Stores the current logged-in user
@@ -55,7 +53,7 @@ def find_best_products(query, product_listings):
 
     # Sort products by similarity score and then by rating
     product_similarities.sort(
-        key=lambda x: (-x[1], -product_listings[x[0]]['average_rating'])
+        key=lambda x: (-x[1], -product_listings[x[0]]["average_rating"])
     )
 
     return product_similarities[:5]  # Return top 5 matched products
@@ -77,28 +75,32 @@ async def recommend_products_by_query(query):
                     f"Rating: {product['average_rating']:.1f}, "
                     f"Relevance: {similarity:.2f}"
                 )
-                recommendations.append({
-                    "title": product['title'],
-                    "price": product['price'],
-                    "rating": product['average_rating'],
-                    "similarity": similarity
-                })
+                recommendations.append(
+                    {
+                        "title": product["title"],
+                        "price": product["price"],
+                        "rating": product["average_rating"],
+                        "similarity": similarity,
+                    }
+                )
 
             # Publish query and recommendation event
-            await publish_event("query.made", {
-                "user": logged_in_user,
-                "query": query,
-                "recommendations": recommendations
-            })
+            await publish_event(
+                "query.made",
+                {
+                    "user": logged_in_user,
+                    "query": query,
+                    "recommendations": recommendations,
+                },
+            )
         else:
             print("No matching products found.")
 
             # Publish query event even if no results
-            await publish_event("query.made", {
-                "user": logged_in_user,
-                "query": query,
-                "recommendations": []
-            })
+            await publish_event(
+                "query.made",
+                {"user": logged_in_user, "query": query, "recommendations": []},
+            )
     else:
         print("Please log in to get recommendations.")
 
@@ -111,7 +113,7 @@ def login():
 
     if response.status_code == 200:
         parsed_response = response.json()
-        user = parsed_response.get('user')
+        user = parsed_response.get("user")
 
         if user:
             print(f"User '{username}' has logged in.")
@@ -146,17 +148,17 @@ async def create_product_listing(title, description, price):
             "title": title,
             "description": description,
             "price": price,
-            "seller_id": logged_in_user.get('id')
+            "seller_id": logged_in_user.get("id"),
         }
         response = requests.post(url=f"{server_url}/products", json=payload)
         if response.ok:
             print(f"Product '{title}' added successfully.")
 
             # Publish product creation event immediately
-            await publish_event("product.created", {
-                "title": title,
-                "seller_id": logged_in_user.get('id')
-            })
+            await publish_event(
+                "product.created",
+                {"title": title, "seller_id": logged_in_user.get("id")},
+            )
         else:
             print(f"Error adding product '{title}'. Please try again. {response.text}")
 
@@ -171,7 +173,7 @@ def view_product_listings():
 
     if response.ok:
         try:
-            product_listings = response.json().get('products', [])
+            product_listings = response.json().get("products", [])
         except requests.exceptions.JSONDecodeError:
             print("Error: Received invalid JSON from the server.")
             print("Response content:", response.text)
@@ -202,7 +204,7 @@ async def add_product_review(product_id, rating, content):
         return
 
     payload = {
-        "user_id": logged_in_user.get('id'),
+        "user_id": logged_in_user.get("id"),
         "product_id": product_id,
         "rating": rating,
         "content": content,
@@ -220,34 +222,34 @@ async def add_product_review(product_id, rating, content):
             ).json()
 
             # Update the product's average rating
-            product = product_response.get('product')
+            product = product_response.get("product")
 
             # Ensure product exists and has the required fields
-            if product and 'rating_count' in product and 'average_rating' in product:
+            if product and "rating_count" in product and "average_rating" in product:
                 print(
                     f"Before update: rating_count={product['rating_count']}, "
                     f"average_rating={product['average_rating']}"
                 )
 
                 # Initialize rating_count and average_rating if they are None
-                if product['rating_count'] is None:
-                    product['rating_count'] = 0
-                if product['average_rating'] is None:
-                    product['average_rating'] = 0.0
+                if product["rating_count"] is None:
+                    product["rating_count"] = 0
+                if product["average_rating"] is None:
+                    product["average_rating"] = 0.0
 
                 # Update the rating count and average rating
-                product['rating_count'] += 1
-                product['average_rating'] = (
-                    (product['average_rating'] * (product['rating_count'] - 1)) + rating
-                ) / product['rating_count']
+                product["rating_count"] += 1
+                product["average_rating"] = (
+                    (product["average_rating"] * (product["rating_count"] - 1)) + rating
+                ) / product["rating_count"]
 
                 response = requests.post(
                     url=f"{server_url}/products/{product_id}/review/",
                     json={
                         "product": product,
-                        "average_rating": product['average_rating'],
-                        "rating_count": product['rating_count']
-                    }
+                        "average_rating": product["average_rating"],
+                        "rating_count": product["rating_count"],
+                    },
                 )
                 if response.ok:
                     print(f"Review added for product ID {product_id}.")
@@ -261,12 +263,15 @@ async def add_product_review(product_id, rating, content):
             print(f"New average rating: {product['average_rating']:.1f}")
 
             # Publish review event immediately
-            await publish_event("review.added", {
-                "product_id": product_id,
-                "rating": rating,
-                "reviewer": logged_in_user.get('username'),
-                "content": content
-            })
+            await publish_event(
+                "review.added",
+                {
+                    "product_id": product_id,
+                    "rating": rating,
+                    "reviewer": logged_in_user.get("username"),
+                    "content": content,
+                },
+            )
         else:
             print(f"Error adding review. Please try again. {response.text}")
     except requests.exceptions.RequestException as e:
@@ -290,9 +295,9 @@ async def purchase_product(product_id):
         # users[logged_in_user]['viewed_products'].append(product_id)
 
         payload = {
-            "buyer_id": logged_in_user.get('id'),
+            "buyer_id": logged_in_user.get("id"),
             "product_id": product_id,
-            "status": "Completed"
+            "status": "Completed",
         }
         response = requests.post(url=f"{server_url}/transactions", json=payload)
 
@@ -300,13 +305,15 @@ async def purchase_product(product_id):
             print(f"Product '{product_id}' purchased successfully.")
 
             # Publish purchase event immediately
-            await publish_event("product.purchased", {
-                "product_id": product_id,
-                "buyer": logged_in_user.get('id')
-            })
+            await publish_event(
+                "product.purchased",
+                {"product_id": product_id, "buyer": logged_in_user.get("id")},
+            )
         else:
-            print(f"Error purchasing product '{product_id}'. "
-                  f"Please try again. {response.text}")
+            print(
+                f"Error purchasing product '{product_id}'. "
+                f"Please try again. {response.text}"
+            )
     elif response.status_code == 404:
         print("Product not found.")
     else:
@@ -319,8 +326,7 @@ def view_transactions():
         return
 
     transactions = requests.get(
-        url=f"{server_url}/transactions/",
-        json={"user_id": logged_in_user.get('id')}
+        url=f"{server_url}/transactions/", json={"user_id": logged_in_user.get("id")}
     ).json()
 
     print(f"\nTransactions for {logged_in_user}:")
@@ -337,19 +343,24 @@ def view_transactions():
 def recommend_products():
     if logged_in_user:
         user = requests.get(url=f"{server_url}/users/{logged_in_user.get('id')}").json()
-        viewed_products = user.get('viewed_products', [])
+        viewed_products = user.get("viewed_products", [])
         products = requests.get(f"{server_url}/products").json()
 
-        recommended = [product for product in products
-                       if product['average_rating'] >= 4.0 and
-                       product['seller_id'] != logged_in_user.get('id') and
-                       str(product) not in viewed_products]
+        recommended = [
+            product
+            for product in products
+            if product["average_rating"] >= 4.0
+            and product["seller_id"] != logged_in_user.get("id")
+            and str(product) not in viewed_products
+        ]
 
         if recommended:
             print("\nRecommended Products:")
             for product in recommended:
-                print(f"Title: {product['title']}, Price: {product['price']}, "
-                      f"Average Rating: {product['average_rating']:.1f}")
+                print(
+                    f"Title: {product['title']}, Price: {product['price']}, "
+                    f"Average Rating: {product['average_rating']:.1f}"
+                )
         else:
             print("No recommendations available.")
     else:
@@ -380,41 +391,41 @@ async def main():
         choice = input("Choose an option: ")
 
         if logged_in_user:
-            if choice == '1':
+            if choice == "1":
                 title = input("Enter product title: ")
                 description = input("Enter product description: ")
                 price = float(input("Enter product price: "))
                 await create_product_listing(title, description, price)
-            elif choice == '2':
+            elif choice == "2":
                 view_product_listings()
-            elif choice == '3':
+            elif choice == "3":
                 listing_id = input("Enter product listing ID: ")
                 rating = int(input("Enter rating (1-5): "))
                 content = input("Enter review content: ")
                 await add_product_review(listing_id, rating, content)
-            elif choice == '4':
+            elif choice == "4":
                 product_id = input("Enter the product ID to purchase: ")
                 await purchase_product(product_id)
-            elif choice == '5':
+            elif choice == "5":
                 view_transactions()
-            elif choice == '6':
+            elif choice == "6":
                 recommend_products()
-            elif choice == '7':
+            elif choice == "7":
                 query = input("Enter your query: ")
                 await recommend_products_by_query(query)
-            elif choice == '8':
+            elif choice == "8":
                 logout()
             else:
                 print("Invalid option. Please try again.")
         else:
-            if choice == '1':
+            if choice == "1":
                 username = input("Enter username: ")
                 register_user(username)
-            elif choice == '2':
+            elif choice == "2":
                 login()
-            elif choice == '3':
+            elif choice == "3":
                 view_product_listings()
-            elif choice == '4':
+            elif choice == "4":
                 print("Exiting...")
                 break
             else:

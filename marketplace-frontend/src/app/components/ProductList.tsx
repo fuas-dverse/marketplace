@@ -1,34 +1,35 @@
-// src/app/components/ProductList.tsx
+"use client";
+import { Product } from "@/types/marketplace.types";
 import { useEffect, useState } from "react";
+import { ProductRow } from "./ProductRow";
 
-const ProductList = () => {
-  const [products, setProducts] = useState([]);
+export default function ProductList() {
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const response = await fetch(`/api/products`);
-      if (response.ok) {
-        const data = await response.json();
-        setProducts(data.products);
-      }
-    };
-
     fetchProducts();
   }, []);
 
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("api/products").then((res) => res.json());
+      setProducts(response.products);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <div>
-      <h2>Available Products</h2>
-      <ul>
-        {products.map((product) => (
-          <li key={product.id}>
-            {product.title} - ${product.price} - Rating:{" "}
-            {product.average_rating}
-          </li>
-        ))}
+    <div className="mt-8">
+      <h3 className="text-xl font-bold mb-4">Product List</h3>
+      <ul className="space-y-4">
+        {products.length > 0 &&
+          products.map((product) => (
+            <li key={product.id} className="bg-white p-4 rounded-md shadow-md">
+              <ProductRow {...product} />
+            </li>
+          ))}
       </ul>
     </div>
   );
-};
-
-export default ProductList;
+}

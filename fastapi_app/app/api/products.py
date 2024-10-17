@@ -55,6 +55,7 @@ def get_products(db: Session = Depends(get_db)):
                     "id": product.id,
                     "title": product.title,
                     "price": product.price,
+                    "description": product.description,
                     "seller_id": product.seller_id,
                     "average_rating": product.average_rating,
                     "rating_count": product.rating_count,

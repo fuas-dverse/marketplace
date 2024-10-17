@@ -18,5 +18,4 @@ BEGIN
     END IF;
 END $$;
 
--- Connect to the auth_db database
 \c marketplace_db;

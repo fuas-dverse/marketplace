@@ -1,26 +1,9 @@
-import { useState } from "react";
-import Header from "./components/Header";
-import Login from "./components/Login";
-import ProductList from "./components/ProductList";
+import Home from "./components/Home";
 
-export default function Home() {
-  const [user, setUser] = useState(null);
-
-  const handleLogin = (user) => {
-    setUser(user);
-  };
-
+export default function Root() {
   return (
-    <main>
-      <Header />
-      {!user ? (
-        <Login onLogin={handleLogin} />
-      ) : (
-        <div>
-          <h2>Welcome, {user.username}</h2>
-          <ProductList />
-        </div>
-      )}
+    <main className="min-h-screen bg-gray-100 p-6">
+      <Home />
     </main>
   );
 }

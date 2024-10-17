@@ -1,14 +1,7 @@
-import Link from "next/link";
-
-const Header = () => {
+export default function Header() {
   return (
-    <header>
-      <h1>Marketplace</h1>
-      <nav>
-        <Link href="/">Home</Link>
-      </nav>
+    <header className="bg-purple-950 text-white p-4 shadow-md">
+      <h1 className="text-3xl font-bold">Marketplace</h1>
     </header>
   );
-};
-
-export default Header;
+}

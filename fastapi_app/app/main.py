@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from api.products import router as products_router
-from api.users import router as users_router
-from api.transactions import router as transactions_router
-from api.reviews import router as reviews_router
+from app.api.products import router as products_router
+from app.api.users import router as users_router
+from app.api.transactions import router as transactions_router
+from app.api.reviews import router as reviews_router
 
 app = FastAPI()
 

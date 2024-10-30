@@ -1,3 +1,5 @@
+"use client";
+
 import { User } from "@/types/marketplace.types";
 import { useState } from "react";
 
@@ -8,8 +10,19 @@ interface LoginProps {
 export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const res = await fetch(`${window.location.origin}/api/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(username),
+    }).then((res) => res.json());
+
+    console.log(res);
+
     if (username.trim()) {
       onLogin({ username });
     }

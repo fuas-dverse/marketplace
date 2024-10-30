@@ -2,6 +2,7 @@
 import { Product } from "@/types/marketplace.types";
 import { useEffect, useState } from "react";
 import { ProductRow } from "./ProductRow";
+import Link from "next/link";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -32,6 +33,7 @@ export default function ProductList() {
             </li>
           ))}
       </ul>
+      <Link href="products/new">Add product</Link>
     </div>
   );
 }

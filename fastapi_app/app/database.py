@@ -1,20 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import app.config as config
-from app.models import Base, User, Product, Transaction, Review
-
-# Create the PostgreSQL connection string
-DATABASE_URL = (
-    f"postgresql://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}"
-    f"@{config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DB}"
-)
+from app.models import User, Product, Transaction, Review
+from app.config import Config
 
 # Set up the SQLAlchemy engine and session
-engine = create_engine(DATABASE_URL)
+engine = create_engine(Config.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create the database schema (tables)
-Base.metadata.create_all(bind=engine)
 
 
 # Dependency to create and close database sessions

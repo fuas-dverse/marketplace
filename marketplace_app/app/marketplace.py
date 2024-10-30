@@ -5,11 +5,11 @@ import json
 import asyncio
 from nats.aio.client import Client as NATS
 import torch
-import marketplace_app.app.config as config
+from config import Config
 import requests
 
 # Determine if a GPU is available and assign device accordingly
-device = config.CUDA_DEVICE if torch.cuda.is_available() else -1
+device = Config.CUDA_DEVICE if torch.cuda.is_available() else -1
 
 # Load the LLM (using Hugging Face pipeline here)
 query_model = pipeline(
@@ -20,11 +20,11 @@ logged_in_user = None
 
 nats_client = NATS()
 
-server_url = config.FASTAPI_URL
+server_url = Config.FASTAPI_URL
 
 
 async def connect_to_nats():
-    await nats_client.connect(servers=config.NATS_SERVER_URL)
+    await nats_client.connect(servers=Config.NATS_SERVER_URL)
 
 
 async def publish_event(subject, message):

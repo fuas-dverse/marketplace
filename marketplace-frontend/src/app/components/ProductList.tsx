@@ -14,6 +14,7 @@ export default function ProductList() {
     try {
       const response = await fetch("api/products").then((res) => res.json());
       setProducts(response.products);
+      console.log(response);
     } catch (error) {
       console.error(error);
     }
@@ -23,7 +24,8 @@ export default function ProductList() {
     <div className="mt-8">
       <h3 className="text-xl font-bold mb-4">Product List</h3>
       <ul className="space-y-4">
-        {products.length > 0 &&
+        {products &&
+          products.length > 0 &&
           products.map((product) => (
             <li key={product.id} className="bg-white p-4 rounded-md shadow-md">
               <ProductRow {...product} />

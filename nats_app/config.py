@@ -5,4 +5,4 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # NATS server configuration
-NATS_SERVER_URL = os.getenv("NATS_SERVER_URL", "nats://127.0.0.1:4222")
+NATS_SERVER_URL = os.getenv("NATS_SERVER_URL", "nats://0.0.0.0:4222")

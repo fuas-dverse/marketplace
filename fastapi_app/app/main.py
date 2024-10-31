@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from app.api.products import router as products_router
 from app.api.users import router as users_router
 from app.api.transactions import router as transactions_router
@@ -19,7 +19,8 @@ app.include_router(reviews_router, prefix="/api")
 
 
 @app.on_event("startup")
-def startup_event(db: Session = Depends(get_db)):
+def startup_event():
+    db: Session = next(get_db())
     insert_user_if_empty(db=db)
 
 

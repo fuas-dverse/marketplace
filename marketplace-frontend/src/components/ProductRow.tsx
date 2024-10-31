@@ -25,10 +25,11 @@ export const ProductRow = (product: Product) => {
             <p className="text-xl font-bold text-purple-700">
               ${product.price}
             </p>
-
-            <button className="bg-purple-900 text-white px-5 py-2 rounded-md shadow hover:bg-purple-700 transition-colors">
-              Buy Now
-            </button>
+            <Link href={`/products/${product.id}/buy`}>
+              <button className="bg-purple-900 text-white px-5 py-2 rounded-md shadow hover:bg-purple-700 transition-colors">
+                Buy Now
+              </button>
+            </Link>
           </div>
         </div>
       </div>

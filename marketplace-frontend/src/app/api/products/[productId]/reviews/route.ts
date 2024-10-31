@@ -2,29 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE_URL = process.env.FASTAPI_URL;
 
-// Add a review and update product rating
+// Add a review
 export async function POST(
   req: NextRequest,
   { params }: { params: { productId: string } }
 ) {
   try {
     const reviewData = await req.json();
-    const { productId } = params;
 
-    const res = await fetch(
-      `${API_BASE_URL}/api/products/${productId}/review/`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...reviewData,
-          average_rating: 0,
-          rating_count: 0,
-        }),
-      }
-    );
+    const res = await fetch(`${API_BASE_URL}/api/reviews`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...reviewData,
+      }),
+    });
 
     if (!res.ok) {
       const errorResponse = await res.json();
@@ -39,6 +33,36 @@ export async function POST(
   } catch (error) {
     return NextResponse.json(
       { error: `Failed to add review for product ${params.productId}` },
+      { status: 500 }
+    );
+  }
+}
+
+// Get all reviews for a product
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { productId: string } }
+) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/reviews/${params.productId}`, {
+      method: "GET",
+    });
+
+    if (!res.ok) {
+      const errorResponse = await res.json();
+      return NextResponse.json(
+        { error: errorResponse.detail || `Reviews not found` },
+        { status: res.status }
+      );
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: `Failed to fetch reviews for product with ID ${params.productId}`,
+      },
       { status: 500 }
     );
   }

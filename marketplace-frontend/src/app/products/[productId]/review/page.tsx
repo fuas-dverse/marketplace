@@ -1,10 +1,10 @@
 import ReviewForm from "@/components/ReviewForm";
 
-interface ReviewPageParams {
-  productId: string;
-}
-
-export default function NewReview(params: ReviewPageParams) {
+export default function NewReview({
+  params,
+}: {
+  params: { productId: string };
+}) {
   const productId = params.productId;
 
   return (

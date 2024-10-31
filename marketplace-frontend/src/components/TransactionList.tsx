@@ -28,6 +28,7 @@ export default function TransactionList() {
       setError(err.message);
     } finally {
       setLoading(false);
+      console.log("Transactions fetched:", transactions);
     }
   };
 
@@ -58,7 +59,7 @@ export default function TransactionList() {
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Transaction History</h2>
-      {transactions && transactions.length === 0 ? (
+      {!transactions || transactions.length === 0 ? (
         <p className="text-gray-600">No transactions found.</p>
       ) : (
         <table className="min-w-full border border-gray-300">
@@ -72,6 +73,7 @@ export default function TransactionList() {
           </thead>
           <tbody>
             {transactions &&
+              transactions.length > 0 &&
               transactions.map(
                 (transaction) => transaction && transactionRow(transaction)
               )}

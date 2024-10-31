@@ -10,30 +10,44 @@ export default function ReviewForm(props: ReviewFormProps) {
   const [rating, setRating] = useState("");
   const [content, setContent] = useState("");
   const [sellerId, setSellerId] = useState("");
+  const [product, setProduct] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const productId = props.productId;
+
+  const fetchProduct = async () => {
+    try {
+      const res = await fetch(`/api/products/${productId}`).then((res) =>
+        res.json()
+      );
+      setProduct(res.product);
+      console.log(res);
+    } catch (error: Error | any) {
+      setError(error.message);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    fetchProduct();
     const reviewData = {
       rating: parseFloat(rating),
       content,
-      product_id: parseInt(props.productId),
-      seller_id: parseInt(sellerId),
+      product_id: parseInt(productId),
+      user_id: parseInt(sellerId),
     };
 
     console.log("Review Data Submitted:", reviewData);
 
-    const res = await fetch(
-      `${window.location.origin}/api/products/${props.productId}/reviews`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reviewData),
-      }
-    ).then((res) => res.json());
+    const reviewResponse = await fetch(`/api/products/${productId}/reviews`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reviewData),
+    }).then((res) => res.json());
 
-    console.log(res);
+    console.log(reviewResponse);
 
     // Clear the form fields after submission
     setRating("");

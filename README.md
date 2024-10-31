@@ -74,3 +74,9 @@ This seems quite agressive but once you get used to it you just stop worrying ab
 We will use this template to provide a basic Python set up for new code projects and offer a good starting point based on good practices.
 
 For now I prefer to get issues reported to me personally. You can verify [Issues](https://github.com/fuas-dverse/python-template/issues) to see what changes are planned.
+
+# Database migrations
+
+docker-compose run api alembic revision --autogenerate -m "Initial migration"
+
+docker-compose run api alembic upgrade head

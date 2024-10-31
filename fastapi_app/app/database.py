@@ -82,3 +82,19 @@ def create_review(db, user_id: int, product_id: int, rating: int, content: str):
     db.commit()
     db.refresh(new_review)
     return new_review
+
+
+# Insert a new user if the table is empty
+def insert_user_if_empty(db):
+    user_count = db.query(User).count()
+
+    if user_count == 0:
+        new_user = User(username="admin", reputation_score=0)
+
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        print("Inserted new user:", new_user.username)
+    else:
+        print("User table is not empty.")

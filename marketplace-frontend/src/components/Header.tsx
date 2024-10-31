@@ -12,18 +12,8 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link href="/products" className="hover:underline">
-              Products
-            </Link>
-          </li>
-          <li>
             <Link href="/transactions" className="hover:underline">
               Transactions
-            </Link>
-          </li>
-          <li>
-            <Link href="/recommend" className="hover:underline">
-              Recommend
             </Link>
           </li>
         </ul>

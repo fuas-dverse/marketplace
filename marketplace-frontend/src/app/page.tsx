@@ -1,9 +1,9 @@
-import Home from "./../components/Home";
+import Home from "@/components/Home";
 
-export default function Root() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
+    <section>
       <Home />
-    </main>
+    </section>
   );
 }

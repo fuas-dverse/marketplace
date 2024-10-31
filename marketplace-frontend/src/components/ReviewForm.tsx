@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 
-export default function ProductForm() {
+interface ReviewFormProps {
+  productId: string;
+}
+
+export default function ReviewForm(props: ReviewFormProps) {
   const [rating, setRating] = useState("");
   const [content, setContent] = useState("");
-  const [productId, setProductId] = useState("");
   const [sellerId, setSellerId] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -13,14 +16,14 @@ export default function ProductForm() {
     const reviewData = {
       rating: parseFloat(rating),
       content,
-      product_id: parseInt(productId),
+      product_id: parseInt(props.productId),
       seller_id: parseInt(sellerId),
     };
 
     console.log("Review Data Submitted:", reviewData);
 
     const res = await fetch(
-      `${window.location.origin}/api/products/${productId}/reviews`,
+      `${window.location.origin}/api/products/${props.productId}/reviews`,
       {
         method: "POST",
         headers: {
@@ -35,7 +38,6 @@ export default function ProductForm() {
     // Clear the form fields after submission
     setRating("");
     setContent("");
-    setProductId("");
     setSellerId("");
   };
 
@@ -63,20 +65,6 @@ export default function ProductForm() {
           id="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="productId" className="block">
-          Product ID:
-        </label>
-        <input
-          type="number"
-          id="productId"
-          value={productId}
-          onChange={(e) => setProductId(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
         />

@@ -1,6 +1,9 @@
-import ProductList from "@/components/ProductList";
+import Home from "@/components/Home";
 
-const ProductPage = () => {
-  <ProductList />;
-};
-export default ProductPage;
+export default function ProductsPage() {
+  return (
+    <section>
+      <Home />
+    </section>
+  );
+}

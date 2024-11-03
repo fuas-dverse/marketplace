@@ -1,20 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import config
-from models import Base, User, Product, Transaction, Review
-
-# Create the PostgreSQL connection string
-DATABASE_URL = (
-    f"postgresql://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}"
-    f"@{config.POSTGRES_HOST}:{config.POSTGRES_PORT}/{config.POSTGRES_DB}"
-)
+from app.models import User, Product, Transaction, Review
+from app.config import Config
 
 # Set up the SQLAlchemy engine and session
-engine = create_engine(DATABASE_URL)
+engine = create_engine(Config.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create the database schema (tables)
-Base.metadata.create_all(bind=engine)
 
 
 # Dependency to create and close database sessions
@@ -91,3 +82,19 @@ def create_review(db, user_id: int, product_id: int, rating: int, content: str):
     db.commit()
     db.refresh(new_review)
     return new_review
+
+
+# Insert a new user if the table is empty
+def insert_user_if_empty(db):
+    user_count = db.query(User).count()
+
+    if user_count == 0:
+        new_user = User(username="admin", reputation_score=0)
+
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        print("Inserted new user:", new_user.username)
+    else:
+        print("User table is not empty.")

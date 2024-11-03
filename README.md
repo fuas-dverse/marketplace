@@ -1,76 +1,82 @@
-# Marketplace PoC
+---
 
-To test the application:
+# Marketplace Application - v3
 
-1. Run a NATS server.
-2. Make sure the port in the code is the same as yours.
-3. Topics you can subscribe to:
-   - nats sub product.created -s nats://localhost:4222
-   - nats sub review.added -s nats://localhost:4222
-   - nats sub product.purchased -s nats://localhost:4222
-   - nats sub query.made -s nats://localhost:4222
-4. Test out the possibilities with the terminal app and check the published events.
+This is the third version of the Marketplace application, providing CRUD functionalities using FastAPI, PostgreSQL, and NATS for messaging. The app also has a simple frontend to interact with in a more user-friendly manner.
+The register and login functionalities are on a very basic level due to the goal of using our group authentication service.
 
-# Python Project Template
+## Features
 
-This is a good starter that has most of the tools we use in our organization already set up.
+1. **Product Listings**: Add, view, and search product listings with detailed information, including ratings.
+2. **Transactions & Reviews**: Handle transactions and manage product reviews for a full marketplace experience.
+3. **Real-Time Messaging**: Uses NATS to demontrating the messaging possibilities.
 
-We have picked a couple of reasonable defaults from the large Python ecosystem.
+## Project Structure
 
-Use [Issues](https://github.com/fuas-dverse/python-template/issues) for improving or suggesting changes to this template.
+- **Backend**: FastAPI for the API, connected to PostgreSQL and NATS for messaging.
+- **Frontend**: A user-friendly interface for interacting with the marketplace.
+- **Database**: PostgreSQL for data storage, with initialization scripts to set up the database and roles.
+- **Data Models**: Structured models for Users, Products, Transactions, and Reviews, added in this version for better data schema.
+- **Middleware**: FastAPI middleware with data validation and error handling.
+- **Configuration**: Centralized settings for easier management and security.
 
-- [VS Code](https://code.visualstudio.com) editor (with the Microsoft Python extensions: Python, Python Debugger, Flake and Black)
-- [Conda](https://anaconda.org) virtual environments
-- [Poetry](https://python-poetry.org)
-- [Flake8](https://github.com/PyCQA/flake8)
-- [Black](https://github.com/psf/black)
-- [Setuptools](https://setuptools.pypa.io)
+## Installation and Setup
 
-## Getting started
+### Running the Backend
 
-Do not fork or clone this project. Instead, create a new repository and then under Repository Template select `fuas-dverse/python-template`.
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/fuas-dverse/marketplace.git
+   cd marketplace
+   git checkout v3
+   ```
 
-Start coding.
+2. **Set Up Environment Variables**:
+   - Create a `.env` file with your configuration for the database, NATS server, and other settings.
 
-```
-cd DIR
-conda env create -f environment.yaml
-conda activate dverse
-poetry install
-pre-commit install
-code .
-```
+3. **Run with Docker Compose**:
+   ```bash
+   docker-compose up --build
+   ```
+   - This command builds and starts all the services in one network, including the FastAPI app, PostgreSQL, and NATS.
 
-## Notes
+### Running the Frontend
 
-### Virtual environments
+Will be added to docker-compose in the next version. Not there as it is not a finished v1.
 
-The environment that is created can be used to keep Python installations separate from the main one. It also helps with providing clean test environments.
+1. **Navigate to the Frontend Directory**:
+   ```bash
+   cd marketplace-frontend
+   ```
 
-We use Conda virtual environments. There are other solutions (virtualenv and venv) but for me conda works just fine.
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-```
-conda env create -f environment.yaml
-conda activate dverse
-```
+3. **Run the Frontend**:
+   ```bash
+   npm run dev
+   ```
+   - The frontend will be accessible at `http://localhost:3000`.
 
-### Pre-commit
+## Usage
 
-[Pre-commit](https://pre-commit.com) helps maintain Git hook scripts. It will get automatically installed. But you will have to run `pre-commit install` to install the hook on your own machine. The checks that are being done by the pre-commit script are described in `pre-commit-config.yaml`.
+- The API will be accessible at `http://localhost:8000`.
+- The frontend will be available at `http://localhost:3000`.
 
-This script will run quite a few automated checks on your code, and it may even reformat your code.
+## Configuration
 
-- Code linting using Flake8
-- Code formatting with Black
-- Reorder python imports
-- Check YAML code
-- Fix whitespace issues
-- Check `setup.cfg`
+- **Environment Variables**: Managed via a `.env` file for easy setup.
+- **Docker Compose**: Simplifies running and managing the entire application stack.
+- **Alembic**: Enables data migration.
 
-This seems quite agressive but once you get used to it you just stop worrying about certain formatting issues, and the commits will be cleaner.
+## Improvements in v3
 
-## Todo
+- **Data Models**: Structured models with migration script added for better data handling.
+- **Docker Integration**: Full Docker Compose setup for easier deployment.
+- **Enhanced Database Setup**: Initialization script with duplication checks.
+- **API Enhancements**: Improved data validation and error handling.
+- **Centralized Config**: Simplified and optimized configuration management.
 
-We will use this template to provide a basic Python set up for new code projects and offer a good starting point based on good practices.
-
-For now I prefer to get issues reported to me personally. You can verify [Issues](https://github.com/fuas-dverse/python-template/issues) to see what changes are planned.
+---

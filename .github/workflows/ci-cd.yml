@@ -1,4 +1,4 @@
-name: Initial CI/CD Pipeline
+name: Initial CI/CD with Docker Compose
 
 on:
   push:
@@ -13,18 +13,35 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      db:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: marketplace
+          POSTGRES_PASSWORD: marketplace
+          POSTGRES_DB: marketplace_db
+        options: >-
+          --health-cmd="pg_isready -U marketplace -d marketplace_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set Up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10.x"
+      - name: Set Up Docker
+        run: docker --version
 
-      - name: Install Dependencies
+      - name: Build and Start Services
         run: |
-          pip install -r requirements.txt
+          docker-compose up --build -d
+          docker-compose ps
+
+      - name: Tear Down Services
+        run: docker-compose down
 
   deploy:
     runs-on: ubuntu-latest

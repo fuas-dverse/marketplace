@@ -44,6 +44,17 @@ jobs:
           docker-compose up --build -d
           docker-compose ps
 
+      - name: Install Node.js and Dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: "21"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
       - name: Tear Down Services
         run: docker-compose down
 

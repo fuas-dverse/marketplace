@@ -3,8 +3,7 @@ name: Initial CI/CD with Docker Compose
 on:
   push:
     branches:
-      - main
-      - "${{ github.ref_name }}"
+      - "*"
   pull_request:
     branches:
       - main

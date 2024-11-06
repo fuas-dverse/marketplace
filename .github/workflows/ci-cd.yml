@@ -49,11 +49,11 @@ jobs:
           node-version: "21"
 
       - name: Install Dependencies
-        working-directory: marketplace_frontend
+        working-directory: marketplace-frontend
         run: npm install
 
       - name: Run Tests
-        working-directory: marketplace_frontend
+        working-directory: marketplace-frontend
         run: npm test
 
       - name: Tear Down Services

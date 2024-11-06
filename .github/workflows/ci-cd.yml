@@ -1,4 +1,4 @@
-name: Initial CI/CD with Docker Compose
+name: Initial CI/CD with Docker Compose and Tests
 
 on:
   push:
@@ -48,12 +48,16 @@ jobs:
         with:
           node-version: "21"
 
+      - name: Debug Directory Structure
+        run: ls -R
+        continue-on-error: true # This helps to inspect file paths without failing the job
+
       - name: Install Dependencies
-        working-directory: marketplace-frontend
+        working-directory: ${{ github.workspace }}/marketplace-frontend
         run: npm install
 
       - name: Run Tests
-        working-directory: marketplace-frontend
+        working-directory: ${{ github.workspace }}/marketplace-frontend
         run: npm test
 
       - name: Tear Down Services

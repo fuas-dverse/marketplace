@@ -32,15 +32,42 @@ export default function TransactionList() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return <p data-testid="transaction-list-loading">Loading...</p>;
+  if (error)
+    return (
+      <p className="text-red-500" data-testid="transaction-list-error">
+        {error}
+      </p>
+    );
 
   const transactionRow = (transaction: Transaction) => (
-    <tr key={transaction.id} className="hover:bg-gray-50">
-      <td className="border px-4 py-2">{transaction.id}</td>
-      <td className="border px-4 py-2">{transaction.buyer_id}</td>
-      <td className="border px-4 py-2">{transaction.product_id}</td>
-      <td className="border px-4 py-2">
+    <tr
+      key={transaction.id}
+      className="hover:bg-gray-50"
+      data-testid={`transaction-row-${transaction.id}`}
+    >
+      <td
+        className="border px-4 py-2"
+        data-testid={`transaction-id-${transaction.id}`}
+      >
+        {transaction.id}
+      </td>
+      <td
+        className="border px-4 py-2"
+        data-testid={`transaction-buyer-${transaction.buyer_id}`}
+      >
+        {transaction.buyer_id}
+      </td>
+      <td
+        className="border px-4 py-2"
+        data-testid={`transaction-product-${transaction.product_id}`}
+      >
+        {transaction.product_id}
+      </td>
+      <td
+        className="border px-4 py-2"
+        data-testid={`transaction-status-${transaction.status}`}
+      >
         <span
           className={`inline-block px-2 py-1 rounded-md text-white ${
             transaction.status === "complete"
@@ -57,13 +84,26 @@ export default function TransactionList() {
   );
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Transaction History</h2>
+    <div
+      className="container mx-auto p-4"
+      data-testid="transaction-list-container"
+    >
+      <h2
+        className="text-2xl font-bold mb-4"
+        data-testid="transaction-list-title"
+      >
+        Transaction History
+      </h2>
       {!transactions || transactions.length === 0 ? (
-        <p className="text-gray-600">No transactions found.</p>
+        <p className="text-gray-600" data-testid="no-transactions-message">
+          No transactions found.
+        </p>
       ) : (
-        <table className="min-w-full border border-gray-300">
-          <thead>
+        <table
+          className="min-w-full border border-gray-300"
+          data-testid="transaction-list-table"
+        >
+          <thead data-testid="transaction-list-table-header">
             <tr className="bg-gray-100">
               <th className="border px-4 py-2 text-left">Transaction ID</th>
               <th className="border px-4 py-2 text-left">Buyer ID</th>
@@ -71,7 +111,7 @@ export default function TransactionList() {
               <th className="border px-4 py-2 text-left">Status</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody data-testid="transaction-list-table-body">
             {transactions &&
               transactions.length > 0 &&
               transactions.map(

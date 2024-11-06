@@ -55,8 +55,14 @@ export default function ReviewForm(props: ReviewFormProps) {
     setSellerId("");
   };
 
+  if (error) return <div>Error: {error}</div>;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 p-4"
+      data-testid="review-form"
+    >
       <div>
         <label htmlFor="rating" className="block">
           Rating:
@@ -68,6 +74,7 @@ export default function ReviewForm(props: ReviewFormProps) {
           onChange={(e) => setRating(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
+          data-testid="input-rating"
         />
       </div>
 
@@ -81,6 +88,7 @@ export default function ReviewForm(props: ReviewFormProps) {
           onChange={(e) => setContent(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
+          data-testid="input-content"
         />
       </div>
 
@@ -95,12 +103,14 @@ export default function ReviewForm(props: ReviewFormProps) {
           onChange={(e) => setSellerId(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
+          data-testid="input-sellerId"
         />
       </div>
 
       <button
         type="submit"
         className="bg-purple-900 text-white p-2 mt-4 rounded"
+        data-testid="submit-review-button"
       >
         Submit Review
       </button>

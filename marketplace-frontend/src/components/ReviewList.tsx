@@ -22,19 +22,41 @@ const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
     ));
   };
 
+  if (!reviews || reviews.length < 1)
+    return (
+      <div data-testid="no-reviews-message">Error: No reviews available.</div>
+    );
+
   return (
-    <div className="mt-6 border-t pt-6">
-      <h3 className="text-2xl font-bold text-purple-800 mb-4">Reviews:</h3>
-      <ul className="space-y-4">
+    <div className="mt-6 border-t pt-6" data-testid="review-list-container">
+      <h3
+        className="text-2xl font-bold text-purple-800 mb-4"
+        data-testid="review-list-title"
+      >
+        Reviews:
+      </h3>
+      <ul className="space-y-4" data-testid="review-list">
         {reviews.map((review) => (
-          <li key={review.id} className="p-4 bg-white rounded-lg shadow-md">
+          <li
+            key={review.id}
+            className="p-4 bg-white rounded-lg shadow-md"
+            data-testid={`review-${review.id}`}
+          >
             <div className="flex items-center justify-between mb-2">
-              <p className="font-semibold text-lg">
+              <p
+                className="font-semibold text-lg"
+                data-testid={`review-rating-${review.id}`}
+              >
                 {renderStars(review.rating)}
               </p>
               <p className="text-gray-500 text-sm">Review ID: {review.id}</p>
             </div>
-            <p className="text-gray-700">{review.content}</p>
+            <p
+              className="text-gray-700"
+              data-testid={`review-content-${review.id}`}
+            >
+              {review.content}
+            </p>
           </li>
         ))}
       </ul>

@@ -12,6 +12,11 @@ const config: Config = {
     "^@/components/(.*)$": "<rootDir>/components/$1",
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  coverageDirectory: "coverage/jest",
+  testMatch: [
+    "**/__tests__/**/*.+(ts|tsx|js)",
+    "**/?(*.)+(spec|test).+(ts|tsx|js)",
+  ],
 };
 
 export default createJestConfig(config);

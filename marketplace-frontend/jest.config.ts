@@ -17,6 +17,11 @@ const config: Config = {
     "**/__tests__/**/*.+(ts|tsx|js)",
     "**/?(*.)+(spec|test).+(ts|tsx|js)",
   ],
+  coverageThreshold: {
+    global: {
+      lines: 80,
+    },
+  },
 };
 
 export default createJestConfig(config);

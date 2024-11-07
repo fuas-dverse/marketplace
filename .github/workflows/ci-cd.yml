@@ -86,7 +86,7 @@ jobs:
         with:
           working-directory: ${{ github.workspace }}/marketplace-frontend
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN_COVERAGE }}
 
   deploy:
     runs-on: ubuntu-latest

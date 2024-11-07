@@ -52,9 +52,13 @@ jobs:
         working-directory: ${{ github.workspace }}/marketplace-frontend
         run: npm install
 
-      - name: Run Tests
+      - name: Run Frontend Tests
         working-directory: ${{ github.workspace }}/marketplace-frontend
         run: npm test
+
+      - name: Run Backend Tests
+        working-directory: ${{ github.workspace }}/fastapi_app/tests
+        run: pytest
 
       - name: Tear Down Services
         run: docker-compose down
@@ -63,8 +67,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          working-directory: ${{ github.workspace }}/marketplace-frontend
       - uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           working-directory: ${{ github.workspace }}/marketplace-frontend

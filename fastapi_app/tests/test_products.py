@@ -1,20 +1,42 @@
 import requests
 import json
 import pytest
+import random
+import string
 
 BASE_URL = "http://localhost:8000/api"
 
 
+@pytest.fixture(scope="module", autouse=True)
+def add_user():
+    """Add a new user at test startup."""
+    print("Adding a new user...")
+    user_url = f"{BASE_URL}/users/"
+    random_suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    username = f"testuser_{random_suffix}"
+    data = {"username": username}
+    response = requests.post(user_url, json=data)
+
+    if response.status_code == 201:
+        response_json = response.json()
+        print(f"User added successfully with response: {response_json}.")
+        return response_json["user"]["id"]
+    else:
+        print(f"Failed to add user: {response.status_code} {response.text}")
+        pytest.skip("Skipping test as user could not be added.")
+
+
 @pytest.fixture
-def add_product():
+def add_product(add_user):
     """Add a new product."""
     print("Adding a new product...")
     product_url = f"{BASE_URL}/products/"
+    seller_id = add_user
     data = {
         "title": "Test Product",
         "description": "test description",
         "price": 10,
-        "seller_id": "1",
+        "seller_id": seller_id,
         "average_rating": 0.0,
         "rating_count": 0,
     }

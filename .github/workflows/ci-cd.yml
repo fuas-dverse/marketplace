@@ -16,6 +16,10 @@ permissions:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
 
     services:
       db:
@@ -61,6 +65,9 @@ jobs:
         working-directory: marketplace-frontend
         run: npm test -- --coverage
 
+      - name: List Coverage Directory
+        run: ls -la marketplace-frontend/coverage
+
       - name: Publish Jest Coverage Report
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
@@ -94,6 +101,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+
     if: github.ref_name == 'main'
 
     steps:

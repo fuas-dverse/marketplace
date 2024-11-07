@@ -61,6 +61,13 @@ jobs:
         working-directory: marketplace-frontend
         run: npm test -- --coverage
 
+      - name: Publish Jest Coverage Report
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          working-directory: marketplace-frontend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set Up Python
         uses: actions/setup-python@v3
         with:

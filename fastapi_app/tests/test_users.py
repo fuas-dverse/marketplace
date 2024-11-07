@@ -1,6 +1,8 @@
 import requests
 import json
 import pytest
+import random
+import string
 
 BASE_URL = "http://localhost:8000/api"
 
@@ -9,15 +11,17 @@ BASE_URL = "http://localhost:8000/api"
 def add_user():
     """Add a new user."""
     print("Registering a new user...")
+    random_suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    username = f"testuser_{random_suffix}"
     register_url = f"{BASE_URL}/users/"
-    data = {"username": "testuser"}
+    data = {"username": username}
     response = requests.post(register_url, json=data)
 
     assert (
         response.status_code == 201
     ), f"Failed to add user: {response.status_code} {response.text}"
     response_json = response.json()
-    print(f"User {data['username']} added successfully with response: {response_json}.")
+    print(f"User {username} added successfully with response: {response_json}.")
     return response_json
 
 

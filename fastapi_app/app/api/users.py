@@ -50,3 +50,17 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
         "message": "User found",
         "user": {"id": user.id, "username": user.username},
     }
+
+
+@router.delete("/users/{username}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(username: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    db.delete(user)
+    db.commit()
+    return {"message": "User deleted successfully"}

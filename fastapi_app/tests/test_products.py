@@ -52,6 +52,10 @@ def add_product(add_user):
 
 def test_get_products():
     """Get all products."""
+    product1 = add_product
+    product2 = add_product
+    product3 = add_product
+    print("Added test products: ", product1, product2, product3)
     print("Fetching all products...")
     response = requests.get(f"{BASE_URL}/products/")
     assert (

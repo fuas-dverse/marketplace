@@ -68,7 +68,7 @@ jobs:
 
       - name: Run Backend Tests
         run: |
-          pytest ${{ github.workspace }}/tests/ --maxfail=5 --disable-warnings -v
+          pytest ${{ github.workspace }}/fastapi_app/tests/ --maxfail=5 --disable-warnings -v
 
       - name: Tear Down Services
         run: docker-compose down

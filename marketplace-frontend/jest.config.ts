@@ -1,5 +1,5 @@
 import type { Config } from "jest";
-import nextJest from "next/jest.js";
+import nextJest from "next/jest";
 
 const createJestConfig = nextJest({
   dir: "./",
@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 
 const config: Config = {
   coverageProvider: "v8",
-  testEnvironment: "jsdom",
+  testEnvironment: "jest-environment-jsdom",
   moduleNameMapper: {
     "^@/components/(.*)$": "<rootDir>/components/$1",
   },

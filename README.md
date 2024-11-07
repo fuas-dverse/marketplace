@@ -80,3 +80,4 @@ Will be added to docker-compose in the next version. Not there as it is not a fi
 - **Centralized Config**: Simplified and optimized configuration management.
 
 ---
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/e5a921226d254a9c94924caa773ef630)](https://app.codacy.com?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)

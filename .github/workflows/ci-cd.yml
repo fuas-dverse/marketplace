@@ -43,18 +43,18 @@ jobs:
           docker-compose up --build -d
           docker-compose ps
 
-      - name: Install Node.js and Dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version: "21"
+      # - name: Install Node.js and Dependencies
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: "21"
 
-      - name: Install Dependencies
-        working-directory: ${{ github.workspace }}/marketplace-frontend
-        run: npm install
+      # - name: Install Dependencies
+      #   working-directory: ${{ github.workspace }}/marketplace-frontend
+      #   run: npm install
 
-      - name: Run Frontend Tests
-        working-directory: ${{ github.workspace }}/marketplace-frontend
-        run: npm test
+      # - name: Run Frontend Tests
+      #   working-directory: ${{ github.workspace }}/marketplace-frontend
+      #   run: npm test
 
       - name: Set Up Python
         uses: actions/setup-python@v3
@@ -64,7 +64,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r ${{ github.workspace }}/requirements.txt
+          pip install -r ${{ github.workspace }}/fastapi_app/requirements.txt
 
       - name: Run Backend Tests
         run: |

@@ -93,7 +93,7 @@ jobs:
         uses: codacy/codacy-coverage-reporter-action@master
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: marketplace-frontend/coverage/lcov.info
+          coverage-reports: marketplace-frontend/coverage/jest/lcov.info
 
       - name: Tear Down Services
         run: docker-compose down

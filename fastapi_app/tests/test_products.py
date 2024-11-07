@@ -50,7 +50,7 @@ def add_product(add_user):
     return response_json
 
 
-def test_get_products():
+def test_get_products(add_product):
     """Get all products."""
     product1 = add_product
     product2 = add_product

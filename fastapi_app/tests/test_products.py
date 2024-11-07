@@ -1,9 +1,11 @@
 import requests
 import json
+import pytest
 
 BASE_URL = "http://localhost:8000/api"
 
 
+@pytest.fixture
 def add_product():
     """Add a new product."""
     print("Adding a new product...")
@@ -18,75 +20,46 @@ def add_product():
     }
     response = requests.post(product_url, json=data)
 
-    if response.headers.get("Content-Type") == "application/json":
-        try:
-            response_json = response.json()
-            if response.status_code == 201:
-                print(f"Product added successfully with response: " f"{response_json}.")
-                return response_json
-            else:
-                print(f"Failed to add product: {response.status_code} {response.text}")
-        except ValueError:
-            print("Failed to parse JSON response")
-    else:
-        print(f"Unexpected content type: {response.headers.get('Content-Type')}")
-
-    return None
+    assert (
+        response.status_code == 201
+    ), f"Failed to add product: {response.status_code} {response.text}"
+    response_json = response.json()
+    print(f"Product added successfully with response: {response_json}.")
+    return response_json
 
 
-def get_products():
+def test_get_products():
     """Get all products."""
     print("Fetching all products...")
     response = requests.get(f"{BASE_URL}/products/")
-    if response.status_code == 200:
-        print(f"Products data: {json.dumps(response.json(), indent=4)}")
-    else:
-        print(
-            f"Failed to fetch products data: {response.status_code} " f"{response.text}"
-        )
-    return response
+    assert (
+        response.status_code == 200
+    ), f"Failed to fetch products data: {response.status_code} {response.text}"
+    print(f"Products data: {json.dumps(response.json(), indent=4)}")
 
 
-def get_product_by_id(product_id):
+def test_get_product_by_id(add_product):
     """Get product by id."""
+    product_id = add_product["product"]["id"]
     print(f"Fetching product data for id: {product_id}")
     response = requests.get(f"{BASE_URL}/products/{product_id}")
-    if response.status_code == 200:
-        print(f"Product data: {json.dumps(response.json(), indent=4)}")
-    else:
-        print(
-            f"Failed to fetch product data: {response.status_code} " f"{response.text}"
-        )
-    return response
+    assert (
+        response.status_code == 200
+    ), f"Failed to fetch product data: {response.status_code} {response.text}"
+    print(f"Product data: {json.dumps(response.json(), indent=4)}")
 
 
-def delete_product(product_id):
+def test_delete_product(add_product):
     """Delete product."""
+    product_id = add_product["product"]["id"]
     print(f"Deleting product data for id: {product_id}")
     response = requests.delete(f"{BASE_URL}/products/{product_id}")
-
-    if response.status_code == 204:
-        print("Product deleted successfully")
-    else:
-        print(f"Failed to delete product: {response.status_code} " f"{response.text}")
-
-    return response
+    assert (
+        response.status_code == 204
+    ), f"Failed to delete product: {response.status_code} {response.text}"
+    print("Product deleted successfully")
 
 
 if __name__ == "__main__":
-    print("Starting test script...")
-
-    # Step 1: Add the product
-    add_user_response = add_product()
-
-    # Step 2: Get all products
-    get_products()
-
-    if add_user_response:
-        # Step 3: Get the product by id
-        get_product_by_id(add_user_response["product"]["id"])
-
-        # Step 4: Delete the product
-        delete_product(add_user_response["product"]["id"])
-    else:
-        print("Unable to continue tests as adding user failed.")
+    print("Starting product API tests...")
+    pytest.main(["-v", "-s", __file__])

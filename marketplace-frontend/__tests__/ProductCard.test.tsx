@@ -8,14 +8,12 @@ global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () =>
       Promise.resolve({
-        product: {
-          id: 1,
-          title: "Test Product",
-          description: "This is a test product",
-          price: 100,
-          average_rating: 4.5,
-          reviews: [],
-        },
+        id: 1,
+        title: "Test Product",
+        description: "This is a test product",
+        price: 100,
+        average_rating: 4.5,
+        reviews: [],
       }),
   })
 ) as jest.Mock;
@@ -27,14 +25,12 @@ describe("ProductCard Component Tests", () => {
         return Promise.resolve({
           json: () =>
             Promise.resolve({
-              product: {
-                id: 1,
-                title: "Test Product",
-                description: "This is a test product",
-                price: 100,
-                average_rating: 4.5,
-                reviews: [],
-              },
+              id: 1,
+              title: "Test Product",
+              description: "This is a test product",
+              price: 100,
+              average_rating: 4.5,
+              reviews: [],
             }),
         });
       } else if (url.includes("/api/products/1/reviews")) {

@@ -14,13 +14,13 @@ global.fetch = jest.fn((url) => {
     return Promise.resolve({
       json: () =>
         Promise.resolve({
-          product: {
-            id: 1,
-            title: "Test Product",
-            description: "This is a test product",
-            price: 100,
-            average_rating: 4.5,
-          },
+          id: 1,
+          title: "Test Product",
+          description: "This is a test product",
+          price: 100,
+          average_rating: 4,
+          rating_count: 1,
+          seller_id: 1,
         }),
     });
   } else if (url.includes("/api/transactions/")) {
@@ -93,29 +93,34 @@ describe("Transaction Component Tests", () => {
     });
   });
 
-  //   it("should handle a failed purchase", async () => {
-  //     (fetch as jest.Mock).mockImplementationOnce(() =>
-  //       Promise.resolve({
-  //         json: () => Promise.resolve({ error: "Transaction failed" }),
-  //       })
-  //     );
+  // it("should handle a failed purchase", async () => {
+  //   (fetch as jest.Mock).mockImplementationOnce(() =>
+  //     Promise.resolve({
+  //       json: () =>
+  //         Promise.resolve({
+  //           error: "Transaction failed",
+  //         }),
+  //     })
+  //   );
 
-  //     await act(async () => {
-  //       render(<Transaction productId="1" />);
-  //     });
-
-  //     await waitFor(() => {
-  //       expect(screen.getByTestId("transaction-title")).toHaveTextContent(
-  //         "Test Product"
-  //       );
-  //     });
-
-  //     await act(async () => {
-  //       fireEvent.click(screen.getByTestId("transaction-button"));
-  //     });
-
-  //     await waitFor(() => {
-  //       expect(screen.getByText("Transaction failed")).toBeInTheDocument();
-  //     });
+  //   await act(async () => {
+  //     render(<Transaction productId="1" />);
   //   });
+
+  //   await waitFor(() => {
+  //     expect(screen.getByTestId("transaction-title")).toHaveTextContent(
+  //       "Test Product"
+  //     );
+  //   });
+
+  //   await act(async () => {
+  //     fireEvent.click(screen.getByTestId("transaction-button"));
+  //   });
+
+  //   await waitFor(() => {
+  //     expect(
+  //       screen.getByTestId("transaction-status-message")
+  //     ).toHaveTextContent("Transaction failed");
+  //   });
+  // });
 });

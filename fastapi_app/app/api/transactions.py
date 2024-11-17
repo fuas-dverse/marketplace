@@ -61,7 +61,7 @@ def get_all_transactions(db: Session = Depends(get_db)):
             "transactions": [
                 {
                     "id": transaction.id,
-                    "status": transaction.title,
+                    "status": transaction.status,
                     "buyer_id": transaction.buyer_id,
                     "product_id": transaction.product_id,
                 }
@@ -93,7 +93,7 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
             "transactions": [
                 {
                     "id": transaction.id,
-                    "status": transaction.title,
+                    "status": transaction.status,
                     "buyer_id": transaction.buyer_id,
                     "product_id": transaction.product_id,
                 }
@@ -105,5 +105,3 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No transactions found for user with id {user_id}",
         )
-
-    return transactions

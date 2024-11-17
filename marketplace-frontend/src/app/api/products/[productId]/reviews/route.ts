@@ -10,7 +10,7 @@ export async function POST(
   try {
     const reviewData = await req.json();
 
-    const res = await fetch(`${API_BASE_URL}/api/reviews`, {
+    const res = await fetch(`${API_BASE_URL}/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export async function GET(
   { params }: { params: { productId: string } }
 ) {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/reviews/${params.productId}`, {
+    const res = await fetch(`${API_BASE_URL}/reviews/${params.productId}`, {
       method: "GET",
     });
 

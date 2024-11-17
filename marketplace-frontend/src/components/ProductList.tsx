@@ -14,8 +14,7 @@ export default function ProductList() {
   const fetchProducts = async () => {
     try {
       const response = await fetch("api/products").then((res) => res.json());
-      setProducts(response.products);
-      console.log(response);
+      setProducts(response);
     } catch (error) {
       console.error(error);
     }

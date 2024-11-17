@@ -62,7 +62,7 @@ Will be added to docker-compose in the next version. Not there as it is not a fi
 
 ## Usage
 
-- The API will be accessible at `http://localhost:8000`.
+- The API will be accessible at `http://localhost:5001`.
 - The frontend will be available at `http://localhost:3000`.
 
 ## Configuration

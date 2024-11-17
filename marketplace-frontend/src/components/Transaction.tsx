@@ -25,7 +25,6 @@ export default function Transaction(props: TransactionProps) {
 
   useEffect(() => {
     fetchProduct();
-    console.log("Product:", product);
   }, [productId]);
 
   const fetchProduct = async () => {
@@ -33,8 +32,7 @@ export default function Transaction(props: TransactionProps) {
       const res = await fetch(`/api/products/${productId}`).then((res) =>
         res.json()
       );
-      console.log(res);
-      setProduct(res.product);
+      setProduct(res);
     }
   };
 

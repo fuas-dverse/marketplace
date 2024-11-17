@@ -4,7 +4,7 @@ import pytest
 import random
 import string
 
-BASE_URL = "http://localhost:8000/api"
+BASE_URL = "http://localhost:5001/api"
 
 
 @pytest.fixture(scope="module", autouse=True)

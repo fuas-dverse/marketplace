@@ -75,14 +75,25 @@ def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
 @router.get("/reviews/", status_code=status.HTTP_200_OK)
 def get_reviews(db: Session = Depends(get_db)):
     reviews = db.query(Review).all()
-
-    if not reviews:
+    if reviews:
+        return {
+            "message": "Reviews found",
+            "reviews": [
+                {
+                    "id": review.id,
+                    "rating": review.rating,
+                    "content": review.content,
+                    "user_id": review.user_id,
+                    "product_id": review.product_id,
+                }
+                for review in reviews
+            ],
+        }
+    else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No reviews found",
         )
-
-    return reviews
 
 
 # Get all reviews per product

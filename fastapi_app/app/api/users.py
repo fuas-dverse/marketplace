@@ -18,7 +18,7 @@ def add_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_BAD_REQUEST,
             detail="Username already exists",
         )
 
@@ -33,7 +33,22 @@ def add_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
 @router.get("/users/", status_code=status.HTTP_200_OK)
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
-    return users
+    if users:
+        return {
+            "message": "Users found",
+            "users": [
+                {
+                    "id": user.id,
+                    "username": user.username,
+                }
+                for user in users
+            ],
+        }
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No users found",
+        )
 
 
 # Get user by username

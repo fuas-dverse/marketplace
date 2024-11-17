@@ -55,13 +55,24 @@ def add_transaction(
 def get_all_transactions(db: Session = Depends(get_db)):
     transactions = db.query(Transaction).all()  # Fetch all transactions
 
-    if not transactions:
+    if transactions:
+        return {
+            "message": "Transactions found",
+            "transactions": [
+                {
+                    "id": transaction.id,
+                    "status": transaction.title,
+                    "buyer_id": transaction.buyer_id,
+                    "product_id": transaction.product_id,
+                }
+                for transaction in transactions
+            ],
+        }
+    else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No transactions found",
         )
-
-    return transactions
 
 
 # Get transactions by user ID
@@ -76,8 +87,20 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
         )
 
     transactions = db.query(Transaction).filter(Transaction.buyer_id == user_id).all()
-
-    if not transactions:
+    if transactions:
+        return {
+            "message": "Transactions found",
+            "transactions": [
+                {
+                    "id": transaction.id,
+                    "status": transaction.title,
+                    "buyer_id": transaction.buyer_id,
+                    "product_id": transaction.product_id,
+                }
+                for transaction in transactions
+            ],
+        }
+    else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"No transactions found for user with id {user_id}",

@@ -28,7 +28,6 @@ export default function TransactionList() {
       setError(err.message);
     } finally {
       setLoading(false);
-      console.log("Transactions fetched:", transactions);
     }
   };
 

@@ -32,15 +32,14 @@ export default function ProductCard(props: ProductCardProps) {
   useEffect(() => {
     fetchProduct();
     fetchReviews();
-  }, [productId]);
+  }, []);
 
   const fetchProduct = async () => {
     try {
       const res = await fetch(`/api/products/${productId}`).then((res) =>
         res.json()
       );
-      setProduct(res.product);
-      console.log(res);
+      setProduct(res);
     } catch (error: Error | any) {
       setError(error.message);
     }
@@ -51,7 +50,7 @@ export default function ProductCard(props: ProductCardProps) {
       const res = await fetch(`/api/products/${productId}/reviews`).then(
         (res) => res.json()
       );
-      setProduct((prev) => (prev ? { ...prev, reviews: res.reviews } : null));
+      setProduct((prev) => (prev ? { ...prev, reviews: res } : null));
     } catch (error: Error | any) {
       setError(error.message);
     }

@@ -97,12 +97,19 @@ jobs:
           docker-compose up --build -d
           docker-compose ps
 
+      - name: Wait for API to be ready
+        run: |
+          until curl -f http://localhost:8000; do
+            echo "Waiting for API..."
+            sleep 5
+          done
+
       - name: Run Backend Tests
         run: |
           pytest fastapi_app/tests/ --maxfail=5 --disable-warnings -v
 
       - name: Tear Down Services
-        if: always() # Ensure teardown runs even if tests fail
+        if: always()
         run: docker-compose down
 
   upload-coverage:

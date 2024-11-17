@@ -99,7 +99,7 @@ jobs:
 
       - name: Wait for API to be ready
         run: |
-          until curl -f http://localhost:8000; do
+          until curl -f http://localhost:5001; do
             echo "Waiting for API..."
             sleep 5
           done

@@ -10,4 +10,5 @@ requests==2.32.3
 pytest==8.3.3
 pytest-cov==6.0.0
 coverage==7.6.7
-secrets
+pyOpenSSL===24.2.1
+secrets==1.0.2

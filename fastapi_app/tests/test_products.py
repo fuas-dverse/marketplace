@@ -70,7 +70,7 @@ def test_get_product_by_id(add_product):
     """Get product by id."""
     product_id = add_product["product"]["id"]
     print(f"Fetching product data for id: {product_id}")
-    response = requests.get(f"{BASE_URL}/products/{product_id}")
+    response = requests.get(f"{BASE_URL}/products/{product_id}", timeout=60)
     assert (
         response.status_code == 200
     ), f"Failed to fetch product data: {response.status_code} {response.text}"

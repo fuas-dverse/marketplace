@@ -196,7 +196,7 @@ jobs:
         uses: docker/build-push-action@1793b6b5467608211abac8f3d8c61924df8a0dc4 # Pinned SHA
         with:
           context: ./fastapi_app
-          file: ./fastapi_app/Dockerfile
+          file: ./fastapi_app/DockerFile
           push: true
           tags: |
             dverse/marketplace-api:latest

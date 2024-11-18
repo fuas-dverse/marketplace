@@ -46,9 +46,17 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ status }) => {
   return (
     <div
       className={`p-4 rounded-md shadow-md ${bgColor} border border-gray-300`}
+      data-testid="transaction-status-container"
     >
-      <h2 className={`text-2xl font-bold ${textColor}`}>{title}</h2>
-      <p className={`mt-2 ${textColor}`}>{message}</p>
+      <h2
+        className={`text-2xl font-bold ${textColor}`}
+        data-testid="transaction-status-title"
+      >
+        {title}
+      </h2>
+      <p className={`mt-2 ${textColor}`} data-testid="transaction-status-text">
+        {message}
+      </p>
     </div>
   );
 };

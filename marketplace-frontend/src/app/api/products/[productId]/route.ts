@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const productId = url.pathname.split("/").pop();
   try {
-    const res = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+    const res = await fetch(`${API_BASE_URL}/products/${productId}`, {
       method: "GET",
     });
 

@@ -23,7 +23,7 @@ node_modules/
 parts/
 sdist/
 var/
-package*.json
+package-lock.json
 *.egg-info/
 .installed.cfg
 *.egg

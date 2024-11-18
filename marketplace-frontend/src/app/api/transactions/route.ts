@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const transactionData = await req.json();
 
-    const res = await fetch(`${API_BASE_URL}/api/transactions`, {
+    const res = await fetch(`${API_BASE_URL}/transactions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/transactions/`, {
+    const res = await fetch(`${API_BASE_URL}/transactions/`, {
       method: "GET",
     });
 

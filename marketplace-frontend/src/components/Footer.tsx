@@ -1,27 +1,48 @@
 export default function Footer() {
   return (
     <footer className="bg-purple-950 text-white py-6 mt-10">
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+      <div
+        className="container mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"
+        data-testid="footer-container"
+      >
         {/* Left Section - Logo and Copyright */}
         <div>
-          <h2 className="text-xl font-bold">Marketplace</h2>
-          <p className="text-sm mt-1">
+          <h2 className="text-xl font-bold" data-testid="footer-logo">
+            Marketplace
+          </h2>
+          <p className="text-sm mt-1" data-testid="footer-copyright">
             &copy; {new Date().getFullYear()} Marketplace. All rights reserved.
           </p>
         </div>
 
         {/* Center Section - Navigation Links */}
         <nav className="flex space-x-4 text-sm">
-          <a href="/about" className="hover:underline">
+          <a
+            href="/about"
+            className="hover:underline"
+            data-testid="footer-link-about"
+          >
             About Us
           </a>
-          <a href="/contact" className="hover:underline">
+          <a
+            href="/contact"
+            className="hover:underline"
+            data-testid="footer-link-contact"
+          >
             Contact
           </a>
-          <a href="/privacy-policy" className="hover:underline">
+          <a
+            href="/privacy-policy"
+            className="hover:underline"
+            data-testid="footer-link-privacy"
+          >
             Privacy Policy
           </a>
-          <a href="/terms" className="hover:underline">
+          <a
+            href="/terms"
+            className="hover:underline"
+            data-testid="footer-link-terms"
+          >
             Terms of Service
           </a>
         </nav>
@@ -33,6 +54,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Twitter"
+            data-testid="footer-link-twitter"
           >
             <svg
               className="w-5 h-5 fill-current hover:text-gray-400"
@@ -47,6 +69,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Facebook"
+            data-testid="footer-link-facebook"
           >
             <svg
               className="w-5 h-5 fill-current hover:text-gray-400"
@@ -61,6 +84,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
+            data-testid="footer-link-instagram"
           >
             <svg
               className="w-5 h-5 fill-current hover:text-gray-400"

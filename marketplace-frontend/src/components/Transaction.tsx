@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import TransactionStatus from "./TransactionStatus";
 
@@ -26,7 +25,6 @@ export default function Transaction(props: TransactionProps) {
 
   useEffect(() => {
     fetchProduct();
-    console.log("Product:", product);
   }, [productId]);
 
   const fetchProduct = async () => {
@@ -34,8 +32,7 @@ export default function Transaction(props: TransactionProps) {
       const res = await fetch(`/api/products/${productId}`).then((res) =>
         res.json()
       );
-      console.log(res);
-      setProduct(res.product);
+      setProduct(res);
     }
   };
 
@@ -65,7 +62,7 @@ export default function Transaction(props: TransactionProps) {
     console.log("Purchase complete:", res);
   };
 
-  if (!product) return <div>Loading...</div>;
+  if (!product) return <div data-testid="transaction-loading">Loading...</div>;
 
   return (
     <>
@@ -73,15 +70,23 @@ export default function Transaction(props: TransactionProps) {
         <TransactionStatus status={status} />
       ) : (
         <div className="container mx-auto p-4">
-          <h2 className="text-3xl font-bold text-purple-800 mb-4">
+          <h2
+            className="text-3xl font-bold text-purple-800 mb-4"
+            data-testid="transaction-title"
+          >
             {product.title}
           </h2>
-          <p className="text-lg mb-2">{product.description}</p>
-          <p className="text-xl font-semibold">Price: ${product.price}</p>
+          <p className="text-lg mb-2" data-testid="transaction-description">
+            {product.description}
+          </p>
+          <p className="text-xl font-semibold" data-testid="transaction-price">
+            Price: ${product.price}
+          </p>
           <form onSubmit={handlePurchase} className="mt-4">
             <button
               type="submit"
               className="bg-purple-950 text-white px-4 py-2 rounded-md hover:bg-purple-800 transition"
+              data-testid="transaction-button"
             >
               Confirm Purchase
             </button>

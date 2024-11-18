@@ -7,7 +7,7 @@ load_dotenv(dotenv_path="./.env")
 
 class Config:
     # FastAPI application configuration
-    FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8000")
+    FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:5001")
 
     # PostgreSQL connection details
     POSTGRES_USER = os.getenv("POSTGRES_USER", "marketplace")

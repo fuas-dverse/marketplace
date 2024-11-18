@@ -7,6 +7,7 @@ export default function ProductForm() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [sellerId, setSellerId] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,17 +18,21 @@ export default function ProductForm() {
       seller_id: parseInt(sellerId),
     };
 
-    console.log("Product Data Submitted:", productData);
+    try {
+      const res = await fetch(`${window.location.origin}/api/products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData),
+      }).then((res) => res.json());
 
-    const res = await fetch(`${window.location.origin}/api/products`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(productData),
-    }).then((res) => res.json());
-
-    console.log(res);
+      console.log(res);
+    } catch (error: Error | any) {
+      {
+        setError(error.message);
+      }
+    }
 
     // Clear the form fields after submission
     setTitle("");
@@ -35,6 +40,8 @@ export default function ProductForm() {
     setPrice("");
     setSellerId("");
   };
+
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4">
@@ -49,6 +56,7 @@ export default function ProductForm() {
           onChange={(e) => setTitle(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
+          data-testid="input-title"
         />
       </div>
 
@@ -62,6 +70,7 @@ export default function ProductForm() {
           onChange={(e) => setDescription(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
+          data-testid="input-description"
         />
       </div>
 
@@ -76,6 +85,7 @@ export default function ProductForm() {
           onChange={(e) => setPrice(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
+          data-testid="input-price"
         />
       </div>
 
@@ -90,12 +100,14 @@ export default function ProductForm() {
           onChange={(e) => setSellerId(e.target.value)}
           required
           className="border border-gray-300 p-2 w-full"
+          data-testid="input-sellerId"
         />
       </div>
 
       <button
         type="submit"
         className="bg-purple-900 text-white p-2 mt-4 rounded"
+        data-testid="submit-button"
       >
         Submit Product
       </button>

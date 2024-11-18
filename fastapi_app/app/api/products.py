@@ -116,3 +116,18 @@ def update_product_rating(
         "new_average_rating": product.average_rating,
         "rating_count": product.rating_count,
     }
+
+
+# Delete a product
+@router.delete("/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {product_id} not found",
+        )
+
+    db.delete(product)
+    db.commit()
+    return {"message": "Product deleted successfully"}

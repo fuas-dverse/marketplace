@@ -5,3 +5,12 @@ pydantic
 python-dotenv
 psycopg2-binary==2.9.9
 alembic==1.13.3
+pytest-env==1.1.5
+requests==2.32.3
+pytest==8.3.3
+pytest-cov==6.0.0
+coverage==7.6.7
+cffi==1.17.1
+cryptography==43.0.3
+pyOpenSSL===24.2.1
+pycparser==2.22

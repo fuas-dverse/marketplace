@@ -57,8 +57,11 @@ jobs:
         working-directory: marketplace-frontend
         run: npm test -- --coverage
 
-      - name: List Coverage Directory
-        run: ls -la marketplace-frontend/coverage/jest
+      - name: Save Jest Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-coverage
+          path: marketplace-frontend/coverage/jest/lcov.info
 
       - name: Publish Jest Coverage Report
         uses: ArtiomTr/jest-coverage-report-action@v2
@@ -104,9 +107,15 @@ jobs:
             sleep 5
           done
 
-      - name: Run Backend Tests
+      - name: Run Backend Tests with Coverage
         run: |
-          pytest fastapi_app/tests/ --maxfail=5 --disable-warnings -v
+          pytest fastapi_app/tests/ --cov=fastapi_app --cov-report=xml
+
+      - name: Save Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-coverage
+          path: coverage.xml
 
       - name: Tear Down Services
         if: always()
@@ -121,11 +130,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Download Python Coverage Report
+        uses: actions/download-artifact@v3
+        with:
+          name: python-coverage
+
+      - name: Download Frontend Coverage Report
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-coverage
+
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: marketplace-frontend/coverage/jest/lcov.info
+          coverage-reports: |
+            coverage.xml
+            marketplace-frontend/coverage/jest/lcov.info
 
   deploy:
     name: Deploy to Production

@@ -130,15 +130,16 @@ jobs:
   upload-coverage:
     name: Upload Coverage Reports
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-    needs: [frontend-tests]
+    needs: [frontend-tests, backend-tests]
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Download Python Coverage Report
+        uses: actions/download-artifact@v3
+        with:
+          name: python-coverage
 
       - name: Download Frontend Coverage Report
         uses: actions/download-artifact@v3
@@ -147,20 +148,30 @@ jobs:
 
       - name: Fix Permissions for Coverage Files
         run: |
-          chmod 644 ./lcov.info
-          ls -l ./lcov.info
+          chmod 644 ./coverage.xml ./lcov.info
+          ls -l ./coverage.xml ./lcov.info
 
       - name: Debug Jest Coverage File
         run: |
           echo "Jest Coverage File Content:"
           cat ./lcov.info
 
-      - name: Upload Coverage to Codacy
+      - name: Debug Python Coverage File
+        run: |
+          echo "Python Coverage File Content:"
+          cat ./coverage.xml
+
+      - name: Upload Python Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: |
-            ./lcov.info
+          coverage-reports: ./coverage.xml
+
+      - name: Upload Jest Coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@master
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: ./lcov.info
 
   deploy:
     name: Deploy to Production

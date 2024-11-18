@@ -148,8 +148,8 @@ jobs:
 
       - name: Fix Permissions for Coverage Files
         run: |
-          chmod 644 ./coverage.xml ./lcov.info
-          ls -l ./coverage.xml ./lcov.info
+          chmod 644 ./lcov.info ./coverage.xml
+          ls -l ./lcov.info ./coverage.xml
 
       - name: Debug Jest Coverage File
         run: |

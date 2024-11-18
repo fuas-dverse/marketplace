@@ -130,6 +130,10 @@ jobs:
   upload-coverage:
     name: Upload Coverage Reports
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
     needs: [frontend-tests, backend-tests]
 
     steps:

@@ -1,7 +1,7 @@
 import requests
 import json
 import pytest
-import random
+import secrets
 import string
 
 BASE_URL = "http://localhost:5001/api"
@@ -12,7 +12,9 @@ def add_user():
     """Add a new user at test startup."""
     print("Adding a new user...")
     user_url = f"{BASE_URL}/users/"
-    random_suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+    random_suffix = "".join(
+        secrets.choices(string.ascii_lowercase + string.digits, k=6)
+    )
     username = f"testuser_{random_suffix}"
     data = {"username": username}
     response = requests.post(user_url, json=data, timeout=60)

@@ -146,16 +146,18 @@ jobs:
         with:
           name: frontend-coverage
 
-      - name: Set Permissions for Coverage Files
+      - name: Fix Permissions for Coverage Files
         run: |
-          chmod 644 ./coverage.xml
-          chmod 644 ./lcov.info
+          sudo chmod 777 ./coverage.xml ./lcov.info
           sudo chown $USER ./coverage.xml ./lcov.info
 
       - name: Verify Coverage Files
         run: |
           ls -l ./coverage.xml
           ls -l ./lcov.info
+
+      - name: Debug Jest Coverage Content
+        run: cat ./lcov.info
 
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master

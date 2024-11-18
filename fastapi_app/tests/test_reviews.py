@@ -1,3 +1,4 @@
+import secrets
 import requests
 import json
 import pytest
@@ -57,7 +58,7 @@ def add_review(add_user, add_product):
     print("Adding a new review...")
     user_id = add_user
     product_id = add_product
-    rating = random.randint(1, 5)
+    rating = secrets.randbelow(5) + 1
     content = "This is a test review."
     review_url = f"{BASE_URL}/reviews/"
     data = {

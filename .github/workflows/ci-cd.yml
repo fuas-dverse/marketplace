@@ -147,18 +147,18 @@ jobs:
           name: frontend-coverage
 
       - name: Verify Python Coverage File
-        run: ls -l python-coverage
+        run: ls -l coverage.xml
 
       - name: Verify Frontend Coverage File
-        run: ls -l frontend-coverage
+        run: ls -l lcov.info
 
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: |
-            python-coverage/coverage.xml
-            frontend-coverage/lcov.info
+            ./coverage.xml
+            ./lcov.info
 
   deploy:
     name: Deploy to Production

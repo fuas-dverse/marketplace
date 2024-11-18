@@ -15,7 +15,7 @@ def add_user():
     random_suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
     username = f"testuser_{random_suffix}"
     data = {"username": username}
-    response = requests.post(user_url, json=data)
+    response = requests.post(user_url, json=data, timeout=60)
 
     if response.status_code == 201:
         response_json = response.json()
@@ -40,7 +40,7 @@ def add_product(add_user):
         "average_rating": 0.0,
         "rating_count": 0,
     }
-    response = requests.post(product_url, json=data)
+    response = requests.post(product_url, json=data, timeout=60)
 
     assert (
         response.status_code == 201
@@ -57,7 +57,7 @@ def test_get_products(add_product):
     product3 = add_product
     print("Added test products: ", product1, product2, product3)
     print("Fetching all products...")
-    response = requests.get(f"{BASE_URL}/products/")
+    response = requests.get(f"{BASE_URL}/products/", timeout=60)
     assert (
         response.status_code == 200
     ), f"Failed to fetch products data: {response.status_code} {response.text}"
@@ -79,7 +79,7 @@ def test_delete_product(add_product):
     """Delete product."""
     product_id = add_product["product"]["id"]
     print(f"Deleting product data for id: {product_id}")
-    response = requests.delete(f"{BASE_URL}/products/{product_id}")
+    response = requests.delete(f"{BASE_URL}/products/{product_id}", timeout=60)
     assert (
         response.status_code == 204
     ), f"Failed to delete product: {response.status_code} {response.text}"

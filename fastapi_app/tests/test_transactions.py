@@ -15,7 +15,7 @@ def add_user():
     random_suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
     username = f"testuser_{random_suffix}"
     data = {"username": username}
-    response = requests.post(user_url, json=data)
+    response = requests.post(user_url, json=data, timeout=60)
 
     if response.status_code == 201:
         response_json = response.json()
@@ -39,7 +39,7 @@ def add_transaction(add_user):
         "product_id": product_id,
         "status": status,
     }
-    response = requests.post(transaction_url, json=data)
+    response = requests.post(transaction_url, json=data, timeout=60)
 
     if response.status_code == 201:
         response_json = response.json()
@@ -56,7 +56,7 @@ def test_get_user_transactions(add_transaction):
     if buyer_id is None:
         pytest.skip("No valid buyer ID available for testing.")
     print(f"Fetching transactions for user ID: {buyer_id}")
-    response = requests.get(f"{BASE_URL}/transactions/{buyer_id}")
+    response = requests.get(f"{BASE_URL}/transactions/{buyer_id}", timeout=60)
     assert (
         response.status_code == 200
     ), f"Failed to fetch transactions for user: {response.status_code} {response.text}"

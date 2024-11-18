@@ -15,7 +15,7 @@ def add_user():
     username = f"testuser_{random_suffix}"
     register_url = f"{BASE_URL}/users/"
     data = {"username": username}
-    response = requests.post(register_url, json=data)
+    response = requests.post(register_url, json=data, timeout=60)
 
     assert (
         response.status_code == 201
@@ -29,7 +29,7 @@ def test_get_user_by_username(add_user):
     """Get user by username."""
     username = add_user["user"]["username"]
     print(f"Fetching user data for username: {username}")
-    response = requests.get(f"{BASE_URL}/users/{username}")
+    response = requests.get(f"{BASE_URL}/users/{username}", timeout=60)
     assert (
         response.status_code == 200
     ), f"Failed to fetch user data: {response.status_code} {response.text}"
@@ -40,7 +40,7 @@ def test_delete_user(add_user):
     """Delete user profile."""
     username = add_user["user"]["username"]
     print(f"Deleting user data for username: {username}")
-    response = requests.delete(f"{BASE_URL}/users/{username}")
+    response = requests.delete(f"{BASE_URL}/users/{username}", timeout=60)
     assert (
         response.status_code == 204
     ), f"Failed to delete user: {response.status_code} {response.text}"

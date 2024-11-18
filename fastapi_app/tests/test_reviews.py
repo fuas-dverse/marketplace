@@ -15,7 +15,7 @@ def add_user():
     random_suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
     username = f"testuser_{random_suffix}"
     data = {"username": username}
-    response = requests.post(user_url, json=data)
+    response = requests.post(user_url, json=data, timeout=60)
 
     if response.status_code == 201:
         response_json = response.json()
@@ -40,7 +40,7 @@ def add_product(add_user):
         "average_rating": 0.0,
         "rating_count": 0,
     }
-    response = requests.post(product_url, json=data)
+    response = requests.post(product_url, json=data, timeout=60)
 
     if response.status_code == 201:
         response_json = response.json()
@@ -66,7 +66,7 @@ def add_review(add_user, add_product):
         "rating": rating,
         "content": content,
     }
-    response = requests.post(review_url, json=data)
+    response = requests.post(review_url, json=data, timeout=60)
 
     assert (
         response.status_code == 201
@@ -80,7 +80,7 @@ def test_get_reviews_per_product(add_review):
     """Get reviews by product ID."""
     product_id = add_review["review"]["product_id"]
     print(f"Fetching reviews for product ID: {product_id}")
-    response = requests.get(f"{BASE_URL}/reviews/{product_id}")
+    response = requests.get(f"{BASE_URL}/reviews/{product_id}", timeout=60)
     assert (
         response.status_code == 200
     ), f"Failed to fetch reviews for product: {response.status_code} {response.text}"

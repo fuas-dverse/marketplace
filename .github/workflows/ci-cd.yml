@@ -195,7 +195,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./fastapi_app
-          file: ./fastapi_app/Dockerfile
+          file: ./fastapi_app/DockerFile
           push: true
           tags: |
             dverse/marketplace-api:latest

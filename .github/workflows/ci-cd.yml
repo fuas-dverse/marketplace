@@ -146,14 +146,16 @@ jobs:
         with:
           name: frontend-coverage
 
-      - name: Set Permissions for Frontend Coverage
-        run: chmod 644 ./lcov.info
+      - name: Set Permissions for Coverage Files
+        run: |
+          chmod 644 ./coverage.xml
+          chmod 644 ./lcov.info
+          sudo chown $USER ./coverage.xml ./lcov.info
 
-      - name: Verify Python Coverage File
-        run: ls -l coverage.xml
-
-      - name: Verify Frontend Coverage File
-        run: ls -l lcov.info
+      - name: Verify Coverage Files
+        run: |
+          ls -l ./coverage.xml
+          ls -l ./lcov.info
 
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master

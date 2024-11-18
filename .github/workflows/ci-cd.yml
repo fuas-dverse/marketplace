@@ -63,6 +63,9 @@ jobs:
           name: frontend-coverage
           path: marketplace-frontend/coverage/jest/lcov.info
 
+      - name: Verify Coverage File
+        run: ls -l marketplace-frontend/coverage/jest/lcov.info
+
       - name: Publish Jest Coverage Report
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
@@ -117,6 +120,9 @@ jobs:
           name: python-coverage
           path: coverage.xml
 
+      - name: Verify Coverage File
+        run: ls -l coverage.xml
+
       - name: Tear Down Services
         if: always()
         run: docker-compose down
@@ -145,8 +151,8 @@ jobs:
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: |
-            ./python-coverage/coverage.xml
-            ./frontend-coverage/lcov.info
+            python-coverage/coverage.xml
+            frontend-coverage/lcov.info
 
   deploy:
     name: Deploy to Production

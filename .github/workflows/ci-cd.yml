@@ -146,6 +146,9 @@ jobs:
         with:
           name: frontend-coverage
 
+      - name: Set Permissions for Frontend Coverage
+        run: chmod +r ./lcov.info
+
       - name: Verify Python Coverage File
         run: ls -l coverage.xml
 

@@ -58,7 +58,7 @@ jobs:
         run: npm test -- --coverage
 
       - name: Save Jest Coverage Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
           path: marketplace-frontend/coverage/jest/lcov.info
@@ -115,7 +115,7 @@ jobs:
           pytest fastapi_app/tests/ --cov=fastapi_app --cov-report=xml
 
       - name: Save Python Coverage Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-coverage
           path: coverage.xml

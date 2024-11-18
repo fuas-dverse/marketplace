@@ -63,7 +63,7 @@ jobs:
           name: frontend-coverage
           path: marketplace-frontend/coverage/jest/lcov.info
 
-      - name: Verify Coverage File
+      - name: Verify Jest Coverage Report
         run: ls -l marketplace-frontend/coverage/jest/lcov.info
 
       - name: Publish Jest Coverage Report
@@ -114,13 +114,13 @@ jobs:
         run: |
           pytest fastapi_app/tests/ --cov=fastapi_app --cov-report=xml
 
-      - name: Save Coverage Report
+      - name: Save Python Coverage Report
         uses: actions/upload-artifact@v3
         with:
           name: python-coverage
           path: coverage.xml
 
-      - name: Verify Coverage File
+      - name: Verify Python Coverage Report
         run: ls -l coverage.xml
 
       - name: Tear Down Services
@@ -145,6 +145,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: frontend-coverage
+
+      - name: Verify Python Coverage File
+        run: ls -l python-coverage
+
+      - name: Verify Frontend Coverage File
+        run: ls -l frontend-coverage
 
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master

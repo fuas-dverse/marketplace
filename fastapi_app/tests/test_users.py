@@ -11,7 +11,9 @@ BASE_URL = "http://localhost:5001/api"
 def add_user():
     """Add a new user."""
     print("Registering a new user...")
-    random_suffix = "".join(secrets.choice(string.ascii_lowercase + string.digits, k=6))
+    random_suffix = "".join(
+        secrets.choice(string.ascii_letters + string.digits) for i in range(6)
+    )
     username = f"testuser_{random_suffix}"
     register_url = f"{BASE_URL}/users/"
     data = {"username": username}

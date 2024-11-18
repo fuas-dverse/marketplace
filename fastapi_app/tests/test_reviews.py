@@ -12,7 +12,9 @@ def add_user():
     """Add a new user at test startup."""
     print("Adding a new user...")
     user_url = f"{BASE_URL}/users/"
-    random_suffix = "".join(secrets.choice(string.ascii_lowercase + string.digits, k=6))
+    random_suffix = "".join(
+        secrets.choice(string.ascii_letters + string.digits) for i in range(6)
+    )
     username = f"testuser_{random_suffix}"
     data = {"username": username}
     response = requests.post(user_url, json=data, timeout=60)

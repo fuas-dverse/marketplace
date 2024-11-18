@@ -145,8 +145,8 @@ jobs:
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: |
-            coverage.xml
-            marketplace-frontend/coverage/jest/lcov.info
+            ./python-coverage/coverage.xml
+            ./frontend-coverage/lcov.info
 
   deploy:
     name: Deploy to Production

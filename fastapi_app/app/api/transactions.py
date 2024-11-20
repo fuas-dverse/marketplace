@@ -22,6 +22,26 @@ class TransactionCreateRequest(BaseModel):
         }
 
 
+class TransactionResponse(BaseModel):
+    id: int
+    status: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": 1,
+                "status": "Pending",
+            }
+        }
+
+
+class ErrorResponse(BaseModel):
+    detail: str
+
+    class Config:
+        schema_extra = {"example": {"detail": "Buyer (user) with id 1 not found"}}
+
+
 # Add a new transaction
 @router.post(
     "/transactions/",
@@ -32,6 +52,14 @@ class TransactionCreateRequest(BaseModel):
         "The transaction status must be specified."
     ),
     response_description="Details of the created transaction.",
+    responses={
+        201: {
+            "model": TransactionResponse,
+            "description": "Transaction created successfully.",
+        },
+        404: {"model": ErrorResponse, "description": "Buyer or product not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def add_transaction(
     transaction_data: TransactionCreateRequest, db: Session = Depends(get_db)
@@ -85,6 +113,28 @@ def add_transaction(
         "product, and status."
     ),
     response_description="A list of transactions with details.",
+    responses={
+        200: {
+            "description": "List of transactions retrieved successfully.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "Transactions found",
+                        "transactions": [
+                            {
+                                "id": 1,
+                                "status": "Pending",
+                                "buyer_id": 1,
+                                "product_id": 101,
+                            }
+                        ],
+                    }
+                }
+            },
+        },
+        404: {"model": ErrorResponse, "description": "No transactions found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def get_all_transactions(db: Session = Depends(get_db)):
     """
@@ -128,6 +178,28 @@ def get_all_transactions(db: Session = Depends(get_db)):
         "including the products involved."
     ),
     response_description="A list of transactions for the specified user.",
+    responses={
+        200: {
+            "description": "List of transactions for the user retrieved successfully.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "Transactions found",
+                        "transactions": [
+                            {
+                                "id": 1,
+                                "status": "Pending",
+                                "buyer_id": 1,
+                                "product_id": 101,
+                            }
+                        ],
+                    }
+                }
+            },
+        },
+        404: {"model": ErrorResponse, "description": "User or transactions not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
     """

@@ -18,6 +18,28 @@ class UserCreateRequest(BaseModel):
         }
 
 
+class UserResponse(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": 1,
+                "username": "johndoe",
+            }
+        }
+
+
+class ErrorResponse(BaseModel):
+    detail: str
+
+    class Config:
+        schema_extra = {
+            "example": {"detail": "Username already exists"},
+        }
+
+
 # Add a new user
 @router.post(
     "/users/",
@@ -25,6 +47,11 @@ class UserCreateRequest(BaseModel):
     summary="Create a new user",
     description="Add a new user to the system. The username must be unique.",
     response_description="Details of the created user.",
+    responses={
+        201: {"model": UserResponse, "description": "User created successfully."},
+        409: {"model": ErrorResponse, "description": "Username already exists."},
+        500: {"description": "Internal server error."},
+    },
 )
 def add_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
     """
@@ -54,6 +81,30 @@ def add_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
     summary="Retrieve all users",
     description="Fetch a list of all registered users in the system.",
     response_description="A list of users with their details.",
+    responses={
+        200: {
+            "description": "List of users retrieved successfully.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "Users found",
+                        "users": [
+                            {
+                                "id": 1,
+                                "username": "johndoe",
+                            },
+                            {
+                                "id": 2,
+                                "username": "janedoe",
+                            },
+                        ],
+                    }
+                }
+            },
+        },
+        404: {"model": ErrorResponse, "description": "No users found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def get_users(db: Session = Depends(get_db)):
     """
@@ -89,6 +140,14 @@ def get_users(db: Session = Depends(get_db)):
     summary="Retrieve a user by username",
     description="Fetch the details of a user by their username.",
     response_description="Details of the requested user.",
+    responses={
+        200: {
+            "model": UserResponse,
+            "description": "User details retrieved successfully.",
+        },
+        404: {"model": ErrorResponse, "description": "User not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def get_user_by_username(username: str, db: Session = Depends(get_db)):
     """
@@ -116,6 +175,11 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
     summary="Delete a user",
     description="Delete a user from the system by their username.",
     response_description="Confirmation of user deletion.",
+    responses={
+        204: {"description": "User deleted successfully."},
+        404: {"model": ErrorResponse, "description": "User not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def delete_user(username: str, db: Session = Depends(get_db)):
     """

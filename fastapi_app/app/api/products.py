@@ -28,6 +28,36 @@ class ProductCreateRequest(BaseModel):
         }
 
 
+class ProductResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    price: float
+    seller_id: int
+    average_rating: float
+    rating_count: int
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": 101,
+                "title": "Wireless Mouse",
+                "description": "A high-quality wireless mouse with ergonomic design.",
+                "price": 29.99,
+                "seller_id": 1,
+                "average_rating": 4.5,
+                "rating_count": 100,
+            }
+        }
+
+
+class ErrorResponse(BaseModel):
+    detail: str
+
+    class Config:
+        schema_extra = {"example": {"detail": "Product with id 101 not found"}}
+
+
 # Add a new product
 @router.post(
     "/products/",
@@ -35,9 +65,15 @@ class ProductCreateRequest(BaseModel):
     summary="Create a new product",
     description=(
         "Add a new product to the catalog with details like title, "
-        "description, price, and seller ID."
+        "description, price, and seller ID. The `seller_id` must correspond to an "
+        "existing seller."
     ),
     response_description="Details of the created product.",
+    responses={
+        201: {"model": ProductResponse, "description": "Product created successfully."},
+        404: {"model": ErrorResponse, "description": "Seller not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db)):
     """
@@ -80,6 +116,10 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
     summary="Retrieve all products",
     description="Fetch a list of all products available in the catalog.",
     response_description="A list of products with their details.",
+    responses={
+        200: {"model": list[ProductResponse], "description": "List of products."},
+        500: {"description": "Internal server error."},
+    },
 )
 def get_products(db: Session = Depends(get_db)):
     """
@@ -95,27 +135,27 @@ def get_products(db: Session = Depends(get_db)):
     - **rating_count**: Number of ratings the product has received.
     """
     products = db.query(Product).all()
-    if products:
-        return {
-            "message": "Products found",
-            "products": [
-                {
-                    "id": product.id,
-                    "title": product.title,
-                    "price": product.price,
-                    "description": product.description,
-                    "seller_id": product.seller_id,
-                    "average_rating": product.average_rating,
-                    "rating_count": product.rating_count,
-                }
-                for product in products
-            ],
-        }
-    else:
+    if not products:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No products found",
         )
+
+    return {
+        "message": "Products found",
+        "products": [
+            {
+                "id": product.id,
+                "title": product.title,
+                "price": product.price,
+                "description": product.description,
+                "seller_id": product.seller_id,
+                "average_rating": product.average_rating,
+                "rating_count": product.rating_count,
+            }
+            for product in products
+        ],
+    }
 
 
 # Get a product by ID
@@ -125,6 +165,11 @@ def get_products(db: Session = Depends(get_db)):
     summary="Retrieve a product by ID",
     description="Fetch details of a specific product using its ID.",
     response_description="Details of the requested product.",
+    responses={
+        200: {"model": ProductResponse, "description": "Product details."},
+        404: {"model": ErrorResponse, "description": "Product not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
     """
@@ -133,24 +178,24 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
     - **product_id**: The ID of the product.
     """
     product = db.query(Product).filter(Product.id == product_id).first()
-    if product:
-        return {
-            "message": "Product found",
-            "product": {
-                "id": product.id,
-                "title": product.title,
-                "price": product.price,
-                "description": product.description,
-                "seller_id": product.seller_id,
-                "average_rating": product.average_rating,
-                "rating_count": product.rating_count,
-            },
-        }
-    else:
+    if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Product with id {product_id} not found",
         )
+
+    return {
+        "message": "Product found",
+        "product": {
+            "id": product.id,
+            "title": product.title,
+            "price": product.price,
+            "description": product.description,
+            "seller_id": product.seller_id,
+            "average_rating": product.average_rating,
+            "rating_count": product.rating_count,
+        },
+    }
 
 
 # Update the product rating
@@ -160,6 +205,22 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
     summary="Update product rating",
     description="Update the average rating and rating count of a specific product.",
     response_description="Updated rating details of the product.",
+    responses={
+        200: {
+            "description": "Rating details updated successfully.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "Product rating updated successfully",
+                        "new_average_rating": 4.8,
+                        "rating_count": 101,
+                    }
+                }
+            },
+        },
+        404: {"model": ErrorResponse, "description": "Product not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def update_product_rating(
     product_id: int,
@@ -175,7 +236,6 @@ def update_product_rating(
     - **rating_count**: The updated count of ratings for the product.
     """
     product = db.query(Product).filter(Product.id == product_id).first()
-
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -183,7 +243,6 @@ def update_product_rating(
         )
 
     product = update_product(db, product, average_rating, rating_count)
-
     return {
         "message": "Product rating updated successfully",
         "new_average_rating": product.average_rating,
@@ -198,6 +257,11 @@ def update_product_rating(
     summary="Delete a product",
     description="Delete a specific product by its ID.",
     response_description="Confirmation of successful deletion.",
+    responses={
+        204: {"description": "Product deleted successfully."},
+        404: {"model": ErrorResponse, "description": "Product not found."},
+        500: {"description": "Internal server error."},
+    },
 )
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     """

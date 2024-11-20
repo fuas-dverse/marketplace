@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - "**"
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -174,7 +177,7 @@ jobs:
     name: Build and Push Marketplace API Image
     runs-on: ubuntu-latest
     needs: [setup, backend-tests]
-    if: github.ref_name == 'main'
+    if: github.event_name == 'push' && github.ref_name == 'main'
 
     steps:
       - name: Checkout Code
@@ -206,7 +209,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [frontend-tests, backend-tests]
-    if: github.ref_name == 'main'
+    if: github.event_name == 'push' && github.ref_name == 'main'
 
     steps:
       - name: Checkout Code

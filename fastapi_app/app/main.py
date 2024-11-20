@@ -8,14 +8,20 @@ from app.models import Base
 from sqlalchemy.orm import Session
 from app.database import insert_user_if_empty, get_db
 
-app = FastAPI()
+app = FastAPI(
+    title="The Marketplace API",
+    description=(
+        "This is a FastAPI application serving as the backend for the "
+        "marketplace use case."
+    ),
+)
 
 Base.metadata.create_all(bind=engine)
 
-app.include_router(products_router, prefix="/api")
-app.include_router(users_router, prefix="/api")
-app.include_router(transactions_router, prefix="/api")
-app.include_router(reviews_router, prefix="/api")
+app.include_router(products_router, prefix="/api", tags=["Products"])
+app.include_router(users_router, prefix="/api", tags=["Users"])
+app.include_router(transactions_router, prefix="/api", tags=["Transactions"])
+app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 
 
 @app.on_event("startup")
@@ -24,6 +30,11 @@ def startup_event():
     insert_user_if_empty(db=db)
 
 
-@app.get("/")
+@app.get("/", tags=["Root"])
 async def root():
+    """
+    Root endpoint for the API.
+
+    Returns a welcome message.
+    """
     return {"message": "Welcome to the API"}

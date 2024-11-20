@@ -12,12 +12,37 @@ class TransactionCreateRequest(BaseModel):
     product_id: int
     status: str
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "buyer_id": 1,
+                "product_id": 101,
+                "status": "Pending",
+            }
+        }
+
 
 # Add a new transaction
-@router.post("/transactions/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/transactions/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new transaction",
+    description=(
+        "Record a new transaction involving a buyer and a product. "
+        "The transaction status must be specified."
+    ),
+    response_description="Details of the created transaction.",
+)
 def add_transaction(
     transaction_data: TransactionCreateRequest, db: Session = Depends(get_db)
 ):
+    """
+    Add a new transaction.
+
+    - **buyer_id**: ID of the user who is buying the product.
+    - **product_id**: ID of the product being purchased.
+    - **status**: Status of the transaction (e.g., 'Pending', 'Completed', etc.).
+    """
     # Check if buyer (user) exists
     buyer = db.query(User).filter(User.id == transaction_data.buyer_id).first()
     if not buyer:
@@ -51,9 +76,27 @@ def add_transaction(
 
 
 # Get all transactions
-@router.get("/transactions/", status_code=status.HTTP_200_OK)
+@router.get(
+    "/transactions/",
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve all transactions",
+    description=(
+        "Fetch a list of all recorded transactions, including details like buyer, "
+        "product, and status."
+    ),
+    response_description="A list of transactions with details.",
+)
 def get_all_transactions(db: Session = Depends(get_db)):
-    transactions = db.query(Transaction).all()  # Fetch all transactions
+    """
+    Retrieve all transactions.
+
+    Returns a list of transactions with details such as:
+    - **id**: Transaction ID.
+    - **status**: Transaction status (e.g., 'Pending', 'Completed').
+    - **buyer_id**: ID of the buyer.
+    - **product_id**: ID of the product involved in the transaction.
+    """
+    transactions = db.query(Transaction).all()
 
     if transactions:
         return {
@@ -76,8 +119,22 @@ def get_all_transactions(db: Session = Depends(get_db)):
 
 
 # Get transactions by user ID
-@router.get("/transactions/{user_id}", status_code=status.HTTP_200_OK)
+@router.get(
+    "/transactions/{user_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve transactions for a specific user",
+    description=(
+        "Fetch all transactions associated with a given user ID, "
+        "including the products involved."
+    ),
+    response_description="A list of transactions for the specified user.",
+)
 def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve all transactions for a specific user.
+
+    - **user_id**: ID of the user for whom transactions are requested.
+    """
     # Check if buyer exists
     buyer = db.query(User).filter(User.id == user_id).first()
     if not buyer:

@@ -14,7 +14,7 @@ class ReviewCreateRequest(BaseModel):
     content: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "user_id": 1,
                 "product_id": 101,
@@ -34,7 +34,7 @@ class ReviewResponse(BaseModel):
     rating_count: int
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "rating": 5,
@@ -51,7 +51,7 @@ class ErrorResponse(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {"example": {"detail": "User with id 1 not found"}}
+        json_schema_extra = {"example": {"detail": "User with id 1 not found"}}
 
 
 # Add a new review

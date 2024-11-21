@@ -14,3 +14,5 @@ cffi==1.17.1
 cryptography==43.0.3
 pyOpenSSL===24.2.1
 pycparser==2.22
+nats-py==2.9.0
+asyncio==3.4.3

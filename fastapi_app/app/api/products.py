@@ -16,7 +16,7 @@ class ProductCreateRequest(BaseModel):
     rating_count: int = 0
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "title": "Wireless Mouse",
                 "description": "A high-quality wireless mouse with ergonomic design.",
@@ -38,7 +38,7 @@ class ProductResponse(BaseModel):
     rating_count: int
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 101,
                 "title": "Wireless Mouse",
@@ -55,7 +55,7 @@ class ErrorResponse(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {"example": {"detail": "Product with id 101 not found"}}
+        json_schema_extra = {"example": {"detail": "Product with id 101 not found"}}
 
 
 # Add a new product

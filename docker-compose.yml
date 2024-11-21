@@ -21,7 +21,7 @@ services:
   api:
     build:
       context: ./fastapi_app
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgresql://marketplace:marketplace@db/marketplace_db
     ports:
@@ -33,7 +33,7 @@ services:
     networks:
       - nats_network
 
-  nats:
+  nats-server:
     image: nats:latest
     ports:
       - "4222:4222"
@@ -47,7 +47,7 @@ services:
     environment:
       NATS_SERVER_URL: nats://nats:4222
     depends_on:
-      - nats
+      - nats-server
     networks:
       - nats_network
 

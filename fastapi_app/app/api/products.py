@@ -11,7 +11,7 @@ class ProductCreateRequest(BaseModel):
     title: str
     description: str
     price: float
-    seller_id: int
+    seller_id: str
     average_rating: float = 0.0
     rating_count: int = 0
 
@@ -39,7 +39,7 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
 
     return {
         "message": "Product created successfully",
-        "product": {"id": product.id, "title": product.title},
+        "product": {"id": str(product.id), "title": product.title},
     }
 
 
@@ -52,11 +52,11 @@ def get_products(db: Session = Depends(get_db)):
             "message": "Products found",
             "products": [
                 {
-                    "id": product.id,
+                    "id": str(product.id),
                     "title": product.title,
                     "price": product.price,
                     "description": product.description,
-                    "seller_id": product.seller_id,
+                    "seller_id": str(product.seller_id),
                     "average_rating": product.average_rating,
                     "rating_count": product.rating_count,
                 }
@@ -72,16 +72,16 @@ def get_products(db: Session = Depends(get_db)):
 
 # Get a product by ID
 @router.get("/products/{product_id}", status_code=status.HTTP_200_OK)
-def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
+def get_product_by_id(product_id: str, db: Session = Depends(get_db)):
     product = db.query(Product).filter(Product.id == product_id).first()
     if product:
         return {
             "message": "Product found",
             "product": {
-                "id": product.id,
+                "id": str(product.id),
                 "title": product.title,
                 "price": product.price,
-                "seller_id": product.seller_id,
+                "seller_id": str(product.seller_id),
                 "average_rating": product.average_rating,
                 "rating_count": product.rating_count,
             },
@@ -96,7 +96,7 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
 # Update the product rating
 @router.post("/products/{product_id}/review/", status_code=status.HTTP_200_OK)
 def update_product_rating(
-    product_id: int,
+    product_id: str,
     average_rating: float,
     rating_count: int,
     db: Session = Depends(get_db),
@@ -120,7 +120,7 @@ def update_product_rating(
 
 # Delete a product
 @router.delete("/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_product(product_id: int, db: Session = Depends(get_db)):
+def delete_product(product_id: str, db: Session = Depends(get_db)):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(

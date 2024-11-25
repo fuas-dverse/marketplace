@@ -8,8 +8,8 @@ router = APIRouter()
 
 
 class TransactionCreateRequest(BaseModel):
-    buyer_id: int
-    product_id: int
+    buyer_id: str
+    product_id: str
     status: str
 
 
@@ -46,7 +46,7 @@ def add_transaction(
 
     return {
         "message": "Transaction created successfully",
-        "transaction": {"id": transaction.id, "status": transaction.status},
+        "transaction": {"id": str(transaction.id), "status": transaction.status},
     }
 
 
@@ -60,10 +60,10 @@ def get_all_transactions(db: Session = Depends(get_db)):
             "message": "Transactions found",
             "transactions": [
                 {
-                    "id": transaction.id,
+                    "id": str(transaction.id),
                     "status": transaction.status,
-                    "buyer_id": transaction.buyer_id,
-                    "product_id": transaction.product_id,
+                    "buyer_id": str(transaction.buyer_id),
+                    "product_id": str(transaction.product_id),
                 }
                 for transaction in transactions
             ],
@@ -77,7 +77,7 @@ def get_all_transactions(db: Session = Depends(get_db)):
 
 # Get transactions by user ID
 @router.get("/transactions/{user_id}", status_code=status.HTTP_200_OK)
-def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
+def get_user_transactions(user_id: str, db: Session = Depends(get_db)):
     # Check if buyer exists
     buyer = db.query(User).filter(User.id == user_id).first()
     if not buyer:
@@ -92,10 +92,10 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
             "message": "Transactions found",
             "transactions": [
                 {
-                    "id": transaction.id,
+                    "id": str(transaction.id),
                     "status": transaction.status,
-                    "buyer_id": transaction.buyer_id,
-                    "product_id": transaction.product_id,
+                    "buyer_id": str(transaction.buyer_id),
+                    "product_id": str(transaction.product_id),
                 }
                 for transaction in transactions
             ],

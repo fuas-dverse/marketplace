@@ -18,14 +18,14 @@ def add_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.username == user_data.username).first()
     if existing_user:
         raise HTTPException(
-            status_code=status.HTTP_409_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Username already exists",
         )
 
     user = create_user(db, username=user_data.username)
     return {
         "message": "User created successfully",
-        "user": {"id": user.id, "username": user.username},
+        "user": {"id": str(user.id), "username": user.username},
     }
 
 
@@ -38,7 +38,7 @@ def get_users(db: Session = Depends(get_db)):
             "message": "Users found",
             "users": [
                 {
-                    "id": user.id,
+                    "id": str(user.id),
                     "username": user.username,
                 }
                 for user in users
@@ -63,7 +63,7 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
 
     return {
         "message": "User found",
-        "user": {"id": user.id, "username": user.username},
+        "user": {"id": str(user.id), "username": user.username},
     }
 
 

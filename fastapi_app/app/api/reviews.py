@@ -8,8 +8,8 @@ router = APIRouter()
 
 
 class ReviewCreateRequest(BaseModel):
-    user_id: int
-    product_id: int
+    user_id: str
+    product_id: str
     rating: int
     content: str
 
@@ -60,11 +60,11 @@ def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
     return {
         "message": "Review created successfully",
         "review": {
-            "id": review.id,
+            "id": str(review.id),
             "rating": review.rating,
             "content": review.content,
-            "user_id": review.user_id,
-            "product_id": review.product_id,
+            "user_id": str(review.user_id),
+            "product_id": str(review.product_id),
             "new_average_rating": product.average_rating,
             "rating_count": product.rating_count,
         },
@@ -80,11 +80,11 @@ def get_reviews(db: Session = Depends(get_db)):
             "message": "Reviews found",
             "reviews": [
                 {
-                    "id": review.id,
+                    "id": str(review.id),
                     "rating": review.rating,
                     "content": review.content,
-                    "user_id": review.user_id,
-                    "product_id": review.product_id,
+                    "user_id": str(review.user_id),
+                    "product_id": str(review.product_id),
                 }
                 for review in reviews
             ],
@@ -98,7 +98,7 @@ def get_reviews(db: Session = Depends(get_db)):
 
 # Get all reviews per product
 @router.get("/reviews/{product_id}", status_code=status.HTTP_200_OK)
-def get_reviews_per_product(product_id: int, db: Session = Depends(get_db)):
+def get_reviews_per_product(product_id: str, db: Session = Depends(get_db)):
     reviews = db.query(Review).filter(Review.product_id == product_id).all()
 
     if reviews:
@@ -106,11 +106,11 @@ def get_reviews_per_product(product_id: int, db: Session = Depends(get_db)):
             "message": "Reviews found",
             "reviews": [
                 {
-                    "id": review.id,
+                    "id": str(review.id),
                     "rating": review.rating,
                     "content": review.content,
-                    "buyer_id": review.user_id,
-                    "product_id": review.product_id,
+                    "user_id": str(review.user_id),
+                    "product_id": str(review.product_id),
                 }
                 for review in reviews
             ],

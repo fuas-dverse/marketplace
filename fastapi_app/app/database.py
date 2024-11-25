@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.models import User, Product, Transaction, Review
@@ -19,7 +20,7 @@ def get_db():
 
 # Add a new user
 def create_user(db, username: str):
-    new_user = User(username=username, reputation_score=0)
+    new_user = User(id=uuid.uuid4(), username=username, reputation_score=0)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -32,11 +33,12 @@ def create_product(
     title: str,
     description: str,
     price: float,
-    seller_id: int,
+    seller_id: str,
     average_rating: float = 0.0,
     rating_count: int = 0,
 ):
     new_product = Product(
+        id=uuid.uuid4(),
         title=title,
         description=description,
         price=price,
@@ -63,9 +65,9 @@ def update_product(db, product: Product, average_rating: float, rating_count: in
 
 
 # Add a new transaction
-def create_transaction(db, buyer_id: int, product_id: int, status: str):
+def create_transaction(db, buyer_id: str, product_id: str, status: str):
     new_transaction = Transaction(
-        buyer_id=buyer_id, product_id=product_id, status=status
+        id=uuid.uuid4(), buyer_id=buyer_id, product_id=product_id, status=status
     )
     db.add(new_transaction)
     db.commit()
@@ -74,9 +76,13 @@ def create_transaction(db, buyer_id: int, product_id: int, status: str):
 
 
 # Add a new review
-def create_review(db, user_id: int, product_id: int, rating: int, content: str):
+def create_review(db, user_id: str, product_id: str, rating: int, content: str):
     new_review = Review(
-        user_id=user_id, product_id=product_id, rating=rating, content=content
+        id=uuid.uuid4(),
+        user_id=user_id,
+        product_id=product_id,
+        rating=rating,
+        content=content,
     )
     db.add(new_review)
     db.commit()
@@ -89,7 +95,7 @@ def insert_user_if_empty(db):
     user_count = db.query(User).count()
 
     if user_count == 0:
-        new_user = User(username="admin", reputation_score=0)
+        new_user = User(id=uuid.uuid4(), username="admin", reputation_score=0)
 
         db.add(new_user)
         db.commit()

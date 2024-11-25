@@ -8,6 +8,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - nats_network
@@ -21,7 +22,7 @@ services:
   api:
     build:
       context: ./fastapi_app
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgresql://marketplace:marketplace@db/marketplace_db
     ports:
@@ -43,7 +44,7 @@ services:
   nats_client:
     build:
       context: ./nats_app
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     environment:
       NATS_SERVER_URL: nats://nats:4222
     depends_on:
@@ -54,3 +55,6 @@ services:
 networks:
   nats_network:
     driver: bridge
+
+volumes:
+  pgdata:

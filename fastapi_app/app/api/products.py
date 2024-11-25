@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.database import get_db, create_product, update_product
-from app.models import Product, User
+from app.database import get_db, update_product
+from app.models import Product
 from pydantic import BaseModel
+from app.services.products_service import products_service
 
 router = APIRouter()
 
@@ -86,22 +87,7 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
     - **average_rating**: Average rating of the product (float, default: 0.0).
     - **rating_count**: Number of product ratings (int, default: 0).
     """
-    seller = db.query(User).filter(User.id == product_data.seller_id).first()
-    if not seller:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Seller with id {product_data.seller_id} not found",
-        )
-
-    product = create_product(
-        db,
-        title=product_data.title,
-        description=product_data.description,
-        price=product_data.price,
-        seller_id=product_data.seller_id,
-        average_rating=product_data.average_rating,
-        rating_count=product_data.rating_count,
-    )
+    product = products_service.add_product(product_data, db)
 
     return {
         "message": "Product created successfully",

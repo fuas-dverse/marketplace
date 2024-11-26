@@ -23,45 +23,72 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-purple-950 text-white p-4 shadow-md flex items-center">
-      <h1 className="text-3xl font-bold">Marketplace</h1>
-      <nav className="flex ml-auto">
-        <ul className="flex items-center space-x-4">
-          <li>
-            <Link href="/" className="hover:underline">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link href="/transactions" className="hover:underline">
-              Transactions
-            </Link>
-          </li>
-          {user ? (
-            <>
-              <li>
-                <Link href="/account" className="hover:underline">
-                  Account
-                </Link>
-              </li>
-              <li>
-                <button
-                  onClick={handleLogout}
-                  className="hover:underline bg-transparent border-none text-white"
-                >
-                  Logout
-                </button>
-              </li>
-            </>
-          ) : (
+    <header className="bg-purple-950 text-white shadow-md">
+      <div className="container mx-auto flex items-center justify-between p-4">
+        {/* Logo or Title */}
+        <Link
+          href="/"
+          className="text-3xl font-extrabold text-white tracking-tight"
+        >
+          Marketplace
+        </Link>
+
+        {/* Navigation Links */}
+        <nav>
+          <ul className="flex items-center space-x-6 text-sm font-medium">
             <li>
-              <Link href="/login" className="hover:underline">
-                Login
+              <Link href="/" className="hover:text-purple-300 transition">
+                Home
               </Link>
             </li>
-          )}
-        </ul>
-      </nav>
+            <li>
+              <Link
+                href="/transactions"
+                className="hover:text-purple-300 transition"
+              >
+                Transactions
+              </Link>
+            </li>
+            {user ? (
+              <>
+                <li>
+                  <Link
+                    href="/chat"
+                    className="hover:text-purple-300 transition"
+                  >
+                    Chat
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/account"
+                    className="hover:text-purple-300 transition"
+                  >
+                    Account
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="hover:text-purple-300 transition bg-transparent border-none text-white"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <li>
+                <Link
+                  href="/login"
+                  className="hover:text-purple-300 transition"
+                >
+                  Login
+                </Link>
+              </li>
+            )}
+          </ul>
+        </nav>
+      </div>
     </header>
   );
 }

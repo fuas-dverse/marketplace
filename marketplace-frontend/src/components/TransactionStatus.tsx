@@ -1,10 +1,25 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface TransactionStatusProps {
   status: "complete" | "pending" | "failed";
 }
 
 const TransactionStatus: React.FC<TransactionStatusProps> = ({ status }) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to /transactions after 3 seconds
+    const timer = setTimeout(() => {
+      router.push("/transactions");
+    }, 3000);
+
+    // Cleanup timer on unmount
+    return () => clearTimeout(timer);
+  }, [router]);
+
   const getMessage = () => {
     switch (status) {
       case "complete":
@@ -56,6 +71,9 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ status }) => {
       </h2>
       <p className={`mt-2 ${textColor}`} data-testid="transaction-status-text">
         {message}
+      </p>
+      <p className="mt-4 text-sm text-gray-500">
+        Redirecting to transactions in a few seconds...
       </p>
     </div>
   );

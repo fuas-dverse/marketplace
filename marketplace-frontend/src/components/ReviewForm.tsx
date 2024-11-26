@@ -1,119 +1,135 @@
 "use client";
 
 import { useState } from "react";
+import { Modal } from "./Modal";
+import { UserContext, useUser } from "@/contexts/UserContext";
 
 interface ReviewFormProps {
   productId: string;
 }
 
-export default function ReviewForm(props: ReviewFormProps) {
+export default function ReviewFormModal({ productId }: ReviewFormProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [rating, setRating] = useState("");
   const [content, setContent] = useState("");
-  const [sellerId, setSellerId] = useState("");
-  const [product, setProduct] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const productId = props.productId;
+  const { user } = useUser(UserContext);
 
-  const fetchProduct = async () => {
-    try {
-      const res = await fetch(`/api/products/${productId}`).then((res) =>
-        res.json()
-      );
-      setProduct(res.product);
-      console.log(res);
-    } catch (error: Error | any) {
-      setError(error.message);
-    }
-  };
+  const toggleModal = () => setIsModalOpen((prev) => !prev);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    fetchProduct();
     const reviewData = {
       rating: parseFloat(rating),
       content,
       product_id: productId,
-      user_id: sellerId,
+      user_id: user?.id,
     };
 
-    console.log("Review Data Submitted:", reviewData);
+    try {
+      const res = await fetch(`/api/products/${productId}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reviewData),
+      });
 
-    const reviewResponse = await fetch(`/api/products/${productId}/reviews`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reviewData),
-    }).then((res) => res.json());
+      if (!res.ok) {
+        throw new Error("Failed to submit review.");
+      }
 
-    console.log(reviewResponse);
+      // Show success message
+      setSuccess("Review submitted successfully!");
 
-    // Clear the form fields after submission
-    setRating("");
-    setContent("");
-    setSellerId("");
+      // Close modal after 1 second
+      setTimeout(() => {
+        setSuccess(null);
+        toggleModal();
+      }, 1000);
+
+      // Clear form fields
+      setRating("");
+      setContent("");
+    } catch (error: any) {
+      setError(error.message);
+    }
   };
 
-  if (error) return <div>Error: {error}</div>;
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 p-4"
-      data-testid="review-form"
-    >
-      <div>
-        <label htmlFor="rating" className="block">
-          Rating:
-        </label>
-        <input
-          type="number"
-          id="rating"
-          value={rating}
-          onChange={(e) => setRating(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full"
-          data-testid="input-rating"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="content" className="block">
-          Content:
-        </label>
-        <textarea
-          id="content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full"
-          data-testid="input-content"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="sellerId" className="block">
-          Seller ID:
-        </label>
-        <input
-          type="number"
-          id="sellerId"
-          value={sellerId}
-          onChange={(e) => setSellerId(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full"
-          data-testid="input-sellerId"
-        />
-      </div>
-
+    <>
+      {/* Button to open modal */}
       <button
-        type="submit"
-        className="bg-purple-900 text-white p-2 mt-4 rounded"
-        data-testid="submit-review-button"
+        onClick={toggleModal}
+        className="w-full md:w-auto bg-purple-700 text-white px-6 py-3 rounded-md shadow-md hover:bg-purple-800 transition duration-200"
+        data-testid="add-review-button"
       >
-        Submit Review
+        Add Review
       </button>
-    </form>
+
+      {/* Modal with the review form */}
+      <Modal isOpen={isModalOpen} onClose={toggleModal}>
+        {success ? (
+          <div
+            className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative mb-4"
+            data-testid="success-toast"
+          >
+            {success}
+          </div>
+        ) : (
+          <>
+            <h2 className="text-2xl font-bold mb-4 text-purple-900">
+              Add Review
+            </h2>
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4"
+              data-testid="review-form"
+            >
+              <div>
+                <label htmlFor="rating" className="block text-gray-700">
+                  Rating:
+                </label>
+                <input
+                  type="number"
+                  id="rating"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value)}
+                  required
+                  className="border border-gray-300 p-2 w-full rounded-md"
+                  data-testid="input-rating"
+                  max={5}
+                  min={1}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="content" className="block text-gray-700">
+                  Content:
+                </label>
+                <textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  required
+                  className="border border-gray-300 p-2 w-full rounded-md"
+                  data-testid="input-content"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="bg-purple-700 text-white px-4 py-2 rounded-md shadow-md hover:bg-purple-800 transition w-full"
+                data-testid="submit-review-button"
+              >
+                Submit Review
+              </button>
+            </form>
+          </>
+        )}
+      </Modal>
+    </>
   );
 }

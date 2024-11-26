@@ -1,98 +1,104 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TransactionStatus from "./TransactionStatus";
+import { UserContext, useUser } from "@/contexts/UserContext";
+import { Product } from "@/types/marketplace.types";
 
-interface TransactionProps {
-  productId: string;
+interface TransactionModalProps {
+  product: Product;
+  onClose: () => void;
 }
 
-interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  average_rating: number;
-}
-
-export default function Transaction(props: TransactionProps) {
-  const [product, setProduct] = useState<Product | null>(null);
+export default function TransactionModal({
+  product,
+  onClose,
+}: TransactionModalProps) {
   const [status, setStatus] = useState<
     "complete" | "pending" | "failed" | null
   >(null);
-
-  const productId = props.productId;
-
-  useEffect(() => {
-    fetchProduct();
-  }, [productId]);
-
-  const fetchProduct = async () => {
-    if (productId) {
-      const res = await fetch(`/api/products/${productId}`).then((res) =>
-        res.json()
-      );
-      setProduct(res);
-    }
-  };
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useUser(UserContext);
 
   const handlePurchase = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const transactionData = {
-      status: "complete",
-      product_id: productId,
-      buyer_id: 1,
-    };
-
-    const res = await fetch(`${window.location.origin}/api/transactions/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(transactionData),
-    }).then((res) => res.json());
-
-    if (res.error) {
-      setStatus("failed");
+    if (!user) {
+      setError("You must be logged in to make a purchase.");
       return;
     }
 
-    setStatus("complete");
+    const transactionData = {
+      status: "complete",
+      product_id: product.id,
+      buyer_id: user?.id,
+    };
 
-    console.log("Purchase complete:", res);
+    try {
+      const res = await fetch(`/api/transactions/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(transactionData),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || result.error) {
+        setStatus("failed");
+        setError("Transaction failed. Please try again.");
+        return;
+      }
+
+      setStatus("complete");
+    } catch (err: any) {
+      setStatus("failed");
+      setError("An unexpected error occurred. Please try again.");
+    }
   };
 
-  if (!product) return <div data-testid="transaction-loading">Loading...</div>;
-
   return (
-    <>
-      {status ? (
-        <TransactionStatus status={status} />
-      ) : (
-        <div className="container mx-auto p-4">
-          <h2
-            className="text-3xl font-bold text-purple-800 mb-4"
-            data-testid="transaction-title"
-          >
-            {product.title}
-          </h2>
-          <p className="text-lg mb-2" data-testid="transaction-description">
-            {product.description}
-          </p>
-          <p className="text-xl font-semibold" data-testid="transaction-price">
-            Price: ${product.price}
-          </p>
-          <form onSubmit={handlePurchase} className="mt-4">
-            <button
-              type="submit"
-              className="bg-purple-950 text-white px-4 py-2 rounded-md hover:bg-purple-800 transition"
-              data-testid="transaction-button"
-            >
-              Confirm Purchase
-            </button>
-          </form>
-        </div>
-      )}
-    </>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-lg p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+
+        {status ? (
+          <TransactionStatus status={status} />
+        ) : (
+          <div>
+            <h2 className="text-2xl font-bold text-purple-800 mb-4">
+              {product.title}
+            </h2>
+            <p className="text-gray-700">{product.description}</p>
+            <p className="text-lg font-semibold text-green-700 my-4">
+              Price: ${product.price}
+            </p>
+            {error && (
+              <p
+                className="text-red-500 text-sm mb-4"
+                data-testid="error-message"
+              >
+                {error}
+              </p>
+            )}
+            <form onSubmit={handlePurchase}>
+              <button
+                type="submit"
+                className="bg-purple-900 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-800 transition w-full"
+                data-testid="confirm-purchase-button"
+              >
+                Confirm Purchase
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

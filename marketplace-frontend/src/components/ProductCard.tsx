@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import ReviewList from "./ReviewList";
+import ReviewFormModal from "./ReviewForm";
 
 interface Product {
   id: string;
@@ -60,8 +60,11 @@ export default function ProductCard(props: ProductCardProps) {
     setIsReviewsVisible((prev) => !prev);
   };
 
-  if (error) return <div>Error: {error}</div>;
-  if (!product) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">Error: {error}</div>;
+  if (!product)
+    return (
+      <div className="text-center text-gray-600 text-lg mt-8">Loading...</div>
+    );
 
   return (
     <div
@@ -69,61 +72,69 @@ export default function ProductCard(props: ProductCardProps) {
       data-testid="product-card"
     >
       <div className="flex flex-col md:flex-row gap-8">
+        {/* Product Image */}
         <img
-          src="https://placehold.co/600x450"
+          src="https://picsum.photos/600/450"
           alt="Product Image"
           className="w-full md:w-1/2 h-auto rounded-lg shadow-md object-cover"
           data-testid="product-image"
         />
+
+        {/* Product Details */}
         <div className="flex-1">
           <h2
-            className="text-4xl font-bold text-purple-800 mb-4"
+            className="text-4xl font-extrabold text-purple-800 mb-4 tracking-tight"
             data-testid="product-title"
           >
             {product.title}
           </h2>
           <p
-            className="text-lg text-gray-700 mb-4"
+            className="text-lg text-gray-700 mb-4 leading-relaxed"
             data-testid="product-description"
           >
             {product.description}
           </p>
           <p
-            className="text-2xl font-semibold text-green-700 mb-4"
+            className="text-2xl font-bold text-green-700 mb-4"
             data-testid="product-price"
           >
-            Price: ${product.price}
+            ${product.price}
           </p>
           <p
             className="text-sm text-gray-600"
             data-testid="product-average-rating"
           >
-            Average Rating: {product.average_rating.toFixed(1)} ★
+            Average Rating:{" "}
+            <span className="font-semibold text-yellow-500">
+              {product.average_rating.toFixed(1)} ★
+            </span>
           </p>
         </div>
       </div>
-      <div className="mt-6">
-        <Link href={`/products/${productId}/review`}>
-          <button
-            className="w-full md:w-auto bg-purple-700 text-white px-6 py-3 rounded-md shadow-md hover:bg-purple-800 transition duration-200"
-            data-testid="add-review-button"
-          >
-            Add Review
-          </button>
-        </Link>
+
+      {/* Actions */}
+      <div className="mt-6 flex flex-col md:flex-row gap-4">
+        <ReviewFormModal productId={productId} />
         <button
           onClick={toggleReviews}
-          className="mt-4 w-full md:w-auto bg-gray-300 text-gray-800 px-6 py-2 rounded-md shadow-md hover:bg-gray-400 transition duration-200"
+          className="w-full md:w-auto bg-gray-300 text-gray-800 px-6 py-2 rounded-md shadow-md hover:bg-gray-400 transition duration-200"
           data-testid="toggle-reviews-button"
         >
           {isReviewsVisible ? "Hide Reviews" : "Show Reviews"}
         </button>
       </div>
+
+      {/* Reviews Section */}
       {isReviewsVisible && product.reviews && product.reviews.length > 0 && (
-        <ReviewList reviews={product.reviews} data-testid="review-list" />
+        <div className="mt-6" data-testid="review-list">
+          <ReviewList reviews={product.reviews} />
+        </div>
       )}
       {isReviewsVisible && product.reviews && product.reviews.length === 0 && (
-        <div className="mt-4" data-testid="no-reviews-message">
+        <div
+          className="mt-4 text-center text-gray-600"
+          data-testid="no-reviews-message"
+        >
           <p>No reviews available for this product.</p>
         </div>
       )}

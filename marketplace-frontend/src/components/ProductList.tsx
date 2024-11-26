@@ -29,12 +29,6 @@ export default function ProductList() {
         className="flex justify-between items-center mb-8"
         data-testid="header-container"
       >
-        <h3
-          className="text-2xl font-bold text-purple-900"
-          data-testid="product-list-title"
-        >
-          Product List
-        </h3>
         <Link href="/products/new">
           <button
             className="bg-purple-700 text-white px-4 py-2 rounded-md shadow-md hover:bg-purple-800 transition-colors"
@@ -45,7 +39,7 @@ export default function ProductList() {
         </Link>
       </div>
       <ul
-        className="grid gap-8 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+        className="grid gap-10 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
         data-testid="product-list"
       >
         {products && products.length > 0 ? (

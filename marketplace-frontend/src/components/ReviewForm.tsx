@@ -33,8 +33,8 @@ export default function ReviewForm(props: ReviewFormProps) {
     const reviewData = {
       rating: parseFloat(rating),
       content,
-      product_id: parseInt(productId),
-      user_id: parseInt(sellerId),
+      product_id: productId,
+      user_id: sellerId,
     };
 
     console.log("Review Data Submitted:", reviewData);

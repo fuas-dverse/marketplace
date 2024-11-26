@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from "react";
 
 interface Transaction {
-  buyer_id: number;
+  buyer_id: string;
   status: "complete" | "pending" | "failed" | "";
-  product_id: number;
-  id: number;
+  product_id: string;
+  id: string;
 }
 
 export default function TransactionList() {

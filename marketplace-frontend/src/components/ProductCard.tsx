@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import ReviewList from "./ReviewList";
 
 interface Product {
-  id: number;
+  id: string;
   title: string;
   description: string;
   price: number;
@@ -14,7 +14,7 @@ interface Product {
 }
 
 interface Review {
-  id: number;
+  id: string;
   content: string;
   rating: number;
 }

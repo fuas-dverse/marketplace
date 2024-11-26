@@ -1,30 +1,35 @@
 "use client";
 
-import { User } from "@/types/marketplace.types";
 import { useState } from "react";
 
-interface LoginProps {
-  onLogin: (user: User) => void;
-}
-
-export default function Login({ onLogin }: LoginProps) {
+export default function Login() {
   const [username, setUsername] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch(`${window.location.origin}/api/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(username),
-    }).then((res) => res.json());
+    try {
+      const res = await fetch(`api/users/${username}`).then((res) =>
+        res.json()
+      );
+      console.log(res);
 
-    console.log(res);
+      if (res.error) {
+        throw new Error("Failed to log in");
+      }
 
-    if (username.trim()) {
-      onLogin({ username });
+      // Save the user ID to sessionStorage
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("username", res.username);
+      }
+
+      // Reload the account page
+      window.location.reload();
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     }
   };
 
@@ -48,6 +53,7 @@ export default function Login({ onLogin }: LoginProps) {
         >
           Login
         </button>
+        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
       </form>
     </div>
   );

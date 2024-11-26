@@ -33,7 +33,7 @@ export const ProductRow = (product: Product) => {
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 pt-4 border-t border-gray-200 gap-4 sm:gap-0">
             <p
-              className="text-lg sm:text-xl font-bold text-purple-700"
+              className="text-lg sm:text-xl font-bold text-purple-700 px-2"
               data-testid="product-price"
             >
               ${product.price}

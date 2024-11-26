@@ -40,7 +40,7 @@ export default function Transaction(props: TransactionProps) {
     event.preventDefault();
     const transactionData = {
       status: "complete",
-      product_id: parseInt(productId),
+      product_id: productId,
       buyer_id: 1,
     };
 

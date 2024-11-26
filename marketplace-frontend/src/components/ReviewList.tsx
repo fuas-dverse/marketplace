@@ -1,7 +1,7 @@
 import React from "react";
 
 interface Review {
-  id: number;
+  id: string;
   content: string;
   rating: number;
 }

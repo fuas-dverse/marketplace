@@ -6,7 +6,6 @@ export default function ProductForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [sellerId, setSellerId] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -15,7 +14,7 @@ export default function ProductForm() {
       title,
       description,
       price: parseFloat(price),
-      seller_id: parseInt(sellerId),
+      seller_id: "9c62d374-64c9-4118-925d-da23b849194b",
     };
 
     try {
@@ -38,7 +37,6 @@ export default function ProductForm() {
     setTitle("");
     setDescription("");
     setPrice("");
-    setSellerId("");
   };
 
   if (error) return <div>Error: {error}</div>;
@@ -86,21 +84,6 @@ export default function ProductForm() {
           required
           className="border border-gray-300 p-2 w-full"
           data-testid="input-price"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="sellerId" className="block">
-          Seller ID:
-        </label>
-        <input
-          type="number"
-          id="sellerId"
-          value={sellerId}
-          onChange={(e) => setSellerId(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full"
-          data-testid="input-sellerId"
         />
       </div>
 

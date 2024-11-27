@@ -11,7 +11,7 @@ class UserCreateRequest(BaseModel):
     username: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "username": "johndoe",
             }
@@ -23,7 +23,7 @@ class UserResponse(BaseModel):
     username: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "username": "johndoe",
@@ -35,7 +35,7 @@ class ErrorResponse(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {"detail": "Username already exists"},
         }
 

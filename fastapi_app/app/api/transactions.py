@@ -13,7 +13,7 @@ class TransactionCreateRequest(BaseModel):
     status: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "buyer_id": 1,
                 "product_id": 101,
@@ -27,7 +27,7 @@ class TransactionResponse(BaseModel):
     status: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "status": "Pending",
@@ -39,7 +39,7 @@ class ErrorResponse(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {"example": {"detail": "Buyer (user) with id 1 not found"}}
+        json_schema_extra = {"example": {"detail": "Buyer (user) with id 1 not found"}}
 
 
 # Add a new transaction

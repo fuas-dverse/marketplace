@@ -8,15 +8,14 @@ from nats.aio.client import Client as NATS
 
 router = APIRouter()
 nc = NATS()
-loop = asyncio.get_event_loop()
 
 
 # Connect to NATS
 async def connect_nats():
-    await nc.connect(servers=["nats://localhost:4222"], loop=loop)
+    await nc.connect(servers=["nats://localhost:4222"])
 
 
-loop.run_until_complete(connect_nats())
+asyncio.create_task(connect_nats())
 
 
 # Helper function to publish NATS event
@@ -33,7 +32,7 @@ class ProductCreateRequest(BaseModel):
     rating_count: int = 0
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "title": "Wireless Mouse",
                 "description": "A high-quality wireless mouse with ergonomic design.",
@@ -55,7 +54,7 @@ class ProductResponse(BaseModel):
     rating_count: int
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 101,
                 "title": "Wireless Mouse",
@@ -72,7 +71,7 @@ class ErrorResponse(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {"example": {"detail": "Product with id 101 not found"}}
+        json_schema_extra = {"example": {"detail": "Product with id 101 not found"}}
 
 
 # Add a new product
@@ -92,7 +91,9 @@ class ErrorResponse(BaseModel):
         500: {"description": "Internal server error."},
     },
 )
-def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db)):
+async def add_product(
+    product_data: ProductCreateRequest, db: Session = Depends(get_db)
+):
     """
     Add a new product.
 
@@ -120,9 +121,7 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
         rating_count=product_data.rating_count,
     )
 
-    loop.run_until_complete(
-        publish_event("product.created", f"Product {product.id} created.")
-    )
+    await publish_event("product.created", f"Product {product.id} created.")
 
     return {
         "message": "Product created successfully",
@@ -243,7 +242,7 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
         500: {"description": "Internal server error."},
     },
 )
-def update_product_rating(
+async def update_product_rating(
     product_id: str,
     average_rating: float,
     rating_count: int,
@@ -264,9 +263,7 @@ def update_product_rating(
         )
 
     product = update_product(db, product, average_rating, rating_count)
-    loop.run_until_complete(
-        publish_event("product.updated", f"Product {product_id} rating updated.")
-    )
+    await publish_event("product.updated", f"Product {product_id} rating updated.")
     return {
         "message": "Product rating updated successfully",
         "new_average_rating": product.average_rating,
@@ -287,7 +284,7 @@ def update_product_rating(
         500: {"description": "Internal server error."},
     },
 )
-def delete_product(product_id: int, db: Session = Depends(get_db)):
+async def delete_product(product_id: int, db: Session = Depends(get_db)):
     """
     Delete a product by its ID.
 
@@ -302,7 +299,5 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
 
     db.delete(product)
     db.commit()
-    loop.run_until_complete(
-        publish_event("product.deleted", f"Product {product_id} deleted.")
-    )
+    await publish_event("product.deleted", f"Product {product_id} deleted.")
     return {"message": "Product deleted successfully"}

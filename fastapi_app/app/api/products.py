@@ -12,7 +12,7 @@ nc = NATS()
 
 # Connect to NATS
 async def connect_nats():
-    await nc.connect(servers=["nats://localhost:4222"])
+    await nc.connect(servers=["nats://nats-server:4222"])
 
 
 asyncio.create_task(connect_nats())

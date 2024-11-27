@@ -13,11 +13,72 @@ class ReviewCreateRequest(BaseModel):
     rating: int
     content: str
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "user_id": 1,
+                "product_id": 101,
+                "rating": 5,
+                "content": "Great product! Highly recommend.",
+            }
+        }
+
+
+class ReviewResponse(BaseModel):
+    id: int
+    rating: int
+    content: str
+    user_id: int
+    product_id: int
+    new_average_rating: float
+    rating_count: int
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": 1,
+                "rating": 5,
+                "content": "Great product! Highly recommend.",
+                "user_id": 1,
+                "product_id": 101,
+                "new_average_rating": 4.5,
+                "rating_count": 100,
+            }
+        }
+
+
+class ErrorResponse(BaseModel):
+    detail: str
+
+    class Config:
+        schema_extra = {"example": {"detail": "User with id 1 not found"}}
+
 
 # Add a new review
-@router.post("/reviews/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/reviews/",
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new review",
+    description=(
+        "Add a new review for a product by a user. "
+        "The product's average rating and rating count will be updated accordingly."
+    ),
+    response_description="The details of the created review.",
+    responses={
+        201: {"model": ReviewResponse, "description": "Review created successfully."},
+        404: {"model": ErrorResponse, "description": "User or product not found."},
+        500: {"description": "Internal server error."},
+    },
+)
 def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
-    # Check if user exists
+    """
+    Create a review for a product.
+
+    - **user_id**: ID of the user leaving the review.
+    - **product_id**: ID of the product being reviewed.
+    - **rating**: Rating given to the product (e.g., 1-5).
+    - **content**: Written feedback about the product.
+    """
     user = db.query(User).filter(User.id == review_data.user_id).first()
     if not user:
         raise HTTPException(
@@ -33,12 +94,8 @@ def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
             detail=f"Product with id {review_data.product_id} not found",
         )
 
-    average_rating = product.average_rating
-    rating_count = product.rating_count
-    if average_rating is None:
-        average_rating = 0
-    if rating_count is None:
-        rating_count = 0
+    average_rating = product.average_rating or 0
+    rating_count = product.rating_count or 0
 
     # Update the average rating and rating count
     average_rating = (average_rating * rating_count + review_data.rating) / (
@@ -72,8 +129,47 @@ def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
 
 
 # Get all reviews
-@router.get("/reviews/", status_code=status.HTTP_200_OK)
+@router.get(
+    "/reviews/",
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve all reviews",
+    description="Fetch a list of all reviews across all products.",
+    response_description="A list of reviews with details.",
+    responses={
+        200: {
+            "description": "List of reviews retrieved successfully.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "Reviews found",
+                        "reviews": [
+                            {
+                                "id": 1,
+                                "rating": 5,
+                                "content": "Great product!",
+                                "user_id": 1,
+                                "product_id": 101,
+                            }
+                        ],
+                    }
+                }
+            },
+        },
+        404: {"model": ErrorResponse, "description": "No reviews found."},
+        500: {"description": "Internal server error."},
+    },
+)
 def get_reviews(db: Session = Depends(get_db)):
+    """
+    Retrieve all reviews.
+
+    Returns a list of all reviews with details such as:
+    - **id**: Review ID
+    - **rating**: Product rating
+    - **content**: Review content
+    - **user_id**: User ID of the reviewer
+    - **product_id**: Product ID of the reviewed product
+    """
     reviews = db.query(Review).all()
     if reviews:
         return {
@@ -97,8 +193,42 @@ def get_reviews(db: Session = Depends(get_db)):
 
 
 # Get all reviews per product
-@router.get("/reviews/{product_id}", status_code=status.HTTP_200_OK)
-def get_reviews_per_product(product_id: str, db: Session = Depends(get_db)):
+@router.get(
+    "/reviews/{product_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve reviews for a specific product",
+    description="Fetch a list of all reviews for a given product ID.",
+    response_description="A list of reviews for the specified product.",
+    responses={
+        200: {
+            "description": "List of reviews for the product retrieved successfully.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "Reviews found",
+                        "reviews": [
+                            {
+                                "id": 1,
+                                "rating": 5,
+                                "content": "Great product!",
+                                "buyer_id": 1,
+                                "product_id": 101,
+                            }
+                        ],
+                    }
+                }
+            },
+        },
+        404: {"model": ErrorResponse, "description": "Product reviews not found."},
+        500: {"description": "Internal server error."},
+    },
+)
+def get_reviews_per_product(product_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve all reviews for a specific product.
+
+    - **product_id**: ID of the product for which reviews are requested.
+    """
     reviews = db.query(Review).filter(Review.product_id == product_id).all()
 
     if reviews:

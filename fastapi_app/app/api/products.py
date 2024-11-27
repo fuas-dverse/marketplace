@@ -3,8 +3,25 @@ from sqlalchemy.orm import Session
 from app.database import get_db, create_product, update_product
 from app.models import Product, User
 from pydantic import BaseModel
+import asyncio
+from nats.aio.client import Client as NATS
 
 router = APIRouter()
+nc = NATS()
+loop = asyncio.get_event_loop()
+
+
+# Connect to NATS
+async def connect_nats():
+    await nc.connect(servers=["nats://localhost:4222"], loop=loop)
+
+
+loop.run_until_complete(connect_nats())
+
+
+# Helper function to publish NATS event
+async def publish_event(subject, data):
+    await nc.publish(subject, data.encode())
 
 
 class ProductCreateRequest(BaseModel):
@@ -103,6 +120,10 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
         rating_count=product_data.rating_count,
     )
 
+    loop.run_until_complete(
+        publish_event("product.created", f"Product {product.id} created.")
+    )
+
     return {
         "message": "Product created successfully",
         "product": {"id": str(product.id), "title": product.title},
@@ -156,7 +177,7 @@ def get_products(db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No products found",
         )
-        
+
 
 # Get a product by ID
 @router.get(
@@ -243,6 +264,9 @@ def update_product_rating(
         )
 
     product = update_product(db, product, average_rating, rating_count)
+    loop.run_until_complete(
+        publish_event("product.updated", f"Product {product_id} rating updated.")
+    )
     return {
         "message": "Product rating updated successfully",
         "new_average_rating": product.average_rating,
@@ -278,4 +302,7 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
 
     db.delete(product)
     db.commit()
+    loop.run_until_complete(
+        publish_event("product.deleted", f"Product {product_id} deleted.")
+    )
     return {"message": "Product deleted successfully"}

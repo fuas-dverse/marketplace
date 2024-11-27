@@ -1,7 +1,7 @@
 import React from "react";
 
 interface Review {
-  id: number;
+  id: string;
   content: string;
   rating: number;
 }
@@ -33,7 +33,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
         className="text-2xl font-bold text-purple-800 mb-4"
         data-testid="review-list-title"
       >
-        Reviews:
+        Reviews
       </h3>
       <ul className="space-y-4" data-testid="review-list">
         {reviews.map((review) => (
@@ -49,7 +49,6 @@ const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
               >
                 {renderStars(review.rating)}
               </p>
-              <p className="text-gray-500 text-sm">Review ID: {review.id}</p>
             </div>
             <p
               className="text-gray-700"

@@ -1,13 +1,20 @@
 "use client";
 
+import { UserContext, useUser } from "@/contexts/UserContext";
 import { useState } from "react";
 
-export default function ProductForm() {
+interface ProductFormProps {
+  onSuccess: () => void;
+}
+
+export default function ProductForm({ onSuccess }: ProductFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [sellerId, setSellerId] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const { user, loading, error: userError } = useUser(UserContext);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,7 +22,7 @@ export default function ProductForm() {
       title,
       description,
       price: parseFloat(price),
-      seller_id: parseInt(sellerId),
+      seller_id: user?.id,
     };
 
     try {
@@ -25,25 +32,40 @@ export default function ProductForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(productData),
-      }).then((res) => res.json());
+      });
 
-      console.log(res);
-    } catch (error: Error | any) {
-      {
-        setError(error.message);
+      if (!res.ok) {
+        throw new Error("Failed to submit product");
       }
-    }
 
-    // Clear the form fields after submission
-    setTitle("");
-    setDescription("");
-    setPrice("");
-    setSellerId("");
+      const data = await res.json();
+      console.log(data);
+
+      // Show success toast
+      setSuccess("Product submitted successfully!");
+
+      // Close modal after short delay
+      setTimeout(() => {
+        setSuccess(null);
+        onSuccess(); // Close the modal
+      }, 1000);
+
+      // Clear form fields
+      setTitle("");
+      setDescription("");
+      setPrice("");
+    } catch (error: Error | any) {
+      setError(error.message || "An unknown error occurred");
+    }
   };
 
-  if (error) return <div>Error: {error}</div>;
+  if (userError) return <div>Error: {userError}</div>;
 
-  return (
+  return success ? (
+    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">
+      {success}
+    </div>
+  ) : (
     <form onSubmit={handleSubmit} className="space-y-4 p-4">
       <div>
         <label htmlFor="title" className="block">
@@ -89,24 +111,9 @@ export default function ProductForm() {
         />
       </div>
 
-      <div>
-        <label htmlFor="sellerId" className="block">
-          Seller ID:
-        </label>
-        <input
-          type="number"
-          id="sellerId"
-          value={sellerId}
-          onChange={(e) => setSellerId(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full"
-          data-testid="input-sellerId"
-        />
-      </div>
-
       <button
         type="submit"
-        className="bg-purple-900 text-white p-2 mt-4 rounded"
+        className="bg-purple-900 text-white p-2 mt-4 rounded w-full"
         data-testid="submit-button"
       >
         Submit Product

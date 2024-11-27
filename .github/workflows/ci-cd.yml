@@ -200,10 +200,10 @@ jobs:
           push: true
           tags: |
             dverse/marketplace-api:latest
-            dverse/marketplace-api:${{ github.run_number }}
+            dverse/marketplace-api:${{ github.sha }}
 
       - name: Verify Docker Image
-        run: docker pull dverse/marketplace-api:${{ github.run_number }}
+        run: docker pull dverse/marketplace-api:${{ github.sha }}
 
   deploy:
     name: Deploy to Production

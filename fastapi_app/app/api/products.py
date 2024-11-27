@@ -11,7 +11,7 @@ class ProductCreateRequest(BaseModel):
     title: str
     description: str
     price: float
-    seller_id: int
+    seller_id: str
     average_rating: float = 0.0
     rating_count: int = 0
 
@@ -105,7 +105,7 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
 
     return {
         "message": "Product created successfully",
-        "product": {"id": product.id, "title": product.title},
+        "product": {"id": str(product.id), "title": product.title},
     }
 
 
@@ -135,28 +135,28 @@ def get_products(db: Session = Depends(get_db)):
     - **rating_count**: Number of ratings the product has received.
     """
     products = db.query(Product).all()
-    if not products:
+    if products:
+        return {
+            "message": "Products found",
+            "products": [
+                {
+                    "id": str(product.id),
+                    "title": product.title,
+                    "price": product.price,
+                    "description": product.description,
+                    "seller_id": str(product.seller_id),
+                    "average_rating": product.average_rating,
+                    "rating_count": product.rating_count,
+                }
+                for product in products
+            ],
+        }
+    else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No products found",
         )
-
-    return {
-        "message": "Products found",
-        "products": [
-            {
-                "id": product.id,
-                "title": product.title,
-                "price": product.price,
-                "description": product.description,
-                "seller_id": product.seller_id,
-                "average_rating": product.average_rating,
-                "rating_count": product.rating_count,
-            }
-            for product in products
-        ],
-    }
-
+        
 
 # Get a product by ID
 @router.get(
@@ -223,7 +223,7 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
     },
 )
 def update_product_rating(
-    product_id: int,
+    product_id: str,
     average_rating: float,
     rating_count: int,
     db: Session = Depends(get_db),

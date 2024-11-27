@@ -1,68 +1,95 @@
 "use client";
+
 import { Product } from "@/types/marketplace.types";
 import { useEffect, useState } from "react";
 import { ProductRow } from "./ProductRow";
-import Link from "next/link";
+import TransactionModal from "./Transaction";
 
 export default function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter((product) =>
+        product.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [searchQuery, products]);
+
   const fetchProducts = async () => {
     try {
-      const response = await fetch("api/products").then((res) => res.json());
+      const response = await fetch("/api/products").then((res) => res.json());
       setProducts(response);
+      setFilteredProducts(response); // Initialize filtered products
     } catch (error) {
       console.error(error);
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const openModal = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+  };
+
   return (
     <div
-      className="mt-8 px-8 max-w-screen-xl mx-auto"
+      className="mt-8 px-6 lg:px-12 max-w-screen-xl mx-auto"
       data-testid="product-list-container"
     >
-      <div
-        className="flex justify-between items-center mb-8"
-        data-testid="header-container"
-      >
-        <h3
-          className="text-2xl font-bold text-purple-900"
-          data-testid="product-list-title"
-        >
-          Product List
-        </h3>
-        <Link href="/products/new">
-          <button
-            className="bg-purple-700 text-white px-4 py-2 rounded-md shadow-md hover:bg-purple-800 transition-colors"
-            data-testid="add-product-button"
-          >
-            + Add Product
-          </button>
-        </Link>
+      {/* Search Bar */}
+      <div className="flex justify-between items-center mb-8">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          placeholder="Search for products..."
+          className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          data-testid="search-bar"
+        />
       </div>
+
+      {/* Product List */}
       <ul
-        className="grid gap-8 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+        className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
         data-testid="product-list"
       >
-        {products && products.length > 0 ? (
-          products.map((product) => (
+        {filteredProducts && filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
             <li key={product.id} data-testid={`product-${product.id}`}>
-              <ProductRow {...product} />
+              <ProductRow {...product} onBuyNow={() => openModal(product)} />
             </li>
           ))
         ) : (
           <p
-            className="text-gray-600 text-center col-span-full"
+            className="text-gray-600 text-center col-span-full bg-white p-4 rounded-lg shadow"
             data-testid="no-products-message"
           >
-            No products available. Add one to get started!
+            No products match your search.
           </p>
         )}
       </ul>
+
+      {/* Transaction Modal */}
+      {selectedProduct && (
+        <TransactionModal product={selectedProduct} onClose={closeModal} />
+      )}
     </div>
   );
 }

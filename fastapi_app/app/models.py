@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+import uuid
+from sqlalchemy import Column, String, Float, ForeignKey, Integer
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -12,7 +14,7 @@ class User(Base):
     Represents a user in the marketplace.
 
     Attributes:
-        id (int): Unique identifier for the user.
+        id (UUID): Unique identifier for the user.
         username (str): Unique username for the user, used for login and identification.
         reputation_score (int): A score indicating the user's reputation,
         based on their transactions and reviews.
@@ -24,7 +26,7 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     username = Column(String, unique=True, index=True)
     reputation_score = Column(Integer)
 
@@ -40,11 +42,11 @@ class Product(Base):
     Represents a product in the marketplace.
 
     Attributes:
-        id (int): Unique identifier for the product.
+        id (UUID): Unique identifier for the product.
         title (str): Name of the product.
         description (str): Description of the product.
         price (float): Price of the product.
-        seller_id (int): Foreign key linking to the user who listed the product.
+        seller_id (UUID): Foreign key linking to the user who listed the product.
         average_rating (float): The average rating for the product,
         calculated from all reviews.
         rating_count (int): The number of reviews for this product.
@@ -56,11 +58,11 @@ class Product(Base):
 
     __tablename__ = "products"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     title = Column(String, index=True)
     description = Column(String)
     price = Column(Float)
-    seller_id = Column(Integer, ForeignKey("users.id"))
+    seller_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     average_rating = Column(Float)
     rating_count = Column(Integer)
 
@@ -76,9 +78,9 @@ class Transaction(Base):
     Represents a transaction in the marketplace.
 
     Attributes:
-        id (int): Unique identifier for the transaction.
-        buyer_id (int): Foreign key linking to the user who purchased the product.
-        product_id (int): Foreign key linking to the purchased product.
+        id (UUID): Unique identifier for the transaction.
+        buyer_id (UUID): Foreign key linking to the user who purchased the product.
+        product_id (UUID): Foreign key linking to the purchased product.
         status (str): Status of the transaction (e.g., "complete", "pending").
         buyer (User): The user who made the purchase.
         product (Product): The product involved in the transaction.
@@ -86,9 +88,9 @@ class Transaction(Base):
 
     __tablename__ = "transactions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    buyer_id = Column(Integer, ForeignKey("users.id"))
-    product_id = Column(Integer, ForeignKey("products.id"))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    buyer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    product_id = Column(UUID(as_uuid=True), ForeignKey("products.id"))
     status = Column(String)
 
     # Relationships
@@ -102,9 +104,9 @@ class Review(Base):
     Represents a review for a product in the marketplace.
 
     Attributes:
-        id (int): Unique identifier for the review.
-        user_id (int): Foreign key linking to the user who wrote the review.
-        product_id (int): Foreign key linking to the reviewed product.
+        id (UUID): Unique identifier for the review.
+        user_id (UUID): Foreign key linking to the user who wrote the review.
+        product_id (UUID): Foreign key linking to the reviewed product.
         rating (int): Rating given by the user, generally from 1 to 5.
         content (str): Text content of the review.
         buyer (User): The user who wrote the review.
@@ -113,9 +115,9 @@ class Review(Base):
 
     __tablename__ = "reviews"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    product_id = Column(Integer, ForeignKey("products.id"))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    product_id = Column(UUID(as_uuid=True), ForeignKey("products.id"))
     rating = Column(Integer)
     content = Column(String)
 

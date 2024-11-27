@@ -70,7 +70,7 @@ def add_user(user_data: UserCreateRequest, db: Session = Depends(get_db)):
     user = create_user(db, username=user_data.username)
     return {
         "message": "User created successfully",
-        "user": {"id": user.id, "username": user.username},
+        "user": {"id": str(user.id), "username": user.username},
     }
 
 
@@ -120,7 +120,7 @@ def get_users(db: Session = Depends(get_db)):
             "message": "Users found",
             "users": [
                 {
-                    "id": user.id,
+                    "id": str(user.id),
                     "username": user.username,
                 }
                 for user in users
@@ -164,7 +164,7 @@ def get_user_by_username(username: str, db: Session = Depends(get_db)):
 
     return {
         "message": "User found",
-        "user": {"id": user.id, "username": user.username},
+        "user": {"id": str(user.id), "username": user.username},
     }
 
 

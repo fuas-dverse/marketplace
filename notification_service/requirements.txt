@@ -1,0 +1,6 @@
+asyncio
+nats-py==2.2.0
+fastapi
+uvicorn
+loguru
+websockets

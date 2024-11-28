@@ -5,6 +5,11 @@ from app.models import Product, User
 from pydantic import BaseModel
 import asyncio
 from nats.aio.client import Client as NATS
+from jsonschema import validate, ValidationError
+from app.event_schema import event_schema
+import json
+from app.event_builder import build_event
+
 
 router = APIRouter()
 nc = NATS()
@@ -20,7 +25,15 @@ asyncio.create_task(connect_nats())
 
 # Helper function to publish NATS event
 async def publish_event(subject, data):
-    await nc.publish(subject, data.encode())
+    try:
+        validate(instance=data, schema=event_schema)
+    except ValidationError as e:
+        raise ValidationError(f"Validation failed: {e.message}")
+
+    # Serialize the event data to JSON
+    event_json = json.dumps(data).encode("utf-8")
+
+    await nc.publish(subject, event_json)
 
 
 class ProductCreateRequest(BaseModel):
@@ -121,7 +134,11 @@ async def add_product(
         rating_count=product_data.rating_count,
     )
 
-    await publish_event("product.created", f"Product {product.id} created.")
+    new_event = build_event(
+        product, actor={"actor_id": str(seller.id), "username": seller.username}
+    )
+
+    await publish_event("product.created", new_event)
 
     return {
         "message": "Product created successfully",

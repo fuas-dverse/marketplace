@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useUser } from "@/contexts/UserContext";
-import { UserContext } from "@/contexts/UserContext";
+import { useUser } from "@/contexts/UserProvider";
+import { UserContext } from "@/contexts/UserProvider";
 import { useRouter } from "next/navigation";
 
 export default function Header() {

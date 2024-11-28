@@ -1,6 +1,6 @@
 "use client";
 
-import { UserContext, useUser } from "@/contexts/UserContext";
+import { UserContext, useUser } from "@/contexts/UserProvider";
 import { useState } from "react";
 import ProductForm from "./ProductForm";
 

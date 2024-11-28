@@ -12,8 +12,6 @@ app = FastAPI()
 connected_clients = []
 missed_notifications = []
 
-logger.add("./logs/notification_service.log", rotation="1 MB", level="DEBUG")
-
 
 class NotificationService:
     def __init__(self):

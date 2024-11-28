@@ -23,32 +23,51 @@ export const NotificationsContext = createContext<NotificationsContextProps>({
 export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<string[]>(
+    JSON.parse(sessionStorage.getItem("notifications") || "[]")
+  );
+  const [shownToasts, setShownToasts] = useState<Set<string>>(new Set());
   const latestMessage = useWebSocket("ws://localhost:8000/ws");
   const pathname = usePathname(); // Get the current path
 
   useEffect(() => {
     if (latestMessage && typeof latestMessage === "string") {
-      setMessages((prevMessages) => [...prevMessages, latestMessage]);
-
-      // Check if the user is not on the "/account" page
-      if (pathname !== "/account" && latestMessage) {
-        // Show the toast notification if the user is on the "/account" page
-        const jsonString = latestMessage.substring(
-          latestMessage.indexOf(" ") + 1
+      setMessages((prevMessages) => {
+        const updatedMessages = [...prevMessages, latestMessage];
+        sessionStorage.setItem(
+          "notifications",
+          JSON.stringify(updatedMessages)
         );
-        let parsedMessage: ParsedMessage | string;
-        try {
-          parsedMessage = JSON.parse(jsonString);
-        } catch (e) {
-          parsedMessage = latestMessage;
-        }
-        if (typeof parsedMessage === "object" && parsedMessage !== null) {
-          toast.info(
-            `New Event: ${parsedMessage.event_type}, Product: ${parsedMessage.object.title}`
+        return updatedMessages;
+      });
+
+      // Parse event and JSON data
+      const jsonString = latestMessage.substring(
+        latestMessage.indexOf(" ") + 1
+      );
+      const event = latestMessage.substring(0, latestMessage.indexOf(" "));
+      let parsedMessage: ParsedMessage | string;
+      try {
+        parsedMessage = JSON.parse(jsonString);
+      } catch (e) {
+        parsedMessage = latestMessage;
+      }
+
+      // Show toast only if it hasn't been shown before and pathname is not '/account'
+      if (
+        typeof parsedMessage === "object" &&
+        parsedMessage !== null &&
+        !shownToasts.has(latestMessage)
+      ) {
+        if (
+          pathname !== "/account" &&
+          event &&
+          event.includes("product.created")
+        ) {
+          toast.info(`Product created: ${parsedMessage.object.title}`);
+          setShownToasts((prevShownToasts) =>
+            new Set(prevShownToasts).add(latestMessage)
           );
-        } else {
-          toast.info(latestMessage);
         }
       }
     }

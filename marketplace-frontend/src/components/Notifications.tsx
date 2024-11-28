@@ -1,19 +1,6 @@
 "use client";
-import React, {
-  createContext,
-  useEffect,
-  useState,
-  ReactNode,
-  useContext,
-} from "react";
-import useWebSocket from "../hooks/useWebsocket";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useContext } from "react";
 import { NotificationsContext } from "@/contexts/NotificationsProvider";
-
-interface NotificationsContextProps {
-  messages: string[];
-}
 
 interface ParsedMessage {
   event_type: string;
@@ -36,10 +23,12 @@ export default function NotificationsList() {
     <div className="p-4 bg-gray-100 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4">Notifications</h2>
       <ul className="space-y-2">
-        {messages.map((message, index) => {
+        {[...messages].reverse().map((message, index) => {
           let parsedMessage: ParsedMessage | string;
+
           try {
-            const jsonString = message.substring(message.indexOf(" ") + 1);
+            const eventTypeEndIndex = message.indexOf(" ");
+            const jsonString = message.substring(eventTypeEndIndex + 1);
             parsedMessage = JSON.parse(jsonString);
           } catch (e) {
             parsedMessage = message;

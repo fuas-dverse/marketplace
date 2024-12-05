@@ -58,7 +58,7 @@ class ProductCreateRequest(BaseModel):
 
 
 class ProductResponse(BaseModel):
-    id: int
+    id: str
     title: str
     description: str
     price: float
@@ -69,7 +69,7 @@ class ProductResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "id": 101,
+                "id": "101",
                 "title": "Wireless Mouse",
                 "description": "A high-quality wireless mouse with ergonomic design.",
                 "price": 29.99,
@@ -208,7 +208,7 @@ def get_products(db: Session = Depends(get_db)):
         500: {"description": "Internal server error."},
     },
 )
-def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
+def get_product_by_id(product_id: str, db: Session = Depends(get_db)):
     """
     Retrieve a product by its ID.
 
@@ -301,7 +301,7 @@ async def update_product_rating(
         500: {"description": "Internal server error."},
     },
 )
-async def delete_product(product_id: int, db: Session = Depends(get_db)):
+async def delete_product(product_id: str, db: Session = Depends(get_db)):
     """
     Delete a product by its ID.
 
@@ -316,5 +316,9 @@ async def delete_product(product_id: int, db: Session = Depends(get_db)):
 
     db.delete(product)
     db.commit()
-    await publish_event("product.deleted", f"Product {product_id} deleted.")
+
+    new_event = build_event(
+        product, actor={"actor_id": "deleted", "username": "deleted"}
+    )
+    await publish_event("product.deleted", new_event)
     return {"message": "Product deleted successfully"}

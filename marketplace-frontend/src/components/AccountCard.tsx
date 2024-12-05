@@ -3,13 +3,19 @@
 import { UserContext, useUser } from "@/contexts/UserProvider";
 import { useState } from "react";
 import ProductForm from "./ProductForm";
+import Settings from "./Settings";
 
 export default function AccountCard() {
   const { user, loading, error } = useUser(UserContext);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
-  const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen);
+  const handleProductModalToggle = () => {
+    setIsProductModalOpen(!isProductModalOpen);
+  };
+
+  const handleSettingsModalToggle = () => {
+    setIsSettingsModalOpen(!isSettingsModalOpen);
   };
 
   if (error)
@@ -58,32 +64,54 @@ export default function AccountCard() {
         </p>
         <div className="flex space-x-4">
           <button
-            onClick={handleModalToggle}
+            onClick={handleProductModalToggle}
             className="w-full bg-purple-950 text-white py-3 px-4 rounded-lg hover:bg-purple-900 transition shadow-md"
-            data-testid="add-product-button"
+            data-testid="add-product-modal-button"
           >
             + Add Product
           </button>
-          <button className="w-full border border-purple-950 text-purple-950 py-3 px-4 rounded-lg hover:bg-purple-900 hover:text-white transition shadow-md">
-            Notifications
+          <button
+            onClick={handleSettingsModalToggle}
+            className="w-full border border-purple-950 text-purple-950 py-3 px-4 rounded-lg hover:bg-purple-900 hover:text-white transition shadow-md"
+            data-testid="settings-modal-button"
+          >
+            Settings
           </button>
         </div>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
+      {/* Product Modal */}
+      {isProductModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Product</h2>
               <button
-                onClick={handleModalToggle}
+                onClick={handleProductModalToggle}
                 className="text-gray-500 hover:text-gray-700"
               >
                 ✕
               </button>
             </div>
-            <ProductForm onSuccess={handleModalToggle} />
+            <ProductForm onSuccess={handleProductModalToggle} />
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {isSettingsModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Settings</h2>
+              <button
+                onClick={handleSettingsModalToggle}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <Settings onSuccess={handleSettingsModalToggle} />
           </div>
         </div>
       )}

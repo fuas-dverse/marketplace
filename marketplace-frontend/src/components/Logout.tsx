@@ -13,7 +13,7 @@ export default function Logout() {
     }
 
     // Redirect to the login page
-    router.push("/account");
+    router.push("/");
   }, [router]);
 
   return (

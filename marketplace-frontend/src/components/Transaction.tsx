@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import TransactionStatus from "./TransactionStatus";
-import { UserContext, useUser } from "@/contexts/UserContext";
+import { UserContext, useUser } from "@/contexts/UserProvider";
 import { Product } from "@/types/marketplace.types";
 
 interface TransactionModalProps {

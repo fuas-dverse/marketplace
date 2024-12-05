@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Modal } from "./Modal";
-import { UserContext, useUser } from "@/contexts/UserContext";
+import { UserContext, useUser } from "@/contexts/UserProvider";
 
 interface ReviewFormProps {
   productId: string;

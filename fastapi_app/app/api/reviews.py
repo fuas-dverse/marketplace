@@ -14,10 +14,10 @@ class ReviewCreateRequest(BaseModel):
     content: str
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "user_id": 1,
-                "product_id": 101,
+                "product_id": "101",
                 "rating": 5,
                 "content": "Great product! Highly recommend.",
             }
@@ -29,18 +29,18 @@ class ReviewResponse(BaseModel):
     rating: int
     content: str
     user_id: int
-    product_id: int
+    product_id: str
     new_average_rating: float
     rating_count: int
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "rating": 5,
                 "content": "Great product! Highly recommend.",
                 "user_id": 1,
-                "product_id": 101,
+                "product_id": "101",
                 "new_average_rating": 4.5,
                 "rating_count": 100,
             }
@@ -51,7 +51,7 @@ class ErrorResponse(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {"example": {"detail": "User with id 1 not found"}}
+        json_schema_extra = {"example": {"detail": "User with id 1 not found"}}
 
 
 # Add a new review
@@ -148,7 +148,7 @@ def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
                                 "rating": 5,
                                 "content": "Great product!",
                                 "user_id": 1,
-                                "product_id": 101,
+                                "product_id": "101",
                             }
                         ],
                     }
@@ -212,7 +212,7 @@ def get_reviews(db: Session = Depends(get_db)):
                                 "rating": 5,
                                 "content": "Great product!",
                                 "buyer_id": 1,
-                                "product_id": 101,
+                                "product_id": "101",
                             }
                         ],
                     }
@@ -223,7 +223,7 @@ def get_reviews(db: Session = Depends(get_db)):
         500: {"description": "Internal server error."},
     },
 )
-def get_reviews_per_product(product_id: int, db: Session = Depends(get_db)):
+def get_reviews_per_product(product_id: str, db: Session = Depends(get_db)):
     """
     Retrieve all reviews for a specific product.
 

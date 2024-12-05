@@ -3,8 +3,37 @@ from sqlalchemy.orm import Session
 from app.database import get_db, create_product, update_product
 from app.models import Product, User
 from pydantic import BaseModel
+import asyncio
+from nats.aio.client import Client as NATS
+from jsonschema import validate, ValidationError
+from app.event_schema import event_schema
+import json
+from app.event_builder import build_event
+
 
 router = APIRouter()
+nc = NATS()
+
+
+# Connect to NATS
+async def connect_nats():
+    await nc.connect(servers=["nats://nats-server:4222"])
+
+
+asyncio.create_task(connect_nats())
+
+
+# Helper function to publish NATS event
+async def publish_event(subject, data):
+    try:
+        validate(instance=data, schema=event_schema)
+    except ValidationError as e:
+        raise ValidationError(f"Validation failed: {e.message}")
+
+    # Serialize the event data to JSON
+    event_json = json.dumps(data).encode("utf-8")
+
+    await nc.publish(subject, event_json)
 
 
 class ProductCreateRequest(BaseModel):
@@ -16,7 +45,7 @@ class ProductCreateRequest(BaseModel):
     rating_count: int = 0
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "title": "Wireless Mouse",
                 "description": "A high-quality wireless mouse with ergonomic design.",
@@ -29,7 +58,7 @@ class ProductCreateRequest(BaseModel):
 
 
 class ProductResponse(BaseModel):
-    id: int
+    id: str
     title: str
     description: str
     price: float
@@ -38,9 +67,9 @@ class ProductResponse(BaseModel):
     rating_count: int
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
-                "id": 101,
+                "id": "101",
                 "title": "Wireless Mouse",
                 "description": "A high-quality wireless mouse with ergonomic design.",
                 "price": 29.99,
@@ -55,7 +84,7 @@ class ErrorResponse(BaseModel):
     detail: str
 
     class Config:
-        schema_extra = {"example": {"detail": "Product with id 101 not found"}}
+        json_schema_extra = {"example": {"detail": "Product with id 101 not found"}}
 
 
 # Add a new product
@@ -75,7 +104,9 @@ class ErrorResponse(BaseModel):
         500: {"description": "Internal server error."},
     },
 )
-def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db)):
+async def add_product(
+    product_data: ProductCreateRequest, db: Session = Depends(get_db)
+):
     """
     Add a new product.
 
@@ -102,6 +133,12 @@ def add_product(product_data: ProductCreateRequest, db: Session = Depends(get_db
         average_rating=product_data.average_rating,
         rating_count=product_data.rating_count,
     )
+
+    new_event = build_event(
+        product, actor={"actor_id": str(seller.id), "username": seller.username}
+    )
+
+    await publish_event("product.created", new_event)
 
     return {
         "message": "Product created successfully",
@@ -156,7 +193,7 @@ def get_products(db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No products found",
         )
-        
+
 
 # Get a product by ID
 @router.get(
@@ -171,7 +208,7 @@ def get_products(db: Session = Depends(get_db)):
         500: {"description": "Internal server error."},
     },
 )
-def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
+def get_product_by_id(product_id: str, db: Session = Depends(get_db)):
     """
     Retrieve a product by its ID.
 
@@ -222,7 +259,7 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
         500: {"description": "Internal server error."},
     },
 )
-def update_product_rating(
+async def update_product_rating(
     product_id: str,
     average_rating: float,
     rating_count: int,
@@ -243,6 +280,7 @@ def update_product_rating(
         )
 
     product = update_product(db, product, average_rating, rating_count)
+    await publish_event("product.updated", f"Product {product_id} rating updated.")
     return {
         "message": "Product rating updated successfully",
         "new_average_rating": product.average_rating,
@@ -263,7 +301,7 @@ def update_product_rating(
         500: {"description": "Internal server error."},
     },
 )
-def delete_product(product_id: int, db: Session = Depends(get_db)):
+async def delete_product(product_id: str, db: Session = Depends(get_db)):
     """
     Delete a product by its ID.
 
@@ -278,4 +316,9 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
 
     db.delete(product)
     db.commit()
+
+    new_event = build_event(
+        product, actor={"actor_id": "deleted", "username": "deleted"}
+    )
+    await publish_event("product.deleted", new_event)
     return {"message": "Product deleted successfully"}

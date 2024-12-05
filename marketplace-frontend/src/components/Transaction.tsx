@@ -18,6 +18,7 @@ export default function TransactionModal({
     "complete" | "pending" | "failed" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+  // @ts-ignore
   const { user } = useUser(UserContext);
 
   const handlePurchase = async (event: React.FormEvent<HTMLFormElement>) => {

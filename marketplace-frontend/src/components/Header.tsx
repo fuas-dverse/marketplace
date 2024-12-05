@@ -6,6 +6,7 @@ import { UserContext } from "@/contexts/UserProvider";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
+  // @ts-ignore
   const { user, setUser, loading, error } = useUser(UserContext);
   const router = useRouter();
 

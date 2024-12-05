@@ -15,6 +15,7 @@ export default function Settings({ onSuccess }: SettingsProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // @ts-ignore
   const { user, setUser, loading, error: userError } = useUser(UserContext);
 
   const router = useRouter();

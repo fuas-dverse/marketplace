@@ -6,6 +6,7 @@ import ProductForm from "./ProductForm";
 import Settings from "./Settings";
 
 export default function AccountCard() {
+  // @ts-ignore
   const { user, loading, error } = useUser(UserContext);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);

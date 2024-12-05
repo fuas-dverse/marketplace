@@ -1,0 +1,45 @@
+{
+  "effectiveDate": "5/12/2024",
+  "sections": [
+    {
+      "title": "Acceptance of Terms",
+      "content": "By accessing or using Marketplace, you agree to these Terms of Service. If you do not agree, do not use our services."
+    },
+    {
+      "title": "User Responsibilities",
+      "content": [
+        "Provide accurate and current information.",
+        "Use the service for lawful purposes.",
+        "Maintain the confidentiality of your account information."
+      ]
+    },
+    {
+      "title": "Data Processing and Privacy",
+      "content": "We process your personal data as outlined in our Privacy Policy. By using our services, you consent to data collection and processing in compliance with GDPR."
+    },
+    {
+      "title": "Intellectual Property",
+      "content": "All content on Marketplace is owned by us or licensed. Unauthorized use is prohibited."
+    },
+    {
+      "title": "Limitation of Liability",
+      "content": "We are not liable for indirect, incidental, or consequential damages arising from your use of our services."
+    },
+    {
+      "title": "Termination",
+      "content": "We reserve the right to suspend or terminate your account for violation of these terms."
+    },
+    {
+      "title": "Governing Law",
+      "content": "These terms are governed by the laws of the Netherlands."
+    },
+    {
+      "title": "Updates to Terms",
+      "content": "We may update these terms periodically. Changes will be posted on this page with a revised effective date."
+    },
+    {
+      "title": "Contact Information",
+      "content": "For any questions, please contact us at 466069@student.fontys.nl."
+    }
+  ]
+}

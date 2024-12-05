@@ -1,0 +1,77 @@
+{
+  "effectiveDate": "5/12/2024",
+  "sections": [
+    {
+      "title": "Introduction",
+      "content": "Welcome to Marketplace. We value your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information."
+    },
+    {
+      "title": "Data We Collect",
+      "subsections": [
+        {
+          "subtitle": "Personal Data",
+          "content": "Name, email address, phone number, and any other information you provide."
+        },
+        {
+          "subtitle": "Usage Data",
+          "content": "Pages visited."
+        },
+        {
+          "subtitle": "Cookies and Tracking Data",
+          "content": "We use cookies to enhance your experience and analyze website usage."
+        }
+      ]
+    },
+    {
+      "title": "How We Use Your Data",
+      "content": [
+        "To provide and maintain our services.",
+        "To communicate with you about updates or offers.",
+        "To improve user experience and functionality."
+      ]
+    },
+    {
+      "title": "Legal Basis for Processing Data",
+      "content": [
+        "Consent: By using our services, you agree to our collection and use of data.",
+        "Contract: Necessary to fulfill the services you request.",
+        "Legal Obligation: Compliance with applicable laws."
+      ]
+    },
+    {
+      "title": "Data Sharing and Transfers",
+      "content": [
+        "We do not sell your data.",
+        "Data may be shared with trusted third-party service providers for business purposes.",
+        "Data may be transferred to servers located outside your country, in compliance with GDPR safeguards."
+      ]
+    },
+    {
+      "title": "Data Retention",
+      "content": "Your personal data will be retained as long as necessary for the purposes stated or as required by law."
+    },
+    {
+      "title": "Your Rights",
+      "content": [
+        "Access: Request a copy of your data.",
+        "Rectification: Correct inaccurate data.",
+        "Erasure: Request deletion of your data.",
+        "Restrict Processing: Limit how your data is used.",
+        "Data Portability: Transfer your data to another service.",
+        "Withdraw Consent: At any time, without affecting the lawfulness of prior processing."
+      ]
+    },
+    {
+      "title": "How to Exercise Your Rights",
+      "content": "Contact us at 466069@student.fontys.nl to exercise your rights. We will respond within 30 days."
+    },
+    {
+      "title": "Data Security",
+      "content": "We implement technical and organizational measures to protect your data from unauthorized access or disclosure."
+    },
+    {
+      "title": "Updates to This Policy",
+      "content": "We may update this policy periodically. Changes will be posted on this page with a revised effective date."
+    }
+  ]
+}

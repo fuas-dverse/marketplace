@@ -98,6 +98,9 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
+      - name: Debug Build Context
+        run: ls -al
+
       - name: Build and Start Services
         run: |
           docker-compose up --build -d

@@ -98,26 +98,14 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Debug Build Context
-        run: ls -al
+      - name: Clear Docker Build Cache
+        run: docker builder prune -af
 
-      - name: Debug File Access
-        run: cat docker-compose.yml
-
-      - name: Debug Compose Environment
+      - name: Debug Directory Contents
         run: |
-          ls -al
-          cat docker-compose.yml
-          cat ./fastapi_app/Dockerfile || echo "fastapi_app Dockerfile missing"
-          cat ./nats_app/Dockerfile || echo "nats_app Dockerfile missing"
-          cat ./notification_service/Dockerfile || echo "notification_service Dockerfile missing"
-          ls ./init.sql || echo "init.sql missing"
-
-      - name: Debug Directories and Files
-        run: |
-          echo "Current Directory: $(pwd)"
-          ls -al
+          echo "Checking contents of ./fastapi_app"
           ls -al ./fastapi_app
+          echo "Checking contents of ./nats_app"
           ls -al ./nats_app
 
       - name: Build and Start Services

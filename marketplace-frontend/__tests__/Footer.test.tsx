@@ -27,13 +27,13 @@ describe("Footer Component Tests", () => {
       "href",
       "/about"
     );
-    expect(screen.getByTestId("footer-link-contact")).toHaveAttribute(
+    expect(screen.getByTestId("footer-link-consent")).toHaveAttribute(
       "href",
-      "/contact"
+      "/consent"
     );
     expect(screen.getByTestId("footer-link-privacy")).toHaveAttribute(
       "href",
-      "/privacy-policy"
+      "/privacy"
     );
     expect(screen.getByTestId("footer-link-terms")).toHaveAttribute(
       "href",

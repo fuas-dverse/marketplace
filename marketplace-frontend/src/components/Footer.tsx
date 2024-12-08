@@ -32,14 +32,14 @@ export default function Footer() {
             Consent
           </a>
           <a
-            href="privacy"
+            href="/privacy"
             className="hover:underline"
             data-testid="footer-link-privacy"
           >
             Privacy Policy
           </a>
           <a
-            href="terms"
+            href="/terms"
             className="hover:underline"
             data-testid="footer-link-terms"
           >

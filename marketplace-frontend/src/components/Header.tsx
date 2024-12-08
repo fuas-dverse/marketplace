@@ -38,7 +38,11 @@ export default function Header() {
         <nav>
           <ul className="flex items-center space-x-6 text-sm font-medium">
             <li>
-              <Link href="/" className="hover:text-purple-300 transition">
+              <Link
+                href="/"
+                className="hover:text-purple-300 transition"
+                data-testid="header-nav-link-home"
+              >
                 Home
               </Link>
             </li>
@@ -46,6 +50,7 @@ export default function Header() {
               <Link
                 href="/transactions"
                 className="hover:text-purple-300 transition"
+                data-testid="header-nav-link-transactions"
               >
                 Transactions
               </Link>
@@ -56,6 +61,7 @@ export default function Header() {
                   <Link
                     href="/chat"
                     className="hover:text-purple-300 transition"
+                    data-testid="header-nav-link-chat"
                   >
                     Chat
                   </Link>
@@ -64,6 +70,7 @@ export default function Header() {
                   <Link
                     href="/account"
                     className="hover:text-purple-300 transition"
+                    data-testid="header-nav-link-account"
                   >
                     Account
                   </Link>
@@ -72,6 +79,7 @@ export default function Header() {
                   <button
                     onClick={handleLogout}
                     className="hover:text-purple-300 transition bg-transparent border-none text-white"
+                    data-testid="header-nav-link-logout"
                   >
                     Logout
                   </button>
@@ -82,6 +90,7 @@ export default function Header() {
                 <Link
                   href="/login"
                   className="hover:text-purple-300 transition"
+                  data-testid="header-nav-link-login"
                 >
                   Login
                 </Link>

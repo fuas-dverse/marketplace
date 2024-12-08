@@ -1,31 +1,46 @@
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ProductCard from "@/components/ProductCard";
+import { UserContext } from "@/contexts/UserProvider";
 import "whatwg-fetch"; // Polyfill for fetch
 
 // Mock the fetch API
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    json: () =>
-      Promise.resolve({
-        id: 1,
-        title: "Test Product",
-        description: "This is a test product",
-        price: 100,
-        average_rating: 4.5,
-        reviews: [],
-      }),
-  })
-) as jest.Mock;
+global.fetch = jest.fn();
 
 describe("ProductCard Component Tests", () => {
+  const mockSetUser = jest.fn();
+
+  // Utility function to render the component with a mocked UserProvider
+  const renderWithUserProvider = (
+    component: React.ReactNode,
+    user = { username: "testuser" }
+  ) => {
+    return render(
+      <UserContext.Provider
+        value={{
+          user,
+          setUser: mockSetUser,
+          loading: false,
+          error: null,
+        }}
+      >
+        {component}
+      </UserContext.Provider>
+    );
+  };
+
   beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should render product details on successful fetch", async () => {
+    // Mock successful fetch responses for product and reviews
     (fetch as jest.Mock).mockImplementation((url) => {
-      if (url.includes("/api/products/")) {
+      if (url.includes("/api/products/1")) {
         return Promise.resolve({
           json: () =>
             Promise.resolve({
-              id: 1,
+              id: "1",
               title: "Test Product",
               description: "This is a test product",
               price: 100,
@@ -33,48 +48,91 @@ describe("ProductCard Component Tests", () => {
               reviews: [],
             }),
         });
-      } else if (url.includes("/api/products/1/reviews")) {
+      }
+      if (url.includes("/api/products/1/reviews")) {
         return Promise.resolve({
-          json: () => Promise.resolve({ reviews: [] }),
+          json: () => Promise.resolve([]),
         });
       }
       return Promise.reject(new Error("Unknown URL"));
     });
-  });
 
-  it("should render the ProductCard component with product details", async () => {
     await act(async () => {
-      render(<ProductCard productId="1" />);
+      renderWithUserProvider(<ProductCard productId="1" />);
     });
-    expect(screen.getByText("Test Product")).toBeInTheDocument();
-    expect(screen.getByText("This is a test product")).toBeInTheDocument();
-    expect(screen.getByText("Price: $100")).toBeInTheDocument();
-    expect(screen.getByText("Average Rating: 4.5 ★")).toBeInTheDocument();
+
+    expect(screen.getByTestId("product-title")).toHaveTextContent(
+      "Test Product"
+    );
+    expect(screen.getByTestId("product-description")).toHaveTextContent(
+      "This is a test product"
+    );
+    expect(screen.getByTestId("product-price")).toHaveTextContent("$100");
+    expect(screen.getByTestId("product-average-rating")).toHaveTextContent(
+      "4.5 ★"
+    );
   });
 
   it("should display error message if fetching product fails", async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() =>
+    (fetch as jest.Mock).mockImplementation(() =>
       Promise.reject(new Error("Failed to fetch product"))
     );
+
     await act(async () => {
-      render(<ProductCard productId="1" />);
+      renderWithUserProvider(<ProductCard productId="1" />);
     });
+
     expect(
       screen.getByText("Error: Failed to fetch product")
     ).toBeInTheDocument();
   });
 
   it("should toggle reviews visibility", async () => {
-    await act(async () => {
-      render(<ProductCard productId="1" />);
+    (fetch as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/api/products/1")) {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              id: "1",
+              title: "Test Product",
+              description: "This is a test product",
+              price: 100,
+              average_rating: 4.5,
+              reviews: [],
+            }),
+        });
+      }
+      if (url.includes("/api/products/1/reviews")) {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve([
+              { id: "r1", content: "Great product", rating: 5 },
+              { id: "r2", content: "Good value", rating: 4 },
+            ]),
+        });
+      }
+      return Promise.reject(new Error("Unknown URL"));
     });
-    const toggleButton = screen.getByRole("button", { name: /show reviews/i });
+
+    await act(async () => {
+      renderWithUserProvider(<ProductCard productId="1" />);
+    });
+
+    const toggleButton = screen.getByTestId("toggle-reviews-button");
+
     expect(toggleButton).toBeInTheDocument();
+    expect(toggleButton).toHaveTextContent("Show Reviews");
+
+    // Show reviews
     await act(async () => {
       toggleButton.click();
     });
-    expect(
-      screen.getByRole("button", { name: /hide reviews/i })
-    ).toBeInTheDocument();
+    expect(toggleButton).toHaveTextContent("Hide Reviews");
+
+    // Hide reviews
+    await act(async () => {
+      toggleButton.click();
+    });
+    expect(toggleButton).toHaveTextContent("Show Reviews");
   });
 });

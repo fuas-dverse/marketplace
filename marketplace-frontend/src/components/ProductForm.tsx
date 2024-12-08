@@ -14,6 +14,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // @ts-ignore
   const { user, loading, error: userError } = useUser(UserContext);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,22 +39,22 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
         throw new Error("Failed to submit product");
       }
 
-      const data = await res.json();
-      console.log(data);
-
-      // Show success toast
-      setSuccess("Product submitted successfully!");
-
-      // Close modal after short delay
-      setTimeout(() => {
-        setSuccess(null);
-        onSuccess(); // Close the modal
-      }, 1000);
-
-      // Clear form fields
+      // Reset fields before showing success message
       setTitle("");
       setDescription("");
       setPrice("");
+
+      const data = await res.json();
+      console.log(data);
+
+      // Show success message
+      setSuccess("Product submitted successfully!");
+
+      // Call onSuccess after short delay
+      setTimeout(() => {
+        setSuccess(null);
+        onSuccess();
+      }, 1000);
     } catch (error: Error | any) {
       setError(error.message || "An unknown error occurred");
     }
@@ -62,7 +63,10 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
   if (userError) return <div>Error: {userError}</div>;
 
   return success ? (
-    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">
+    <div
+      className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative"
+      data-testid="success-message"
+    >
       {success}
     </div>
   ) : (

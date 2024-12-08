@@ -101,6 +101,9 @@ jobs:
       - name: Debug Build Context
         run: ls -al
 
+      - name: Debug File Access
+        run: cat docker-compose.yml
+
       - name: Build and Start Services
         run: |
           docker-compose up --build -d

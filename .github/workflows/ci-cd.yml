@@ -233,7 +233,7 @@ jobs:
           push: true
           tags: |
             dverse/notification-service:latest
-            dverse/mnotification-service:${{ github.sha }}
+            dverse/notification-service:${{ github.sha }}
 
       - name: Verify Docker Image
         run: docker pull dverse/notification-service:${{ github.sha }}

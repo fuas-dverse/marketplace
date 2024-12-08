@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketplace-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: marketplace-api
+  template:
+    metadata:
+      labels:
+        app: marketplace-api
+    spec:
+      containers:
+        - name: marketplace-api
+          image: dverse/marketplace-api:latest
+          ports:
+            - containerPort: 5001
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://marketplace:marketplace@db/marketplace_db"
+            - name: NATS_URL
+              value: "nats://nats-service:4222"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketplace-api-service
+spec:
+  selector:
+    app: marketplace-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5001
+  type: ClusterIP

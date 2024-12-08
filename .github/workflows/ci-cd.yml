@@ -104,6 +104,15 @@ jobs:
       - name: Debug File Access
         run: cat docker-compose.yml
 
+      - name: Debug Compose Environment
+        run: |
+          ls -al
+          cat docker-compose.yml
+          cat ./fastapi_app/Dockerfile || echo "fastapi_app Dockerfile missing"
+          cat ./nats_app/Dockerfile || echo "nats_app Dockerfile missing"
+          cat ./notification_service/Dockerfile || echo "notification_service Dockerfile missing"
+          ls ./init.sql || echo "init.sql missing"
+
       - name: Build and Start Services
         run: |
           docker-compose up --build -d

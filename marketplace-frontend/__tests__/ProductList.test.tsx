@@ -1,91 +1,144 @@
-import { render, screen, act, cleanup, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import ProductList from "@/components/ProductList";
-import "whatwg-fetch"; // Polyfill for fetch
+import { Product } from "@/types/marketplace.types";
+import { UserContext } from "@/contexts/UserProvider";
 
-// Mock fetch API to match the actual API response structure
-beforeEach(() => {
-  global.fetch = jest.fn((url) => {
-    if (url === "api/products") {
-      return Promise.resolve({
-        json: () =>
-          Promise.resolve([
-            {
-              id: 1,
-              title: "Test 1",
-              description: "cool 1",
-              price: 500,
-              average_rating: 4,
-              rating_count: 1,
-              seller_id: 1,
-            },
-            {
-              id: 2,
-              title: "Test 2",
-              description: "cool 2",
-              price: 500,
-              average_rating: 4,
-              rating_count: 1,
-              seller_id: 1,
-            },
-          ]),
-      });
-    }
-    return Promise.reject(new Error("Unexpected URL"));
-  }) as jest.Mock;
-});
+// Mock fetch response
+const mockProducts: Product[] = [
+  { id: "1", title: "Product 1", description: "Description 1", price: "10" },
+  { id: "2", title: "Product 2", description: "Description 2", price: "20" },
+  { id: "3", title: "Product 3", description: "Description 3", price: "30" },
+];
 
-// Clean up mocks and DOM after each test
-afterEach(() => {
-  jest.clearAllMocks();
-  cleanup();
-});
+// Mock user data
+const mockUser = {
+  id: "user123",
+  name: "Test User",
+  email: "testuser@example.com",
+  role: "buyer",
+};
 
-describe("ProductList Component Tests", () => {
-  it("should render the Product List title", async () => {
-    await act(async () => {
-      render(<ProductList />);
-    });
-    const titleElement = screen.getByTestId("product-list-title");
-    expect(titleElement).toBeInTheDocument();
-    expect(titleElement.textContent).toBe("Product List");
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve(mockProducts),
+  })
+) as jest.Mock;
+
+// Mock UserProvider
+const MockUserProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return (
+    <UserContext.Provider value={{ user: mockUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+describe("ProductList Component", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("should render products when fetched successfully", async () => {
-    await act(async () => {
-      render(<ProductList />);
-    });
+  const renderWithUserProvider = (ui: React.ReactElement) => {
+    return render(<MockUserProvider>{ui}</MockUserProvider>);
+  };
 
-    const productElements = await screen.findAllByTestId(/product-\d+/);
-    expect(productElements.length).toBe(2); // Matches the mock response
-    expect(productElements[0]).toHaveTextContent("Test 1");
-    expect(productElements[0]).toHaveTextContent("$500");
+  it("renders the product list container", async () => {
+    await act(async () => {
+      renderWithUserProvider(<ProductList />);
+    });
+    const container = screen.getByTestId("product-list-container");
+    expect(container).toBeInTheDocument();
   });
 
-  it("should display no products message when no products are available", async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.resolve({
-        json: () => Promise.resolve([]), // Return empty array for no products
-      })
-    );
-
+  it("fetches and displays products on initial render", async () => {
     await act(async () => {
-      render(<ProductList />);
+      renderWithUserProvider(<ProductList />);
     });
 
-    const noProductsMessage = screen.getByTestId("no-products-message");
-    expect(noProductsMessage).toBeInTheDocument();
-    expect(noProductsMessage.textContent).toBe(
-      "No products available. Add one to get started!"
-    );
+    await waitFor(() => {
+      const listItems = screen.getAllByRole("listitem"); // Querying list items
+      expect(listItems).toHaveLength(mockProducts.length);
+    });
   });
 
-  it("should have an Add Product button with correct text", async () => {
+  it("updates the product list when searching", async () => {
     await act(async () => {
-      render(<ProductList />);
+      renderWithUserProvider(<ProductList />);
     });
-    const addButton = screen.getByTestId("add-product-button");
-    expect(addButton).toBeInTheDocument();
-    expect(addButton.textContent).toBe("+ Add Product");
+
+    // Wait for products to load
+    await waitFor(() => {
+      const listItems = screen.getAllByRole("listitem");
+      expect(listItems).toHaveLength(mockProducts.length);
+    });
+
+    // Perform a search
+    const searchBar = screen.getByTestId("search-bar");
+    act(() => {
+      fireEvent.change(searchBar, { target: { value: "Product 1" } });
+    });
+
+    await waitFor(() => {
+      const listItems = screen.getAllByRole("listitem");
+      expect(listItems).toHaveLength(1); // Only Product 1 should be visible
+    });
+
+    expect(screen.getByTestId("product-item-1")).toBeInTheDocument();
+  });
+
+  it("displays a message when no products match the search query", async () => {
+    await act(async () => {
+      renderWithUserProvider(<ProductList />);
+    });
+
+    // Wait for products to load
+    await waitFor(() => {
+      const listItems = screen.getAllByRole("listitem");
+      expect(listItems).toHaveLength(mockProducts.length);
+    });
+
+    // Perform a search with no matches
+    const searchBar = screen.getByTestId("search-bar");
+    act(() => {
+      fireEvent.change(searchBar, { target: { value: "Nonexistent Product" } });
+    });
+
+    await waitFor(() => {
+      const noProductsMessage = screen.getByTestId("no-products-message");
+      expect(noProductsMessage).toBeInTheDocument();
+      expect(noProductsMessage).toHaveTextContent(
+        "No products match your search."
+      );
+    });
+  });
+
+  it("opens the modal when a product's 'Buy Now' button is clicked", async () => {
+    await act(async () => {
+      renderWithUserProvider(<ProductList />);
+    });
+
+    // Wait for products to load
+    await waitFor(() => {
+      const listItems = screen.getAllByRole("listitem");
+      expect(listItems).toHaveLength(mockProducts.length);
+    });
+
+    // Simulate clicking the 'Buy Now' button
+    const buyNowButton = screen
+      .getByTestId("product-item-1")
+      .querySelector('[data-testid="product-buy-button"]');
+    act(() => {
+      buyNowButton && fireEvent.click(buyNowButton);
+    });
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 });

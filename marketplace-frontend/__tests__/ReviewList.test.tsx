@@ -15,7 +15,7 @@ describe("ReviewList Component Tests", () => {
     // Check that the container, title, and list are rendered
     expect(screen.getByTestId("review-list-container")).toBeInTheDocument();
     expect(screen.getByTestId("review-list-title")).toHaveTextContent(
-      "Reviews:"
+      "Reviews"
     );
     expect(screen.getByTestId("review-list")).toBeInTheDocument();
 

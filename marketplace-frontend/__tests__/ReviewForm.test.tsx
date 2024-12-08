@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import ReviewForm from "@/components/ReviewForm";
+import { UserContext } from "@/contexts/UserProvider";
+import ReviewFormModal from "@/components/ReviewForm";
 
 // Mock the fetch API
 global.fetch = jest.fn(() =>
@@ -9,95 +10,86 @@ global.fetch = jest.fn(() =>
   })
 ) as jest.Mock;
 
-describe("ReviewForm Component Tests", () => {
+// Mock user data
+const mockUser = {
+  id: "user123",
+  name: "Test User",
+  email: "testuser@example.com",
+  role: "buyer",
+};
+
+// Mock UserProvider
+const MockUserProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return (
+    <UserContext.Provider value={{ user: mockUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+describe("ReviewFormModal Component Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should render the ReviewForm component with all fields", () => {
-    render(<ReviewForm productId={"1"} />);
-    expect(screen.getByTestId("input-rating")).toBeInTheDocument();
-    expect(screen.getByTestId("input-content")).toBeInTheDocument();
-    expect(screen.getByTestId("input-sellerId")).toBeInTheDocument();
-    expect(screen.getByTestId("submit-review-button")).toBeInTheDocument();
+  const renderWithUserProvider = (ui: React.ReactElement) => {
+    return render(<MockUserProvider>{ui}</MockUserProvider>);
+  };
+
+  it("renders the 'Add Review' button", () => {
+    renderWithUserProvider(<ReviewFormModal productId="1" />);
+    const button = screen.getByTestId("add-review-button");
+    expect(button).toBeInTheDocument();
   });
 
-  it("should allow user to fill out the form fields", () => {
-    render(<ReviewForm productId="1" />);
-    fireEvent.change(screen.getByTestId("input-rating"), {
-      target: { value: 5 },
-    });
-    fireEvent.change(screen.getByTestId("input-content"), {
-      target: { value: "Great product!" },
-    });
-    fireEvent.change(screen.getByTestId("input-sellerId"), {
-      target: { value: 2 },
-    });
+  it("opens the modal when the 'Add Review' button is clicked", () => {
+    renderWithUserProvider(<ReviewFormModal productId="1" />);
+    const button = screen.getByTestId("add-review-button");
+    fireEvent.click(button);
 
-    expect(screen.getByTestId("input-rating")).toHaveValue(5);
-    expect(screen.getByTestId("input-content")).toHaveValue("Great product!");
-    expect(screen.getByTestId("input-sellerId")).toHaveValue(2);
+    expect(screen.getByTestId("review-form")).toBeInTheDocument();
   });
 
-  it("should submit the form and clear the fields", async () => {
-    render(<ReviewForm productId="1" />);
+  it("allows the user to fill out the form and submit a review", async () => {
+    renderWithUserProvider(<ReviewFormModal productId="1" />);
+    fireEvent.click(screen.getByTestId("add-review-button"));
+
     fireEvent.change(screen.getByTestId("input-rating"), {
-      target: { value: 5 },
+      target: { value: "5" },
     });
     fireEvent.change(screen.getByTestId("input-content"), {
-      target: { value: "Great product!" },
-    });
-    fireEvent.change(screen.getByTestId("input-sellerId"), {
-      target: { value: 2 },
+      target: { value: "This is a great product!" },
     });
 
     fireEvent.click(screen.getByTestId("submit-review-button"));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.any(String),
+        "/api/products/1/reviews",
         expect.objectContaining({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             rating: 5,
-            content: "Great product!",
-            product_id: 1,
-            user_id: 2,
+            content: "This is a great product!",
+            product_id: "1",
+            user_id: "user123",
           }),
         })
       );
     });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("input-rating")).toHaveValue(null);
-      expect(screen.getByTestId("input-content")).toHaveValue("");
-      expect(screen.getByTestId("input-sellerId")).toHaveValue(null);
-    });
   });
 
-  it("should display an error if the fetch fails", async () => {
-    (fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.reject(new Error("Failed to submit review"))
-    );
+  it("closes the modal when the 'Add Review' button is toggled", () => {
+    renderWithUserProvider(<ReviewFormModal productId="1" />);
+    const button = screen.getByTestId("add-review-button");
+    fireEvent.click(button);
 
-    render(<ReviewForm productId="1" />);
-    fireEvent.change(screen.getByTestId("input-rating"), {
-      target: { value: 5 },
-    });
-    fireEvent.change(screen.getByTestId("input-content"), {
-      target: { value: "Great product!" },
-    });
-    fireEvent.change(screen.getByTestId("input-sellerId"), {
-      target: { value: 2 },
-    });
+    const closeButton = screen.getByTestId("close-modal"); // Assuming the modal has a close button with this label
+    fireEvent.click(closeButton);
 
-    fireEvent.click(screen.getByTestId("submit-review-button"));
-
-    await waitFor(() => {
-      expect(
-        screen.getByText("Error: Failed to submit review")
-      ).toBeInTheDocument();
-    });
+    expect(screen.queryByTestId("review-form")).not.toBeInTheDocument();
   });
 });

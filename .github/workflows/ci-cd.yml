@@ -113,6 +113,13 @@ jobs:
           cat ./notification_service/Dockerfile || echo "notification_service Dockerfile missing"
           ls ./init.sql || echo "init.sql missing"
 
+      - name: Debug Directories and Files
+        run: |
+          echo "Current Directory: $(pwd)"
+          ls -al
+          ls -al ./fastapi_app
+          ls -al ./nats_app
+
       - name: Build and Start Services
         run: |
           docker-compose up --build -d

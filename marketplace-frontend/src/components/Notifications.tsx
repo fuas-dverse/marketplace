@@ -19,11 +19,26 @@ interface ParsedMessage {
 export default function NotificationsList() {
   const { messages } = useContext(NotificationsContext);
 
+  const userMessages = messages.filter((message) => {
+    try {
+      const eventTypeEndIndex = message.indexOf(" ");
+      const jsonString = message.substring(eventTypeEndIndex + 1);
+      const parsedMessage = JSON.parse(jsonString);
+
+      return (
+        parsedMessage.actor &&
+        parsedMessage.actor.username === sessionStorage.getItem("username")
+      );
+    } catch (e) {
+      return false;
+    }
+  });
+
   return (
     <div className="p-4 bg-gray-100 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4">Notifications</h2>
       <ul className="space-y-2">
-        {[...messages].reverse().map((message, index) => {
+        {[...userMessages].reverse().map((message, index) => {
           let parsedMessage: ParsedMessage | string;
 
           try {

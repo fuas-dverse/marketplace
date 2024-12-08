@@ -98,9 +98,20 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
+      - name: Clear Docker Build Cache
+        run: docker builder prune -af
+
+      - name: Debug Directory Contents
+        run: |
+          echo "Checking contents of ./fastapi_app"
+          ls -al ./fastapi_app
+          echo "Checking contents of ./nats_app"
+          ls -al ./nats_app
+
       - name: Build and Start Services
         run: |
-          docker-compose up --build -d
+          docker-compose build --no-cache
+          docker-compose up -d
           docker-compose ps
 
       - name: Wait for API to be ready
@@ -196,7 +207,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./fastapi_app
-          file: ./fastapi_app/DockerFile
+          file: ./fastapi_app/Dockerfile
           push: true
           tags: |
             dverse/marketplace-api:latest

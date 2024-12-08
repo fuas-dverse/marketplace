@@ -25,14 +25,14 @@ export default function Footer() {
             About Us
           </a>
           <a
-            href="/contact"
+            href="/consent"
             className="hover:underline"
-            data-testid="footer-link-contact"
+            data-testid="footer-link-consent"
           >
-            Contact
+            Consent
           </a>
           <a
-            href="/privacy-policy"
+            href="/privacy"
             className="hover:underline"
             data-testid="footer-link-privacy"
           >

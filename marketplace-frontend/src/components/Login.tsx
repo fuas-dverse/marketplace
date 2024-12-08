@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,8 +26,8 @@ export default function Login() {
         sessionStorage.setItem("username", res.username);
       }
 
-      // Reload the account page
       window.location.reload();
+      router.push("/");
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"

@@ -27,7 +27,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({
     JSON.parse(sessionStorage.getItem("notifications") || "[]")
   );
   const [shownToasts, setShownToasts] = useState<Set<string>>(new Set());
-  const latestMessage = useWebSocket("ws://localhost:8000/ws");
+  const latestMessage = useWebSocket("ws://localhost:5003/ws");
   const pathname = usePathname(); // Get the current path
 
   useEffect(() => {

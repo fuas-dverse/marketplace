@@ -1,50 +1,64 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { ProductRow } from "@/components/ProductRow";
 import { Product } from "@/types/marketplace.types";
 
-const mockProduct: Product = {
-  id: "1",
-  title: "Test Product",
-  description:
-    "This is a test product description. It is meant to be descriptive and informative.",
-  price: "99.99",
-};
+describe("ProductRow Component", () => {
+  const mockProduct: Product & { onBuyNow: () => void } = {
+    id: "1",
+    title: "Test Product",
+    description: "This is a test product description.",
+    price: "99.99",
+    onBuyNow: jest.fn(), // Mock the onBuyNow callback
+  };
 
-describe("ProductRow Component Tests", () => {
-  it("should render the ProductRow component with product details", () => {
+  it("renders the product container", () => {
     render(<ProductRow {...mockProduct} />);
 
-    // Check if all product details are rendered
-    expect(screen.getByTestId("product-container")).toBeInTheDocument();
-    expect(screen.getByTestId("product-image")).toBeInTheDocument();
-    expect(screen.getByTestId("product-title")).toHaveTextContent(
-      mockProduct.title
-    );
-    expect(screen.getByTestId("product-description")).toHaveTextContent(
-      mockProduct.description
-    );
-    expect(screen.getByTestId("product-price")).toHaveTextContent(
-      `$${mockProduct.price}`
-    );
+    const container = screen.getByTestId("product-container");
+    expect(container).toBeInTheDocument();
   });
 
-  it("should render a link to the product details page", () => {
+  it("displays the product image", () => {
     render(<ProductRow {...mockProduct} />);
-    const productLink = screen.getByTestId("product-link");
-    expect(productLink).toHaveAttribute("href", `/products/${mockProduct.id}`);
+
+    const image = screen.getByTestId("product-image");
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute("src", "https://picsum.photos/600/450");
+    expect(image).toHaveAttribute("alt", "Product Image");
   });
 
-  it("should render a link to buy the product", () => {
+  it("displays the product title", () => {
     render(<ProductRow {...mockProduct} />);
-    const buyLink = screen.getByTestId("product-buy-link");
-    expect(buyLink).toHaveAttribute("href", `/products/${mockProduct.id}/buy`);
+
+    const title = screen.getByTestId("product-title");
+    expect(title).toBeInTheDocument();
+    expect(title).toHaveTextContent(mockProduct.title);
   });
 
-  it("should render a Buy Now button", () => {
+  it("displays the product description", () => {
     render(<ProductRow {...mockProduct} />);
-    const buyButton = screen.getByTestId("product-button");
-    expect(buyButton).toBeInTheDocument();
-    expect(buyButton).toHaveTextContent("Buy Now");
+
+    const description = screen.getByTestId("product-description");
+    expect(description).toBeInTheDocument();
+    expect(description).toHaveTextContent(mockProduct.description);
+  });
+
+  it("displays the product price", () => {
+    render(<ProductRow {...mockProduct} />);
+
+    const price = screen.getByTestId("product-price");
+    expect(price).toBeInTheDocument();
+    expect(price).toHaveTextContent(`$${mockProduct.price}`);
+  });
+
+  it("calls the onBuyNow function when 'Buy Now' button is clicked", () => {
+    render(<ProductRow {...mockProduct} />);
+
+    const buyNowButton = screen.getByTestId("product-buy-button");
+    expect(buyNowButton).toBeInTheDocument();
+
+    // Simulate clicking the "Buy Now" button
+    fireEvent.click(buyNowButton);
+    expect(mockProduct.onBuyNow).toHaveBeenCalledTimes(1);
   });
 });

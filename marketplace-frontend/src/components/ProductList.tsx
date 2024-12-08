@@ -72,7 +72,11 @@ export default function ProductList() {
       >
         {filteredProducts && filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <li key={product.id} data-testid={`product-${product.id}`}>
+            <li
+              key={product.id}
+              data-testid={`product-item-${product.id}`}
+              role="listitem"
+            >
               <ProductRow {...product} onBuyNow={() => openModal(product)} />
             </li>
           ))
@@ -88,7 +92,11 @@ export default function ProductList() {
 
       {/* Transaction Modal */}
       {selectedProduct && (
-        <TransactionModal product={selectedProduct} onClose={closeModal} />
+        <TransactionModal
+          product={selectedProduct}
+          onClose={closeModal}
+          data-testid="transaction-modal"
+        />
       )}
     </div>
   );

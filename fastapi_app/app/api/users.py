@@ -197,3 +197,39 @@ def delete_user(username: str, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
     return {"message": "User deleted successfully"}
+
+
+@router.put(
+    "/users/{username}",
+    status_code=status.HTTP_200_OK,
+    summary="Update user data",
+    description="Allow a user to update their personal information.",
+    response_description="Updated user details.",
+    responses={
+        200: {"model": UserResponse, "description": "User updated successfully."},
+        404: {"model": ErrorResponse, "description": "User not found."},
+        500: {"description": "Internal server error."},
+    },
+)
+def update_user(
+    username: str, user_data: UserCreateRequest, db: Session = Depends(get_db)
+):
+    """
+    Update a user's personal data.
+
+    - **username**: The current username of the user.
+    - **user_data**: New data to update the user with.
+    """
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    user.username = user_data.username
+    db.commit()
+    db.refresh(user)
+    return {
+        "message": "User updated successfully",
+        "user": {"id": str(user.id), "username": user.username},
+    }

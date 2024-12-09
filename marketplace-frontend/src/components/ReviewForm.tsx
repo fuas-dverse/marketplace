@@ -15,7 +15,7 @@ export default function ReviewFormModal({ productId }: ReviewFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // @ts-ignore
+  // @ts-expect-error - Add types for user, loading, and error
   const { user } = useUser(UserContext);
 
   const toggleModal = () => setIsModalOpen((prev) => !prev);
@@ -56,6 +56,7 @@ export default function ReviewFormModal({ productId }: ReviewFormProps) {
       setContent("");
     } catch (error: any) {
       setError(error.message);
+      console.error(error);
     }
   };
 

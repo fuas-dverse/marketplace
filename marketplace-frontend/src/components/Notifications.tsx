@@ -30,6 +30,7 @@ export default function NotificationsList() {
         parsedMessage.actor.username === sessionStorage.getItem("username")
       );
     } catch (e) {
+      console.error(e);
       return false;
     }
   });
@@ -46,6 +47,7 @@ export default function NotificationsList() {
             const jsonString = message.substring(eventTypeEndIndex + 1);
             parsedMessage = JSON.parse(jsonString);
           } catch (e) {
+            console.error(e);
             parsedMessage = message;
           }
 

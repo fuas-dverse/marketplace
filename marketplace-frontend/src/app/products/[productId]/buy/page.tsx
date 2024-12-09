@@ -6,5 +6,5 @@ export default function ProductDetails({
   params: { productId: string };
 }) {
   const productId = params.productId;
-  return <Transaction productId={productId} />;
+  return <Transaction productId={productId} onClose={() => {}} />;
 }

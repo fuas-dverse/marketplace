@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-type WebSocketMessage = {
-  event: string;
-  data: string;
-};
-
 const useWebSocket = (url: string) => {
   const [message, setMessage] = useState<string>("");
   const socketRef = useRef<WebSocket | null>(null);

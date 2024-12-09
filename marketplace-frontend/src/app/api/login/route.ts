@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to create user" },
+      { error: `Failed to create user, ${error}` },
       { status: 500 }
     );
   }
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: `Failed to fetch user with username ${username}` },
+      { error: `Failed to fetch user with username ${username}, ${error}` },
       { status: 500 }
     );
   }

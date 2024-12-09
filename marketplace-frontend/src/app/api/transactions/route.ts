@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: `Failed to add transaction for: ${req.body}` },
+      { error: `Failed to add transaction for: ${req.body}, ${error}` },
       { status: 500 }
     );
   }
@@ -52,7 +52,7 @@ export async function GET() {
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { error: `Failed to fetch products, ${error}` },
       { status: 500 }
     );
   }

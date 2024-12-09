@@ -1,18 +1,5 @@
-"use client";
+import AccountPage from "@/components/AccountPage";
 
-import AccountCard from "@/components/AccountCard";
-import Login from "@/components/Login";
-import Notifications from "@/components/Notifications";
-
-export default function AccountPage() {
-  if (!sessionStorage.getItem("username")) {
-    return <Login />;
-  }
-
-  return (
-    <div>
-      <AccountCard />
-      <Notifications />
-    </div>
-  );
+export default function Account() {
+  return <AccountPage />;
 }

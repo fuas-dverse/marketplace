@@ -1,26 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionStatus from "./TransactionStatus";
 import { UserContext, useUser } from "@/contexts/UserProvider";
 import { Product } from "@/types/marketplace.types";
 
 interface TransactionModalProps {
-  product: Product;
+  productId: string;
   onClose: () => void;
 }
 
 export default function TransactionModal({
-  product,
+  productId,
   onClose,
 }: TransactionModalProps) {
   const [status, setStatus] = useState<
     "complete" | "pending" | "failed" | null
   >(null);
   const [error, setError] = useState<string | null>(null);
-  // @ts-ignore
+  const [product, setProduct] = useState<Product | null>(null);
+  // @ts-expect-error - Add types for user, loading, and error
   const { user } = useUser(UserContext);
 
+  useEffect(() => {
+    fetchProduct();
+  }, []);
+
+  const fetchProduct = async () => {
+    try {
+      const res = await fetch(`/api/products/${productId}`).then((res) =>
+        res.json()
+      );
+      setProduct(res);
+    } catch (error: Error | any) {
+      setError(error.message);
+    }
+  };
+
+  if (!product) {
+    return null;
+  }
   const handlePurchase = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user) {
@@ -55,6 +74,7 @@ export default function TransactionModal({
     } catch (err: any) {
       setStatus("failed");
       setError("An unexpected error occurred. Please try again.");
+      console.error(err);
     }
   };
 

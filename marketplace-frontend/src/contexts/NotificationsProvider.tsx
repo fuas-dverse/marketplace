@@ -51,6 +51,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({
         parsedMessage = JSON.parse(jsonString);
       } catch (e) {
         parsedMessage = latestMessage;
+        console.error(e);
       }
 
       // Show toast only if it hasn't been shown before and pathname is not '/account'

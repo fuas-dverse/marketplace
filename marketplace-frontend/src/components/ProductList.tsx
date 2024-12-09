@@ -91,9 +91,9 @@ export default function ProductList() {
       </ul>
 
       {/* Transaction Modal */}
-      {selectedProduct && (
+      {selectedProduct?.id && (
         <TransactionModal
-          product={selectedProduct}
+          productId={selectedProduct.id}
           onClose={closeModal}
           data-testid="transaction-modal"
         />

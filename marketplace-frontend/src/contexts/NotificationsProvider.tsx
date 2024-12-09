@@ -23,12 +23,17 @@ export const NotificationsContext = createContext<NotificationsContextProps>({
 export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [messages, setMessages] = useState<string[]>(
-    JSON.parse(sessionStorage.getItem("notifications") || "[]")
-  );
+  const [messages, setMessages] = useState<string[]>([]);
   const [shownToasts, setShownToasts] = useState<Set<string>>(new Set());
   const latestMessage = useWebSocket("ws://localhost:5003/ws");
   const pathname = usePathname(); // Get the current path
+
+  useEffect(() => {
+    const tempMessages = JSON.parse(
+      sessionStorage?.getItem("notifications") || "[]"
+    );
+    setMessages(tempMessages);
+  }, []);
 
   useEffect(() => {
     if (latestMessage && typeof latestMessage === "string") {

@@ -199,6 +199,7 @@ jobs:
           context: ./fastapi_app
           file: ./fastapi_app/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             dverse/marketplace-api:latest
             dverse/marketplace-api:${{ github.sha }}
@@ -231,6 +232,7 @@ jobs:
           context: ./notification_service
           file: ./notification_service/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             dverse/notification-service:latest
             dverse/notification-service:${{ github.sha }}

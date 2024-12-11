@@ -1,46 +1,34 @@
-# Stage 1: Install dependencies and build the app
-FROM node:18 AS builder
+# Stage 1: Builder
+FROM node:18.18.0 AS builder
 
-# Set the working directory
 WORKDIR /app
-
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
 
 # Install dependencies
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy the rest of the app source code
+# Copy the entire application
 COPY . .
 
-# Ensure TypeScript is installed
-RUN npm install typescript -g
-
-# Build the app
+# Build the application
 RUN npm run build
 
-# Stage 2: Create a lightweight production image
-FROM node:18-alpine AS runner
+# Stage 2: Runner
+FROM node:18.18.0 AS runner
 
-# Set the working directory
 WORKDIR /app
 
-# Install only production dependencies
-COPY package.json package-lock.json ./
-RUN npm install --omit=dev
-
-# Copy the built app from the builder stage
+# Copy necessary files from the builder stage
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/next.config.js ./next.config.js
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/next.config.mjs ./next.config.mjs
 
-# Set environment variables for Next.js
-ENV NODE_ENV=production
-ENV PORT=3006
+# Install production dependencies
+RUN npm install --omit=dev
 
-# Expose the desired port
-EXPOSE 3006
+# Expose the port the app runs on
+EXPOSE 3001
 
-# Start the Next.js app
-CMD ["npm", "start"]
+# Run the application
+CMD ["npm", "start", "--", "--port", "3001"]

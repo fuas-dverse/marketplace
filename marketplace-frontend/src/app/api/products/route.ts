@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.FASTAPI_URL;
+const API_BASE_URL = process.env.API_URL;
 
 // Add a new product
 export async function POST(req: NextRequest) {

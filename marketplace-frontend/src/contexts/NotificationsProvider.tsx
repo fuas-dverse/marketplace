@@ -16,6 +16,8 @@ interface ParsedMessage {
   };
 }
 
+const WEBSOCKET_URL = process.env.WEBSOCKET_URL;
+
 export const NotificationsContext = createContext<NotificationsContextProps>({
   messages: [],
 });
@@ -25,7 +27,7 @@ export const NotificationsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [shownToasts, setShownToasts] = useState<Set<string>>(new Set());
-  const latestMessage = useWebSocket("ws://localhost:5003/ws");
+  const latestMessage = useWebSocket(WEBSOCKET_URL ?? "ws://localhost:5003/ws");
   const pathname = usePathname(); // Get the current path
 
   useEffect(() => {

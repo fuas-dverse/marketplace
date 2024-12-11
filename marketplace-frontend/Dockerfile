@@ -3,6 +3,10 @@ FROM node:18.18.0 AS builder
 
 WORKDIR /app
 
+RUN npm config set registry https://registry.npmmirror.com
+RUN npm config set strict-ssl false
+RUN npm install --global npm@latest
+
 # Install dependencies
 COPY package.json package-lock.json ./
 RUN npm install

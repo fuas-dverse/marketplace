@@ -1,34 +1,13 @@
-import { render, screen, act } from "@testing-library/react";
+import { screen, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ProductCard from "@/components/ProductCard";
-import { UserContext } from "@/contexts/UserProvider";
 import "whatwg-fetch"; // Polyfill for fetch
+import { renderWithUserProvider } from "./utils/renderWithProvider";
 
 // Mock the fetch API
 global.fetch = jest.fn();
 
 describe("ProductCard Component Tests", () => {
-  const mockSetUser = jest.fn();
-
-  // Utility function to render the component with a mocked UserProvider
-  const renderWithUserProvider = (
-    component: React.ReactNode,
-    user = { username: "testuser" }
-  ) => {
-    return render(
-      <UserContext.Provider
-        value={{
-          user,
-          setUser: mockSetUser,
-          loading: false,
-          error: null,
-        }}
-      >
-        {component}
-      </UserContext.Provider>
-    );
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });

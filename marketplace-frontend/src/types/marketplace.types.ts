@@ -27,3 +27,13 @@ export interface UserContextType {
 export interface UserProviderProps {
   children: React.ReactNode;
 }
+
+export interface Review {
+  id: string;
+  content: string;
+  rating: number;
+}
+
+export interface ReviewListProps {
+  reviews: Review[];
+}

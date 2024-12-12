@@ -7,7 +7,7 @@ const mockUser = (isNull: boolean): User | null => {
     return null;
   }
   return {
-    id: "user123",
+    id: "123",
     username: "TestUser",
     email: "testuser@example.com",
     password: "password",

@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, fireEvent, waitFor, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ProductForm from "@/components/ProductForm";
-import { UserContext } from "@/contexts/UserProvider";
+import { renderWithUserProvider } from "./utils/renderWithProvider";
 
 // Mock fetch API
 global.fetch = jest.fn(() =>
@@ -11,27 +11,7 @@ global.fetch = jest.fn(() =>
 ) as jest.Mock;
 
 describe("ProductForm Component Tests", () => {
-  const mockSetUser = jest.fn();
   const mockOnSuccess = jest.fn();
-
-  // Utility to render with UserProvider
-  const renderWithUserProvider = (
-    component: React.ReactNode,
-    user = { id: 1, username: "testuser" }
-  ) => {
-    return render(
-      <UserContext.Provider
-        value={{
-          user,
-          setUser: mockSetUser,
-          loading: false,
-          error: null,
-        }}
-      >
-        {component}
-      </UserContext.Provider>
-    );
-  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -64,20 +44,21 @@ describe("ProductForm Component Tests", () => {
     expect(screen.getByTestId("input-price")).toHaveValue(100);
   });
 
-  it.skip("should display a success message after form submission", async () => {
+  it("should display a success message after form submission", async () => {
     renderWithUserProvider(<ProductForm onSuccess={mockOnSuccess} />);
+    await act(async () => {
+      fireEvent.change(screen.getByTestId("input-title"), {
+        target: { value: "Test Product" },
+      });
+      fireEvent.change(screen.getByTestId("input-description"), {
+        target: { value: "This is a test product" },
+      });
+      fireEvent.change(screen.getByTestId("input-price"), {
+        target: { value: "100" },
+      });
 
-    fireEvent.change(screen.getByTestId("input-title"), {
-      target: { value: "Test Product" },
+      fireEvent.click(screen.getByTestId("submit-button"));
     });
-    fireEvent.change(screen.getByTestId("input-description"), {
-      target: { value: "This is a test product" },
-    });
-    fireEvent.change(screen.getByTestId("input-price"), {
-      target: { value: "100" },
-    });
-
-    fireEvent.click(screen.getByTestId("submit-button"));
 
     await waitFor(() => {
       expect(screen.getByTestId("success-message")).toBeInTheDocument();
@@ -85,18 +66,7 @@ describe("ProductForm Component Tests", () => {
   });
 
   it("should show an error if the user context has an error", () => {
-    render(
-      <UserContext.Provider
-        value={{
-          user: null,
-          setUser: mockSetUser,
-          loading: false,
-          error: "User context error",
-        }}
-      >
-        <ProductForm onSuccess={mockOnSuccess} />
-      </UserContext.Provider>
-    );
+    renderWithUserProvider(<ProductForm onSuccess={mockOnSuccess} />);
 
     expect(screen.getByText("Error: User context error")).toBeInTheDocument();
   });

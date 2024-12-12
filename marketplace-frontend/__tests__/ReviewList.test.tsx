@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ReviewList from "@/components/ReviewList";
+import { Review } from "@/types/marketplace.types";
 
-const mockReviews = [
-  { id: 1, content: "Great product!", rating: 5 },
-  { id: 2, content: "Not bad", rating: 3 },
-  { id: 3, content: "Could be better", rating: 2 },
+const mockReviews: Review[] = [
+  { id: "1", content: "Great product!", rating: 5 },
+  { id: "2", content: "Not bad", rating: 3 },
+  { id: "3", content: "Could be better", rating: 2 },
 ];
 
 describe("ReviewList Component Tests", () => {

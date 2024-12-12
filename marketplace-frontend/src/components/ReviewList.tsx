@@ -1,14 +1,5 @@
+import { ReviewListProps } from "@/types/marketplace.types";
 import React from "react";
-
-interface Review {
-  id: string;
-  content: string;
-  rating: number;
-}
-
-interface ReviewListProps {
-  reviews: Review[];
-}
 
 const ReviewList: React.FC<ReviewListProps> = ({ reviews }) => {
   const renderStars = (rating: number) => {

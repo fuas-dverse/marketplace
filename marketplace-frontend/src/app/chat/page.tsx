@@ -1,6 +1,6 @@
 import Chat from "@/components/Chat";
 
-export default function TransactionsPage() {
+export default function ChatPage() {
   return (
     <div>
       <Chat />

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.FASTAPI_URL;
+const API_BASE_URL = process.env.API_URL;
 
 // Add a new product
 export async function POST(req: NextRequest) {
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to create product" },
+      { error: `Failed to create product, ${error}` },
       { status: 500 }
     );
   }
@@ -52,7 +52,7 @@ export async function GET() {
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { error: `Failed to fetch products, ${error}` },
       { status: 500 }
     );
   }

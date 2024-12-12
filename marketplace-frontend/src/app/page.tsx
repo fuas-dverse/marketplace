@@ -1,9 +1,9 @@
-import Home from "@/components/Home";
+import ProductList from "@/components/ProductList";
 
 export default function HomePage() {
   return (
-    <section>
-      <Home />
-    </section>
+    <div className="mt-10 p-4 bg-purple-50 shadow-lg rounded-md">
+      <ProductList />
+    </div>
   );
 }

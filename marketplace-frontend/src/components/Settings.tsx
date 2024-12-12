@@ -15,8 +15,8 @@ export default function Settings({ onSuccess }: SettingsProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // @ts-ignore
-  const { user, setUser, loading, error: userError } = useUser(UserContext);
+  // @ts-expect-error - Add types for user, loading, and error
+  const { user, setUser, error: userError } = useUser(UserContext);
 
   const router = useRouter();
 
@@ -135,6 +135,7 @@ export default function Settings({ onSuccess }: SettingsProps) {
   };
 
   if (userError) return <div>Error: {userError}</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return success ? (
     <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative">

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.FASTAPI_URL;
+const API_BASE_URL = process.env.API_URL;
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: `Failed to fetch user with username ${username}` },
+      { error: `Failed to fetch user with username ${username}, ${error}` },
       { status: 500 }
     );
   }
@@ -54,7 +54,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: `Failed to update user with username ${username}` },
+      { error: `Failed to update user with username ${username}, ${error}` },
       { status: 500 }
     );
   }
@@ -83,7 +83,7 @@ export async function DELETE(req: NextRequest) {
     );
   } catch (error) {
     return NextResponse.json(
-      { error: `Failed to delete user with username ${username}` },
+      { error: `Failed to delete user with username ${username}, ${error}` },
       { status: 500 }
     );
   }

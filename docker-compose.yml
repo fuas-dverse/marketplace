@@ -63,6 +63,20 @@ services:
     networks:
       - nats_network
 
+  # frontend:
+  #   build:
+  #     context: ./marketplace-frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     PORT: 3001
+  #     NODE_ENV: production
+  #     NATS_SERVER_URL: nats://nats:4222
+  #     FAST_API_URL: http://api:5001
+  #   networks:
+  #     - nats_network
+
 networks:
   nats_network:
     driver: bridge

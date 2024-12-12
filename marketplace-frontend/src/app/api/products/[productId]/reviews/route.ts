@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.FASTAPI_URL;
+const API_BASE_URL = process.env.API_URL;
 
 // Add a review
 export async function POST(
@@ -32,7 +32,9 @@ export async function POST(
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: `Failed to add review for product ${params.productId}` },
+      {
+        error: `Failed to add review for product ${params.productId}, ${error}`,
+      },
       { status: 500 }
     );
   }
@@ -61,7 +63,7 @@ export async function GET(
   } catch (error) {
     return NextResponse.json(
       {
-        error: `Failed to fetch reviews for product with ID ${params.productId}`,
+        error: `Failed to fetch reviews for product with ID ${params.productId}, ${error}`,
       },
       { status: 500 }
     );

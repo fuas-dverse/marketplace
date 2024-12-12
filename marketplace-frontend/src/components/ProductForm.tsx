@@ -14,8 +14,8 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // @ts-ignore
-  const { user, loading, error: userError } = useUser(UserContext);
+  // @ts-expect-error - Add types for user, loading, and error
+  const { user, error: userError } = useUser(UserContext);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,6 +61,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
   };
 
   if (userError) return <div>Error: {userError}</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return success ? (
     <div

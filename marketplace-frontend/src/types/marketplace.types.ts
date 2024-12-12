@@ -16,3 +16,14 @@ export interface Product {
   updatedAt?: string;
   user?: User;
 }
+
+export interface UserContextType {
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface UserProviderProps {
+  children: React.ReactNode;
+}

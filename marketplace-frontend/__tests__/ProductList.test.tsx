@@ -135,10 +135,12 @@ describe("ProductList Component", () => {
     const buyNowButton = screen
       .getByTestId("product-item-1")
       .querySelector('[data-testid="product-buy-button"]');
-    act(() => {
+    await act(async () => {
       buyNowButton && fireEvent.click(buyNowButton);
     });
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
   });
 });

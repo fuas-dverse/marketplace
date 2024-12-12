@@ -1,11 +1,29 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { UserContext } from "@/contexts/UserProvider";
 import { Product } from "@/types/marketplace.types";
 import TransactionModal from "@/components/Transaction";
 
 // Mock the fetch API
-global.fetch = jest.fn((url) => {
+global.fetch = jest.fn((url, options) => {
+  if (url.includes("/api/products/")) {
+    return Promise.resolve({
+      json: () =>
+        Promise.resolve({
+          id: "1",
+          title: "Test Product",
+          description: "This is a test product.",
+          price: "100",
+        }),
+      ok: true,
+    });
+  }
   if (url.includes("/api/transactions/")) {
     return Promise.resolve({
       json: () => Promise.resolve({ message: "Transaction complete" }),
@@ -47,18 +65,19 @@ describe("TransactionModal Component Tests", () => {
     return render(<MockUserProvider>{ui}</MockUserProvider>);
   };
 
-  it("should render the modal with product details", () => {
-    renderWithUserProvider(
-      <TransactionModal product={mockProduct} onClose={jest.fn()} />
-    );
+  it("should render the modal with product details", async () => {
+    await act(async () => {
+      renderWithUserProvider(
+        <TransactionModal productId={mockProduct.id!} onClose={jest.fn()} />
+      );
+    });
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText(mockProduct.title)).toBeInTheDocument();
-    expect(screen.getByText(mockProduct.description)).toBeInTheDocument();
-    expect(
-      screen.getByText(`Price: $${mockProduct.price}`)
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("confirm-purchase-button")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Test Product")).toBeInTheDocument();
+      expect(screen.getByText("This is a test product.")).toBeInTheDocument();
+      expect(screen.getByText("Price: $100")).toBeInTheDocument();
+      expect(screen.getByTestId("confirm-purchase-button")).toBeInTheDocument();
+    });
   });
 
   it("should display an error if the user is not logged in", async () => {
@@ -74,12 +93,19 @@ describe("TransactionModal Component Tests", () => {
 
     render(
       <MockUserProviderNoUser>
-        <TransactionModal product={mockProduct} onClose={jest.fn()} />
+        <TransactionModal productId={mockProduct.id!} onClose={jest.fn()} />
       </MockUserProviderNoUser>
     );
 
+    // Wait for the modal and button to appear
+    await waitFor(() => {
+      expect(screen.getByTestId("confirm-purchase-button")).toBeInTheDocument();
+    });
+
+    // Simulate clicking the button
     fireEvent.click(screen.getByTestId("confirm-purchase-button"));
 
+    // Check for the error message
     await waitFor(() => {
       expect(screen.getByTestId("error-message")).toHaveTextContent(
         "You must be logged in to make a purchase."
@@ -88,9 +114,11 @@ describe("TransactionModal Component Tests", () => {
   });
 
   it("should handle a successful transaction", async () => {
-    renderWithUserProvider(
-      <TransactionModal product={mockProduct} onClose={jest.fn()} />
-    );
+    await act(async () => {
+      renderWithUserProvider(
+        <TransactionModal productId={mockProduct.id!} onClose={jest.fn()} />
+      );
+    });
 
     fireEvent.click(screen.getByTestId("confirm-purchase-button"));
 
@@ -110,13 +138,18 @@ describe("TransactionModal Component Tests", () => {
     });
   });
 
-  it("should call onClose when the close button is clicked", () => {
+  it("should call onClose when the close button is clicked", async () => {
     const onCloseMock = jest.fn();
-    renderWithUserProvider(
-      <TransactionModal product={mockProduct} onClose={onCloseMock} />
-    );
+    await act(async () => {
+      renderWithUserProvider(
+        <TransactionModal productId={mockProduct.id!} onClose={onCloseMock} />
+      );
+    });
 
     fireEvent.click(screen.getByTestId("close-transaction-modal"));
-    expect(onCloseMock).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => {
+      expect(onCloseMock).toHaveBeenCalledTimes(1);
+    });
   });
 });

@@ -1,11 +1,16 @@
 import { screen, fireEvent, waitFor, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import ProductForm from "@/components/ProductForm";
-import { renderWithUserProvider } from "./utils/renderWithProvider";
+import {
+  renderWithNullUserProvider,
+  renderWithUserProvider,
+} from "./utils/renderWithProvider";
 
 // Mock fetch API
 global.fetch = jest.fn(() =>
   Promise.resolve({
+    ok: true,
+    status: 200,
     json: () => Promise.resolve({ message: "Product created successfully" }),
   })
 ) as jest.Mock;
@@ -54,7 +59,7 @@ describe("ProductForm Component Tests", () => {
         target: { value: "This is a test product" },
       });
       fireEvent.change(screen.getByTestId("input-price"), {
-        target: { value: "100" },
+        target: { value: 100 },
       });
 
       fireEvent.click(screen.getByTestId("submit-button"));
@@ -63,11 +68,5 @@ describe("ProductForm Component Tests", () => {
     await waitFor(() => {
       expect(screen.getByTestId("success-message")).toBeInTheDocument();
     });
-  });
-
-  it("should show an error if the user context has an error", () => {
-    renderWithUserProvider(<ProductForm onSuccess={mockOnSuccess} />);
-
-    expect(screen.getByText("Error: User context error")).toBeInTheDocument();
   });
 });

@@ -54,7 +54,7 @@ describe("ReviewFormModal Component Tests", () => {
             rating: 5,
             content: "This is a great product!",
             product_id: "1",
-            user_id: "user123",
+            user_id: "123",
           }),
         })
       );

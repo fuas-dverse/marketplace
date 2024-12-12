@@ -17,6 +17,11 @@ const config: Config = {
     "**/__tests__/**/*.+(ts|tsx|js)",
     "**/?(*.)+(spec|test).+(ts|tsx|js)",
   ],
+  testPathIgnorePatterns: [
+    "<rootDir>/node_modules/",
+    "<rootDir>/.next/",
+    "<rootDir>/__tests__/utils/",
+  ],
   coverageThreshold: {
     global: {
       lines: 80,

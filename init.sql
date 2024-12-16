@@ -1,4 +1,4 @@
--- Create the user if it doesn't already exist
+-- Create the "marketplace" role if it doesn't already exist
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -8,7 +8,7 @@ BEGIN
     END IF;
 END $$;
 
--- Create the database if it doesn't already exist
+-- Create the "marketplace_db" database if it doesn't already exist
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -18,8 +18,18 @@ BEGIN
     END IF;
 END $$;
 
-\c marketplace_db;
+-- Create the "postgres" role if it doesn't already exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_roles WHERE rolname = 'postgres'
+    ) THEN
+        CREATE ROLE postgres WITH SUPERUSER LOGIN PASSWORD 'password';
+    END IF;
+END $$;
 
+-- Connect to the "marketplace_db" database
+\c marketplace_db;
 -- Enable the extension for generating UUIDs
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 

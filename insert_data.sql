@@ -28,10 +28,10 @@ product_ids AS (
 )
 -- Insert sample data into transactions table with UUIDs
 INSERT INTO transactions (id, buyer_id, product_id, status) VALUES
-    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'john_doe'), (SELECT id FROM product_ids WHERE title = 'Smartphone'), 'completed'),
-    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'jane_smith'), (SELECT id FROM product_ids WHERE title = 'Laptop'), 'pending'),
-    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'alice_wonder'), (SELECT id FROM product_ids WHERE title = 'Wireless Headphones'), 'completed'),
-    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'bob_builder'), (SELECT id FROM product_ids WHERE title = 'Desk Lamp'), 'cancelled');
+    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'john_doe'), (SELECT id FROM product_ids WHERE title = 'Smartphone'), 'completed', (SELECT price FROM product_ids WHERE title = 'Smartphone')),
+    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'jane_smith'), (SELECT id FROM product_ids WHERE title = 'Laptop'), 'pending', (SELECT price FROM product_ids WHERE title = 'Laptop')),
+    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'alice_wonder'), (SELECT id FROM product_ids WHERE title = 'Wireless Headphones'), 'completed', (SELECT price FROM product_ids WHERE title = 'Wireless Headphones')),
+    (gen_random_uuid(), (SELECT id FROM user_ids WHERE username = 'bob_builder'), (SELECT id FROM product_ids WHERE title = 'Desk Lamp'), 'cancelled', (SELECT price FROM product_ids WHERE title = 'Desk Lamp'));
 
 -- Retrieve UUIDs for users and products for reference in later inserts
 WITH user_ids AS (

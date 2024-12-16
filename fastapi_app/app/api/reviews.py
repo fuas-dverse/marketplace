@@ -1,40 +1,12 @@
-import asyncio
-import json
 from fastapi import APIRouter, Depends, HTTPException, status
-from jsonschema import ValidationError, validate
 from sqlalchemy.orm import Session
 from app.database import get_db, create_review, update_product
 from app.models import Review, User, Product
 from pydantic import BaseModel
-from nats.aio.client import Client as NATS
-
-from app import event_schema
+from app.nats_connection import publish_event
 from app.event_builder import build_event
 
-
 router = APIRouter()
-nc = NATS()
-
-
-# Connect to NATS
-async def connect_nats():
-    await nc.connect(servers=["nats://nats-server:4222"])
-
-
-asyncio.create_task(connect_nats())
-
-
-# Helper function to publish NATS event
-async def publish_event(subject, data):
-    try:
-        validate(instance=data, schema=event_schema)
-    except ValidationError as e:
-        raise ValidationError(f"Validation failed: {e.message}")
-
-    # Serialize the event data to JSON
-    event_json = json.dumps(data).encode("utf-8")
-
-    await nc.publish(subject, event_json)
 
 
 class ReviewCreateRequest(BaseModel):

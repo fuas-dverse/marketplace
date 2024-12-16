@@ -3,36 +3,10 @@ from sqlalchemy.orm import Session
 from app.database import get_db, create_transaction
 from app.models import Transaction, User, Product
 from pydantic import BaseModel
-import asyncio
-from nats.aio.client import Client as NATS
-from jsonschema import validate, ValidationError
-from app.event_schema import event_schema
-import json
 from app.event_builder import build_event
+from app.nats_connection import publish_event
 
 router = APIRouter()
-nc = NATS()
-
-
-# Connect to NATS
-async def connect_nats():
-    await nc.connect(servers=["nats://nats-server:4222"])
-
-
-asyncio.create_task(connect_nats())
-
-
-# Helper function to publish NATS event
-async def publish_event(subject, data):
-    try:
-        validate(instance=data, schema=event_schema)
-    except ValidationError as e:
-        raise ValidationError(f"Validation failed: {e.message}")
-
-    # Serialize the event data to JSON
-    event_json = json.dumps(data).encode("utf-8")
-
-    await nc.publish(subject, event_json)
 
 
 class TransactionCreateRequest(BaseModel):

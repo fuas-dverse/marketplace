@@ -1,10 +1,40 @@
+import asyncio
+import json
 from fastapi import APIRouter, Depends, HTTPException, status
+from jsonschema import ValidationError, validate
 from sqlalchemy.orm import Session
 from app.database import get_db, create_review, update_product
 from app.models import Review, User, Product
 from pydantic import BaseModel
+from nats.aio.client import Client as NATS
+
+from fastapi_app.app import event_schema
+from fastapi_app.app.event_builder import build_event
+
 
 router = APIRouter()
+nc = NATS()
+
+
+# Connect to NATS
+async def connect_nats():
+    await nc.connect(servers=["nats://nats-server:4222"])
+
+
+asyncio.create_task(connect_nats())
+
+
+# Helper function to publish NATS event
+async def publish_event(subject, data):
+    try:
+        validate(instance=data, schema=event_schema)
+    except ValidationError as e:
+        raise ValidationError(f"Validation failed: {e.message}")
+
+    # Serialize the event data to JSON
+    event_json = json.dumps(data).encode("utf-8")
+
+    await nc.publish(subject, event_json)
 
 
 class ReviewCreateRequest(BaseModel):
@@ -70,7 +100,7 @@ class ErrorResponse(BaseModel):
         500: {"description": "Internal server error."},
     },
 )
-def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
+async def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
     """
     Create a review for a product.
 
@@ -113,6 +143,18 @@ def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
     )
 
     product = update_product(db, product, average_rating, rating_count)
+
+    new_event = build_event(
+        review,
+        actor={"actor_id": str(user.id), "username": user.username},
+        system={
+            "platform": "marketplace",
+            "service": "reviews",
+            "event_type": "posted",
+        },
+    )
+
+    await publish_event("review.created", new_event)
 
     return {
         "message": "Review created successfully",

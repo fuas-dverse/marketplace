@@ -7,7 +7,6 @@ import {
   renderWithUserProvider,
 } from "./utils/renderWithProvider";
 
-// Mock the fetch API
 global.fetch = jest.fn((url, options) => {
   if (url.includes("/api/products/")) {
     return Promise.resolve({
@@ -19,12 +18,20 @@ global.fetch = jest.fn((url, options) => {
           price: "100",
         }),
       ok: true,
+      status: 200,
+      headers: {
+        get: () => "application/json",
+      },
     });
   }
   if (url.includes("/api/transactions/")) {
     return Promise.resolve({
       json: () => Promise.resolve({ message: "Transaction complete" }),
       ok: true,
+      status: 201,
+      headers: {
+        get: () => "application/json",
+      },
     });
   }
   return Promise.reject(new Error("Unknown URL"));
@@ -85,18 +92,20 @@ describe("TransactionModal Component Tests", () => {
     fireEvent.click(screen.getByTestId("confirm-purchase-button"));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        "/api/transactions/",
-        expect.objectContaining({
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: "complete",
-            product_id: mockProduct.id,
-            buyer_id: "123",
-          }),
-        })
+      const transactionCall = (global.fetch as jest.Mock).mock.calls.find(
+        ([url]: [string]) => url === "/api/transactions/"
       );
+      expect(transactionCall).toBeDefined();
+      expect(transactionCall[1]).toMatchObject({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "complete",
+          product_id: mockProduct.id,
+          buyer_id: "123",
+          amount: "100",
+        }),
+      });
     });
   });
 

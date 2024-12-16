@@ -84,6 +84,7 @@ class Transaction(Base):
         status (str): Status of the transaction (e.g., "complete", "pending").
         buyer (User): The user who made the purchase.
         product (Product): The product involved in the transaction.
+        amount (float): The amount paid for the product.
     """
 
     __tablename__ = "transactions"

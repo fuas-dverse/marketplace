@@ -6,7 +6,7 @@ Utile module for building events pushed on the nats server.
 import uuid
 from datetime import datetime, timezone
 
-from fastapi_app.app.models import Product, Review, Transaction, User
+from app.models import Product, Review, Transaction, User
 
 
 def build_event(object, actor, system):

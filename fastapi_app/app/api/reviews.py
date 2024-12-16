@@ -8,8 +8,8 @@ from app.models import Review, User, Product
 from pydantic import BaseModel
 from nats.aio.client import Client as NATS
 
-from fastapi_app.app import event_schema
-from fastapi_app.app.event_builder import build_event
+from app import event_schema
+from app.event_builder import build_event
 
 
 router = APIRouter()

@@ -58,7 +58,7 @@ class ReviewResponse(BaseModel):
     id: int
     rating: int
     content: str
-    user_id: int
+    user_id: str
     product_id: str
     new_average_rating: float
     rating_count: int

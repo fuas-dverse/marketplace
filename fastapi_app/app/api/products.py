@@ -137,9 +137,11 @@ async def add_product(
     new_event = build_event(
         product,
         actor={"actor_id": str(seller.id), "username": seller.username},
-        service="product service",
-        platform="marketplace",
-        event_type="post",
+        system={
+            "platform": "marketplace",
+            "service": "products",
+            "event_type": "created",
+        },
     )
 
     await publish_event("product.created", new_event)
@@ -322,7 +324,15 @@ async def delete_product(product_id: str, db: Session = Depends(get_db)):
     db.commit()
 
     new_event = build_event(
-        product, actor={"actor_id": "deleted", "username": "deleted"}
+        product,
+        actor={"actor_id": "", "username": ""},
+        system={
+            "platform": "marketplace",
+            "service": "products",
+            "event_type": "deleted",
+        },
     )
+
     await publish_event("product.deleted", new_event)
+
     return {"message": "Product deleted successfully"}

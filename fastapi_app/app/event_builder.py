@@ -16,6 +16,7 @@ def build_event(object, actor, system):
     Args:
         object (dict): A dictionary representing the object.
         actor (dict): A dictionary containing actor details.
+        system (dict): A dictionary containing system details.
 
     Returns:
         dict: The event message.
@@ -23,9 +24,9 @@ def build_event(object, actor, system):
     event = {
         "event_id": str(uuid.uuid4()),
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "platform": system.platform,
-        "service": system.service,
-        "event_type": system.event_type,
+        "platform": system["platform"],
+        "service": system["service"],
+        "event_type": system["event_type"],
         "actor": {
             "actor_id": actor["actor_id"],
             "username": actor["username"],
@@ -40,13 +41,13 @@ def custom_message_structure_for(object):
         return {
             "product_id": str(object.id),
             "title": object.title,
-            "price": object.price,
+            "price": str(object.price),
         }
     elif isinstance(object, Transaction):
         return {
             "transaction_id": str(object.id),
             "product_id": str(object.product_id),
-            "amount": object.amount,
+            "amount": str(object.amount),
             "status": object.status,
         }
     elif isinstance(object, Review):

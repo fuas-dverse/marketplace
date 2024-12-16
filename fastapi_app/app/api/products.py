@@ -135,7 +135,11 @@ async def add_product(
     )
 
     new_event = build_event(
-        product, actor={"actor_id": str(seller.id), "username": seller.username}
+        product,
+        actor={"actor_id": str(seller.id), "username": seller.username},
+        service="product service",
+        platform="marketplace",
+        event_type="post",
     )
 
     await publish_event("product.created", new_event)

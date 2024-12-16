@@ -65,9 +65,13 @@ def update_product(db, product: Product, average_rating: float, rating_count: in
 
 
 # Add a new transaction
-def create_transaction(db, buyer_id: str, product_id: str, status: str):
+def create_transaction(db, buyer_id: str, product_id: str, status: str, amount: float):
     new_transaction = Transaction(
-        id=uuid.uuid4(), buyer_id=buyer_id, product_id=product_id, status=status
+        id=uuid.uuid4(),
+        buyer_id=buyer_id,
+        product_id=product_id,
+        status=status,
+        amount=amount,
     )
     db.add(new_transaction)
     db.commit()

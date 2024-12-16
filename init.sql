@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     buyer_id UUID REFERENCES users(id) ON DELETE SET NULL,
     product_id UUID REFERENCES products(id) ON DELETE SET NULL,
     status VARCHAR(50), -- Consider ENUM for status
+    amount FLOAT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW() -- Add timestamp for record creation
 );
 

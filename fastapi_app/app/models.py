@@ -92,6 +92,7 @@ class Transaction(Base):
     buyer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     product_id = Column(UUID(as_uuid=True), ForeignKey("products.id"))
     status = Column(String)
+    amount = Column(Float)
 
     # Relationships
     buyer = relationship("User", back_populates="transactions")

@@ -51,6 +51,7 @@ export default function TransactionModal({
       status: "complete",
       product_id: product.id,
       buyer_id: user?.id,
+      amount: product.price,
     };
 
     try {

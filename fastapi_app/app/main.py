@@ -7,6 +7,7 @@ from app.database import engine
 from app.models import Base
 from sqlalchemy.orm import Session
 from app.database import insert_user_if_empty, get_db
+from app.nats_connection import connect_nats, nc
 
 app = FastAPI(
     title="The Marketplace API",
@@ -25,9 +26,16 @@ app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 
 
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     db: Session = next(get_db())
     insert_user_if_empty(db=db)
+    await connect_nats()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if nc.is_connected:
+        await nc.close()
 
 
 @app.get("/", tags=["Root"])

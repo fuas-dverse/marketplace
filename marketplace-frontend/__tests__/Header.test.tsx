@@ -1,7 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Header from "@/components/Header";
-import { UserContext } from "@/contexts/UserProvider";
+import {
+  renderWithNullUserProvider,
+  renderWithUserProvider,
+} from "./utils/renderWithProvider";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(() => ({
@@ -11,40 +14,21 @@ jest.mock("next/navigation", () => ({
 
 describe("Header Component Tests", () => {
   const mockSetUser = jest.fn();
-  const mockRouter = {
-    push: jest.fn(),
-  };
-
-  const renderWithUserProvider = (user = null) => {
-    render(
-      <UserContext.Provider
-        value={{
-          user,
-          setUser: mockSetUser,
-          loading: false,
-          error: null,
-        }}
-      >
-        <Header />
-      </UserContext.Provider>
-    );
-  };
 
   it("should render the header component", () => {
-    renderWithUserProvider();
+    renderWithUserProvider(<Header />);
     expect(screen.getByText("Marketplace")).toBeInTheDocument();
   });
 
   it("should render navigation links for a logged-out user", () => {
-    renderWithUserProvider();
+    renderWithNullUserProvider(<Header />);
     expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("Transactions")).toBeInTheDocument();
     expect(screen.getByText("Login")).toBeInTheDocument();
   });
 
   it("should render navigation links for a logged-in user", () => {
-    const mockUser = { username: "johndoe" };
-    renderWithUserProvider(mockUser);
+    renderWithUserProvider(<Header />);
 
     expect(screen.getByText("Chat")).toBeInTheDocument();
     expect(screen.getByText("Account")).toBeInTheDocument();
@@ -52,12 +36,14 @@ describe("Header Component Tests", () => {
   });
 
   it("should handle logout correctly", () => {
-    const mockUser = { username: "johndoe" };
-    renderWithUserProvider(mockUser);
+    renderWithUserProvider(<Header />, mockSetUser);
 
     const logoutButton = screen.getByText("Logout");
-    logoutButton.click();
 
+    // Simulate the click event
+    fireEvent.click(logoutButton);
+
+    // Assert that setUser was called with null
     expect(mockSetUser).toHaveBeenCalledWith(null);
   });
 });

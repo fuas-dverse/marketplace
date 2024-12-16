@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db, create_transaction
 from app.models import Transaction, User, Product
 from pydantic import BaseModel
+from app.event_builder import build_event
+from app.nats_connection import publish_event
 
 router = APIRouter()
 
@@ -11,6 +13,7 @@ class TransactionCreateRequest(BaseModel):
     buyer_id: str
     product_id: str
     status: str
+    amount: float
 
     class Config:
         json_schema_extra = {
@@ -18,6 +21,7 @@ class TransactionCreateRequest(BaseModel):
                 "buyer_id": 1,
                 "product_id": 101,
                 "status": "Pending",
+                "amount": 100.0,
             }
         }
 
@@ -61,7 +65,7 @@ class ErrorResponse(BaseModel):
         500: {"description": "Internal server error."},
     },
 )
-def add_transaction(
+async def add_transaction(
     transaction_data: TransactionCreateRequest, db: Session = Depends(get_db)
 ):
     """
@@ -70,6 +74,7 @@ def add_transaction(
     - **buyer_id**: ID of the user who is buying the product.
     - **product_id**: ID of the product being purchased.
     - **status**: Status of the transaction (e.g., 'Pending', 'Completed', etc.).
+    - **amount**: Amount of the transaction.
     """
     # Check if buyer (user) exists
     buyer = db.query(User).filter(User.id == transaction_data.buyer_id).first()
@@ -95,7 +100,20 @@ def add_transaction(
         buyer_id=transaction_data.buyer_id,
         product_id=transaction_data.product_id,
         status=transaction_data.status,
+        amount=transaction_data.amount,
     )
+
+    new_event = build_event(
+        transaction,
+        actor={"actor_id": str(buyer.id), "username": buyer.username},
+        system={
+            "platform": "marketplace",
+            "service": "transactions",
+            "event_type": "started",
+        },
+    )
+
+    await publish_event("transaction.created", new_event)
 
     return {
         "message": "Transaction created successfully",
@@ -110,7 +128,7 @@ def add_transaction(
     summary="Retrieve all transactions",
     description=(
         "Fetch a list of all recorded transactions, including details like buyer, "
-        "product, and status."
+        "product, amount and status."
     ),
     response_description="A list of transactions with details.",
     responses={
@@ -126,6 +144,7 @@ def add_transaction(
                                 "status": "Pending",
                                 "buyer_id": 1,
                                 "product_id": 101,
+                                "amount": 100.0,
                             }
                         ],
                     }
@@ -145,6 +164,7 @@ def get_all_transactions(db: Session = Depends(get_db)):
     - **status**: Transaction status (e.g., 'Pending', 'Completed').
     - **buyer_id**: ID of the buyer.
     - **product_id**: ID of the product involved in the transaction.
+    - **amount**: Transaction amount.
     """
     transactions = db.query(Transaction).all()
 
@@ -157,6 +177,7 @@ def get_all_transactions(db: Session = Depends(get_db)):
                     "status": transaction.status,
                     "buyer_id": str(transaction.buyer_id),
                     "product_id": str(transaction.product_id),
+                    "amount": transaction.amount,
                 }
                 for transaction in transactions
             ],
@@ -191,6 +212,7 @@ def get_all_transactions(db: Session = Depends(get_db)):
                                 "status": "Pending",
                                 "buyer_id": 1,
                                 "product_id": 101,
+                                "amount": 100.0,
                             }
                         ],
                     }
@@ -225,6 +247,7 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
                     "status": transaction.status,
                     "buyer_id": str(transaction.buyer_id),
                     "product_id": str(transaction.product_id),
+                    "amount": transaction.amount,
                 }
                 for transaction in transactions
             ],

@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, fireEvent, waitFor, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { UserContext } from "@/contexts/UserProvider";
 import ReviewFormModal from "@/components/ReviewForm";
+import { renderWithUserProvider } from "./utils/renderWithProvider";
 
 // Mock the fetch API
 global.fetch = jest.fn(() =>
@@ -10,33 +10,10 @@ global.fetch = jest.fn(() =>
   })
 ) as jest.Mock;
 
-// Mock user data
-const mockUser = {
-  id: "user123",
-  name: "Test User",
-  email: "testuser@example.com",
-  role: "buyer",
-};
-
-// Mock UserProvider
-const MockUserProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  return (
-    <UserContext.Provider value={{ user: mockUser }}>
-      {children}
-    </UserContext.Provider>
-  );
-};
-
 describe("ReviewFormModal Component Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
-  const renderWithUserProvider = (ui: React.ReactElement) => {
-    return render(<MockUserProvider>{ui}</MockUserProvider>);
-  };
 
   it("renders the 'Add Review' button", () => {
     renderWithUserProvider(<ReviewFormModal productId="1" />);
@@ -44,10 +21,12 @@ describe("ReviewFormModal Component Tests", () => {
     expect(button).toBeInTheDocument();
   });
 
-  it("opens the modal when the 'Add Review' button is clicked", () => {
+  it("opens the modal when the 'Add Review' button is clicked", async () => {
     renderWithUserProvider(<ReviewFormModal productId="1" />);
     const button = screen.getByTestId("add-review-button");
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
     expect(screen.getByTestId("review-form")).toBeInTheDocument();
   });
@@ -75,7 +54,7 @@ describe("ReviewFormModal Component Tests", () => {
             rating: 5,
             content: "This is a great product!",
             product_id: "1",
-            user_id: "user123",
+            user_id: "123",
           }),
         })
       );

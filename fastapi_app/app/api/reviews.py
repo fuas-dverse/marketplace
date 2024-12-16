@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db, create_review, update_product
 from app.models import Review, User, Product
 from pydantic import BaseModel
+from app.nats_connection import publish_event
+from app.event_builder import build_event
 
 router = APIRouter()
 
@@ -28,7 +30,7 @@ class ReviewResponse(BaseModel):
     id: int
     rating: int
     content: str
-    user_id: int
+    user_id: str
     product_id: str
     new_average_rating: float
     rating_count: int
@@ -70,7 +72,7 @@ class ErrorResponse(BaseModel):
         500: {"description": "Internal server error."},
     },
 )
-def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
+async def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
     """
     Create a review for a product.
 
@@ -113,6 +115,18 @@ def add_review(review_data: ReviewCreateRequest, db: Session = Depends(get_db)):
     )
 
     product = update_product(db, product, average_rating, rating_count)
+
+    new_event = build_event(
+        review,
+        actor={"actor_id": str(user.id), "username": user.username},
+        system={
+            "platform": "marketplace",
+            "service": "reviews",
+            "event_type": "posted",
+        },
+    )
+
+    await publish_event("review.created", new_event)
 
     return {
         "message": "Review created successfully",

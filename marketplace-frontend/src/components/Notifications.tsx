@@ -19,7 +19,13 @@ interface ParsedMessage {
 export default function NotificationsList() {
   const { messages } = useContext(NotificationsContext);
 
-  const userMessages = messages.filter((message) => {
+  // Filter messages to ensure uniqueness
+  const uniqueMessages = Array.from(
+    new Set(messages.map((message) => message)) // Use Set to filter duplicates
+  );
+
+  // Filter messages for the logged-in user
+  const userMessages = uniqueMessages.filter((message) => {
     try {
       const eventTypeEndIndex = message.indexOf(" ");
       const jsonString = message.substring(eventTypeEndIndex + 1);

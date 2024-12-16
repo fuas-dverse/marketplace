@@ -1,13 +1,7 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { screen, fireEvent, waitFor, act } from "@testing-library/react";
 import ProductList from "@/components/ProductList";
 import { Product } from "@/types/marketplace.types";
-import { UserContext } from "@/contexts/UserProvider";
+import { renderWithUserProvider } from "./utils/renderWithProvider";
 
 // Mock fetch response
 const mockProducts: Product[] = [
@@ -16,39 +10,16 @@ const mockProducts: Product[] = [
   { id: "3", title: "Product 3", description: "Description 3", price: "30" },
 ];
 
-// Mock user data
-const mockUser = {
-  id: "user123",
-  name: "Test User",
-  email: "testuser@example.com",
-  role: "buyer",
-};
-
 global.fetch = jest.fn(() =>
   Promise.resolve({
     json: () => Promise.resolve(mockProducts),
   })
 ) as jest.Mock;
 
-// Mock UserProvider
-const MockUserProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  return (
-    <UserContext.Provider value={{ user: mockUser }}>
-      {children}
-    </UserContext.Provider>
-  );
-};
-
 describe("ProductList Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
-  const renderWithUserProvider = (ui: React.ReactElement) => {
-    return render(<MockUserProvider>{ui}</MockUserProvider>);
-  };
 
   it("renders the product list container", async () => {
     await act(async () => {

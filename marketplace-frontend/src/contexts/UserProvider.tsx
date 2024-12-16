@@ -1,20 +1,13 @@
 "use client";
 
-import { User } from "@/types/marketplace.types";
+import {
+  User,
+  UserContextType,
+  UserProviderProps,
+} from "@/types/marketplace.types";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-interface UserContextType {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  loading: boolean;
-  error: string | null;
-}
-
 export const UserContext = createContext<UserContextType | null>(null);
-
-interface UserProviderProps {
-  children: React.ReactNode;
-}
 
 export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(null);

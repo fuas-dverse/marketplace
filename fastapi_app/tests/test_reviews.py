@@ -58,7 +58,9 @@ def add_review(add_user, add_product):
     """Add a new review."""
     print("Adding a new review...")
     user_id = add_user
+    print(f"User ID: {user_id}")
     product_id = add_product
+    print(f"Product ID: {product_id}")
     rating = secrets.randbelow(5) + 1
     content = "This is a test review."
     review_url = f"{BASE_URL}/reviews/"

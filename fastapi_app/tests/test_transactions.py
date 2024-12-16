@@ -40,6 +40,7 @@ def add_transaction(add_user):
         "buyer_id": buyer_id,
         "product_id": product_id,
         "status": status,
+        "amount": 100.0,
     }
     response = requests.post(transaction_url, json=data, timeout=60)
 

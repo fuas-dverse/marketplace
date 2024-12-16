@@ -8,6 +8,7 @@ interface Transaction {
   status: "complete" | "completed" | "pending" | "failed" | "" | "cancelled";
   product_id: string;
   id: string;
+  amount?: string;
 }
 
 export default function TransactionList() {

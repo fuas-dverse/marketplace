@@ -1,16 +1,12 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { screen, fireEvent, waitFor, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { UserContext } from "@/contexts/UserProvider";
 import { Product } from "@/types/marketplace.types";
 import TransactionModal from "@/components/Transaction";
+import {
+  renderWithNullUserProvider,
+  renderWithUserProvider,
+} from "./utils/renderWithProvider";
 
-// Mock the fetch API
 global.fetch = jest.fn((url, options) => {
   if (url.includes("/api/products/")) {
     return Promise.resolve({
@@ -22,24 +18,24 @@ global.fetch = jest.fn((url, options) => {
           price: "100",
         }),
       ok: true,
+      status: 200,
+      headers: {
+        get: () => "application/json",
+      },
     });
   }
   if (url.includes("/api/transactions/")) {
     return Promise.resolve({
       json: () => Promise.resolve({ message: "Transaction complete" }),
       ok: true,
+      status: 201,
+      headers: {
+        get: () => "application/json",
+      },
     });
   }
   return Promise.reject(new Error("Unknown URL"));
 }) as jest.Mock;
-
-// Mock user data
-const mockUser = {
-  id: "user123",
-  name: "Test User",
-  email: "testuser@example.com",
-  role: "buyer",
-};
 
 // Mock product data
 const mockProduct: Product = {
@@ -49,22 +45,7 @@ const mockProduct: Product = {
   price: "100",
 };
 
-// Mock UserProvider
-const MockUserProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  return (
-    <UserContext.Provider value={{ user: mockUser }}>
-      {children}
-    </UserContext.Provider>
-  );
-};
-
 describe("TransactionModal Component Tests", () => {
-  const renderWithUserProvider = (ui: React.ReactElement) => {
-    return render(<MockUserProvider>{ui}</MockUserProvider>);
-  };
-
   it("should render the modal with product details", async () => {
     await act(async () => {
       renderWithUserProvider(
@@ -81,20 +62,8 @@ describe("TransactionModal Component Tests", () => {
   });
 
   it("should display an error if the user is not logged in", async () => {
-    const MockUserProviderNoUser: React.FC<{ children: React.ReactNode }> = ({
-      children,
-    }) => {
-      return (
-        <UserContext.Provider value={{ user: null }}>
-          {children}
-        </UserContext.Provider>
-      );
-    };
-
-    render(
-      <MockUserProviderNoUser>
-        <TransactionModal productId={mockProduct.id!} onClose={jest.fn()} />
-      </MockUserProviderNoUser>
+    renderWithNullUserProvider(
+      <TransactionModal productId={mockProduct.id!} onClose={jest.fn()} />
     );
 
     // Wait for the modal and button to appear
@@ -123,18 +92,20 @@ describe("TransactionModal Component Tests", () => {
     fireEvent.click(screen.getByTestId("confirm-purchase-button"));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        "/api/transactions/",
-        expect.objectContaining({
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: "complete",
-            product_id: mockProduct.id,
-            buyer_id: mockUser.id,
-          }),
-        })
+      const transactionCall = (global.fetch as jest.Mock).mock.calls.find(
+        ([url]: [string]) => url === "/api/transactions/"
       );
+      expect(transactionCall).toBeDefined();
+      expect(transactionCall[1]).toMatchObject({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "complete",
+          product_id: mockProduct.id,
+          buyer_id: "123",
+          amount: "100",
+        }),
+      });
     });
   });
 

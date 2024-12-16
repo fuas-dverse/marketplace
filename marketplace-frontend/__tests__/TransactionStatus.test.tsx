@@ -1,6 +1,7 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import TransactionList from "@/components/TransactionList";
+import { renderWithUserProvider } from "./utils/renderWithProvider";
 
 // Mock fetch API
 global.fetch = jest.fn((url) => {
@@ -36,7 +37,7 @@ describe("TransactionList Component Tests", () => {
 
   it("renders transaction rows after fetching data", async () => {
     await act(async () => {
-      render(<TransactionList />);
+      renderWithUserProvider(<TransactionList />);
     });
 
     await waitFor(() => {
@@ -65,7 +66,7 @@ describe("TransactionList Component Tests", () => {
     );
 
     await act(async () => {
-      render(<TransactionList />);
+      renderWithUserProvider(<TransactionList />);
     });
 
     await waitFor(() => {
@@ -83,7 +84,7 @@ describe("TransactionList Component Tests", () => {
     });
 
     await act(async () => {
-      render(<TransactionList />);
+      renderWithUserProvider(<TransactionList />);
     });
 
     await waitFor(() => {
@@ -116,7 +117,7 @@ describe("TransactionList Component Tests", () => {
     });
 
     await act(async () => {
-      render(<TransactionList />);
+      renderWithUserProvider(<TransactionList />);
     });
 
     await waitFor(() => {

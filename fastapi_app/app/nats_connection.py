@@ -1,14 +1,15 @@
 import json
 from jsonschema import ValidationError, validate
 from nats.aio.client import Client as NATS
-from app import event_schema
+from app.event_schema import event_schema
+from app.config import Config
 
 nc = NATS()
 
 
 async def connect_nats():
     if not nc.is_connected:
-        await nc.connect(servers=["nats://nats:4222"])
+        await nc.connect(servers=[Config.NATS_SERVER_URL])
 
 
 # Helper function to publish NATS event

@@ -8,6 +8,7 @@ load_dotenv(dotenv_path="./.env")
 class Config:
     # FastAPI application configuration
     FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:5001")
+    NATS_SERVER_URL = os.getenv("NATS_SERVER_URL", "nnats://nats:4222")
 
     # PostgreSQL connection details
     POSTGRES_USER = os.getenv("POSTGRES_USER", "marketplace")

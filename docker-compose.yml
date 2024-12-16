@@ -23,10 +23,9 @@ services:
     build:
       context: ./fastapi_app
       dockerfile: Dockerfile
-    volumes:
-      - ./alembic/versions:/app/alembic/versions
     environment:
       DATABASE_URL: postgresql://marketplace:marketplace@db/marketplace_db
+      NATS_SERVER_URL: nats://nats:4222
     ports:
       - "5001:5001"
     depends_on:
@@ -35,8 +34,6 @@ services:
     restart: on-failure
     networks:
       - nats_network
-    command: >
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 5001"
 
   nats:
     image: nats:latest

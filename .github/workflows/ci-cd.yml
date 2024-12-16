@@ -108,7 +108,7 @@ jobs:
         run: |
           until curl -f http://localhost:5001; do
             echo "Waiting for API..."
-            sleep 5
+            sleep 10
           done
 
       - name: Run Backend Tests with Coverage

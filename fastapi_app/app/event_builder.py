@@ -6,7 +6,9 @@ Utile module for building events pushed on the nats server.
 import uuid
 from datetime import datetime, timezone
 
-from app.models import Product, Review, Transaction, User
+from jsonschema import ValidationError, validate
+
+from app.event_schema import event_schema
 
 
 def build_event(object, actor, system):
@@ -33,34 +35,18 @@ def build_event(object, actor, system):
         },
         "object": custom_message_structure_for(object),
     }
+
+    # Validate the event against the schema
+    try:
+        validate(instance=event, schema=event_schema)
+    except ValidationError as e:
+        raise ValueError(f"Event validation failed: {e.message}")
+
     return event
 
 
 def custom_message_structure_for(object):
-    if isinstance(object, Product):
-        return {
-            "product_id": str(object.id),
-            "title": object.title,
-            "price": str(object.price),
-        }
-    elif isinstance(object, Transaction):
-        return {
-            "transaction_id": str(object.id),
-            "product_id": str(object.product_id),
-            "amount": str(object.amount),
-            "status": object.status,
-        }
-    elif isinstance(object, Review):
-        return {
-            "review_id": str(object.id),
-            "product_id": str(object.product_id),
-            "rating": object.rating,
-            "comment": object.content,
-        }
-    elif isinstance(object, User):
-        return {
-            "user_id": str(object.id),
-            "username": object.username,
-        }
-    else:
-        raise ValueError("Unsupported object type")
+    try:
+        return object.to_event_object()
+    except AttributeError:
+        raise ValueError(f"Unsupported object type: {type(object)}")

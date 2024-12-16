@@ -35,6 +35,12 @@ class User(Base):
     products = relationship("Product", back_populates="seller")
     reviews = relationship("Review", back_populates="buyer")
 
+    def to_event_object(self):
+        return {
+            "user_id": str(self.id),
+            "username": self.username,
+        }
+
 
 # Product model
 class Product(Base):
@@ -71,6 +77,13 @@ class Product(Base):
     transactions = relationship("Transaction", back_populates="product")
     reviews = relationship("Review", back_populates="product")
 
+    def to_event_object(self):
+        return {
+            "product_id": str(self.id),
+            "title": self.title,
+            "price": str(self.price),
+        }
+
 
 # Transaction model
 class Transaction(Base):
@@ -99,6 +112,14 @@ class Transaction(Base):
     buyer = relationship("User", back_populates="transactions")
     product = relationship("Product", back_populates="transactions")
 
+    def to_event_object(self):
+        return {
+            "transaction_id": str(self.id),
+            "product_id": str(self.product_id),
+            "amount": str(self.amount),
+            "status": self.status,
+        }
+
 
 # Review model
 class Review(Base):
@@ -126,3 +147,11 @@ class Review(Base):
     # Relationships
     buyer = relationship("User", back_populates="reviews")
     product = relationship("Product", back_populates="reviews")
+
+    def to_event_object(self):
+        return {
+            "review_id": str(self.id),
+            "product_id": str(self.product_id),
+            "rating": self.rating,
+            "content": self.content,
+        }

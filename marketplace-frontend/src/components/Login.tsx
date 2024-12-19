@@ -49,6 +49,13 @@ export default function Login() {
           placeholder="Enter your username"
           className="w-full p-2 border border-gray-300 rounded-md"
         />
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your username"
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
         <button
           type="submit"
           className="w-full bg-purple-950 text-white p-2 rounded-md hover:bg-purple-900 transition"

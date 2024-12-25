@@ -7,7 +7,7 @@ from app.database import engine
 from app.models import Base
 from sqlalchemy.orm import Session
 from app.database import insert_user_if_empty, get_db
-from app.nats_connection import connect_nats, nc
+from dverse_nats_helper import connect_nats, nc
 
 app = FastAPI(
     title="The Marketplace API",

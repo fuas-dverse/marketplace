@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AuthPage() {
   const [signInState, setSignInState] = useState({
@@ -26,8 +26,14 @@ export default function AuthPage() {
     success: false,
     message: "",
   });
-
+  const [redirectUrl, setRedirectUrl] = useState("/");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const redirect = searchParams.get("redirect_url") || "/";
+    setRedirectUrl(redirect); // Save redirect URL from query parameter
+  }, [searchParams]);
 
   const signInAction = async (formData: FormData) => {
     setSignInState({ ...signInState, pending: true });
@@ -37,10 +43,6 @@ export default function AuthPage() {
       success: result.success,
       message: result.message,
     });
-
-    if (result.success) {
-      router.push("/protected"); // Redirect to the protected page
-    }
   };
 
   const signUpAction = async (formData: FormData) => {
@@ -55,7 +57,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (signInState.success) {
-      router.push("/protected"); // Ensure redirection on successful sign-in
+      router.push(redirectUrl); // Ensure redirection on successful sign-in
     }
   }, [signInState.success, router]);
 

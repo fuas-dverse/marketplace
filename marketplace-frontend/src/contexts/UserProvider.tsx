@@ -1,41 +1,43 @@
 "use client";
 
-import {
-  User,
-  UserContextType,
-  UserProviderProps,
-} from "@/types/marketplace.types";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { User, UserContextType } from "@/types/marketplace.types";
 
 export const UserContext = createContext<UserContextType | null>(null);
 
-export function UserProvider({ children }: UserProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+export function UserProvider({
+  children,
+  initialUser,
+}: {
+  children: React.ReactNode;
+  initialUser?: User | null;
+}) {
+  const [user, setUser] = useState<User | null>(initialUser || null);
+  const [loading, setLoading] = useState<boolean>(!initialUser); // Skip loading if initialUser is provided
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchUser() {
-      try {
-        const username = sessionStorage.getItem("username");
-        const response = await fetch(`/api/users/${username}`).then((res) =>
-          res.json()
-        );
-        if (response.error) {
-          throw new Error(
-            `Error fetching user in hook: ${response.statusText}`
-          );
+    if (!initialUser) {
+      const fetchUser = async () => {
+        setLoading(true);
+        try {
+          const response = await fetch("/api/get-user");
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          } else {
+            throw new Error("Unauthorized");
+          }
+        } catch (err) {
+          setError("Failed to fetch user");
+        } finally {
+          setLoading(false);
         }
-        setUser(response);
-      } catch (error: Error | any) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
+      };
 
-    fetchUser();
-  }, []);
+      fetchUser();
+    }
+  }, [initialUser]);
 
   return (
     <UserContext.Provider value={{ user, setUser, loading, error }}>
@@ -44,7 +46,7 @@ export function UserProvider({ children }: UserProviderProps) {
   );
 }
 
-export function useUser(UserContext: any) {
+export function useUser() {
   const context = useContext(UserContext);
   if (!context) {
     throw new Error("useUser must be used within a UserProvider");

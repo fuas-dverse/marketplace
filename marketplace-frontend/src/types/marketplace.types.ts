@@ -24,10 +24,6 @@ export interface UserContextType {
   error: string | null;
 }
 
-export interface UserProviderProps {
-  children: React.ReactNode;
-}
-
 export interface Review {
   id: string;
   content: string;

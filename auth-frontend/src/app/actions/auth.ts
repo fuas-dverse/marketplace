@@ -28,6 +28,7 @@ export async function signIn(formData: FormData) {
       const cookieStore = await cookies();
       cookieStore.set("access_token", accessToken, {
         maxAge: 60 * 60 * 24 * 7, // 1 week
+        httpOnly: true, // Prevent JavaScript access
       });
 
       return { success: true, message: "Signed in successfully" };
@@ -107,5 +108,20 @@ export async function validateToken() {
       user: null,
       error: "Server error during token validation",
     };
+  }
+}
+
+export async function logout() {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.set("access_token", "", {
+      maxAge: 0, // Expire the cookie immediately
+      httpOnly: true, // Prevent JavaScript access
+    });
+
+    return { success: true, message: "Logged out successfully" };
+  } catch (error) {
+    console.error("Error during logout:", error);
+    return { success: false, message: "An error occurred during logout" };
   }
 }

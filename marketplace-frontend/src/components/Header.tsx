@@ -10,17 +10,18 @@ export default function Header() {
   const { user, setUser } = useUser(UserContext);
   const router = useRouter();
 
+  const handleLogin = () => {
+    const authUrl = `http://localhost:3002/?redirect_url=${encodeURIComponent(
+      window.location.href
+    )}`;
+    router.push(authUrl);
+  };
+
   const handleLogout = () => {
-    // Clear user session
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("username");
-    }
-
-    // Update context
-    setUser(null);
-
-    // Redirect to the login page
-    router.push("/account");
+    const logoutUrl = `http://localhost:3002/logout?redirect_url=${encodeURIComponent(
+      window.location.href
+    )}`;
+    router.push(logoutUrl);
   };
 
   return (
@@ -87,13 +88,13 @@ export default function Header() {
               </>
             ) : (
               <li>
-                <Link
-                  href="/login"
-                  className="hover:text-purple-300 transition"
-                  data-testid="header-nav-link-login"
+                <button
+                  onClick={handleLogin}
+                  className="hover:text-purple-300 transition bg-transparent border-none text-white"
+                  data-testid="header-nav-link-logout"
                 >
                   Login
-                </Link>
+                </button>
               </li>
             )}
           </ul>

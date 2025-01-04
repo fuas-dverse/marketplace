@@ -38,7 +38,7 @@ jobs:
       - name: Save Jest Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage-${{ inputs.working_directory }}
+          name: ${{ inputs.working_directory }}-coverage
           path: ${{ inputs.working_directory }}/coverage/lcov.info
 
       - name: Verify Jest Coverage Report

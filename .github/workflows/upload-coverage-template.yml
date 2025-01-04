@@ -32,7 +32,7 @@ jobs:
 
       - name: Debug Coverage File
         run: |
-          echo "Debugging Coverage File (${inputs.coverage_type}):"
+          echo "Debugging Coverage File (${{inputs.coverage_type}}):"
           cat ${{ inputs.coverage_file }}
 
       - name: Upload Coverage to Codacy

@@ -84,12 +84,12 @@ jobs:
               type: "Jest",
             }
           - {
-              file: "./fastapi_app/coverage.xml",
+              file: "./coverage.xml",
               artifact: "python-coverage-fastapi_app",
               type: "Python",
             }
           - {
-              file: "./notification_service/coverage.xml",
+              file: "./coverage.xml",
               artifact: "python-coverage-notification_service",
               type: "Python",
             }

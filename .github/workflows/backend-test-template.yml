@@ -70,10 +70,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-coverage-${{ inputs.working_directory }}
-          path: ${{inputs.working_directory}}/coverage.xml
+          path: coverage.xml
 
       - name: Verify Python Coverage Report
-        run: ls -l ${{inputs.working_directory}}/coverage.xml
+        run: ls -l coverage.xml
 
       - name: Tear Down Services
         if: always()

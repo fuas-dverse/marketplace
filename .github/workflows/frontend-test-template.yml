@@ -38,11 +38,11 @@ jobs:
       - name: Save Jest Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage
-          path: ${{ inputs.working_directory }}/coverage/jest/${{inputs.working_directory}}-lcov.info
+          name: frontend-coverage-${{ inputs.working_directory }}
+          path: ${{ inputs.working_directory }}/coverage/lcov.info
 
       - name: Verify Jest Coverage Report
-        run: ls -l ${{ inputs.working_directory }}/coverage/jest/${{inputs.working_directory}}-lcov.info
+        run: ls -l ${{ inputs.working_directory }}/coverage/lcov.info
 
       - name: Publish Jest Coverage Report
         uses: ArtiomTr/jest-coverage-report-action@v2

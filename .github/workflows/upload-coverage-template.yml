@@ -15,6 +15,10 @@ on:
         description: "Type of coverage file (e.g., Jest, Python)"
         required: true
         type: string
+    secrets:
+      codacy_project_token:
+        description: "Codacy project token"
+        required: true
 
 jobs:
   upload-coverage:
@@ -38,7 +42,7 @@ jobs:
       - name: Verify Codacy Token
         run: echo $CODACY_PROJECT_TOKEN | wc -c
         env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          CODACY_PROJECT_TOKEN: ${{ secrets.codacy_project_token }}
 
       - name: Debug Environment Variables
         run: printenv | grep CODACY_PROJECT_TOKEN
@@ -46,5 +50,5 @@ jobs:
       - name: Upload Python Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master
         with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          project-token: ${{ secrets.codacy_project_token }}
           coverage-reports: ${{ inputs.coverage_file }}

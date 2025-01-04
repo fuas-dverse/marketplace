@@ -1,5 +1,5 @@
 // In-memory user storage (replace with a database in production)
-const users: { [username: string]: { passwordHash: string } } = {};
+export const users: { [username: string]: { passwordHash: string } } = {};
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();

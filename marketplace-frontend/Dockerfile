@@ -1,10 +1,12 @@
 # Stage 1: Builder
-FROM node:18.18.0 AS builder
+FROM node:22 AS builder
 
 WORKDIR /app
 
+# Set registry and SSL options
 RUN npm config set registry https://registry.npmmirror.com
 RUN npm config set strict-ssl false
+
 RUN npm install --global npm@latest
 
 # Install dependencies
@@ -18,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Runner
-FROM node:18.18.0 AS runner
+FROM node:22 AS runner
 
 WORKDIR /app
 
@@ -26,6 +28,8 @@ WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/next.config.mjs ./next.config.mjs
+
+RUN npm install --global npm@latest
 
 # Install production dependencies
 RUN npm install --omit=dev

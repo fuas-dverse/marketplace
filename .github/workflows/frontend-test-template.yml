@@ -39,10 +39,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.working_directory }}-coverage
-          path: ${{ inputs.working_directory }}/coverage/lcov.info
+          path: ${{ inputs.working_directory }}/coverage/jest/lcov.info
 
       - name: Verify Jest Coverage Report
-        run: ls -l ${{ inputs.working_directory }}/coverage/lcov.info
+        run: ls -l ${{ inputs.working_directory }}/coverage/jest/lcov.info
 
       - name: Publish Jest Coverage Report
         uses: ArtiomTr/jest-coverage-report-action@v2

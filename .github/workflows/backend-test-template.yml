@@ -47,20 +47,40 @@ jobs:
           docker-compose up -d
           docker-compose ps
 
-      - name: Wait for API to be ready (5 retries)
+      - name: Wait for Service to Be Ready
         run: |
-          MAX_RETRIES=5
-          COUNT=0
-          while ! curl -f ${{ inputs.api_check_url }}; do
-            COUNT=$((COUNT+1))
-            if [ $COUNT -eq $MAX_RETRIES ]; then
-              echo "API failed to respond after $MAX_RETRIES attempts."
-              exit 1
-            fi
-            echo "Waiting for API... attempt $COUNT/$MAX_RETRIES"
-            sleep 10
-          done
-          echo "API is ready!"
+          if [ "${{ inputs.working_directory }}" = "fastapi_app" ]; then
+            echo "Checking FastAPI App API availability..."
+            MAX_RETRIES=5
+            COUNT=0
+            while ! curl -f http://localhost:5001; do
+              COUNT=$((COUNT+1))
+              if [ $COUNT -eq $MAX_RETRIES ]; then
+                echo "FastAPI App failed to respond after $MAX_RETRIES attempts."
+                exit 1
+              fi
+              echo "Waiting for FastAPI App... attempt $COUNT/$MAX_RETRIES"
+              sleep 10
+            done
+            echo "FastAPI App is ready!"
+          elif [ "${{ inputs.working_directory }}" = "notification_service" ]; then
+            echo "Checking Notification Service port availability..."
+            MAX_RETRIES=5
+            COUNT=0
+            while ! nc -zv localhost 5003; do
+              COUNT=$((COUNT+1))
+              if [ $COUNT -eq $MAX_RETRIES ]; then
+                echo "Notification Service port 5003 is not open after $MAX_RETRIES attempts."
+                exit 1
+              fi
+              echo "Waiting for Notification Service port 5003... attempt $COUNT/$MAX_RETRIES"
+              sleep 10
+            done
+            echo "Notification Service port 5003 is open!"
+          else
+            echo "Unsupported working directory: ${{ inputs.working_directory }}"
+            exit 1
+          fi
 
       - name: Run Backend Tests with Coverage
         run: |

@@ -8,6 +8,7 @@ from app.models import Base
 from sqlalchemy.orm import Session
 from app.database import insert_user_if_empty, get_db
 from dverse_nats_helper.nats_connection import connect_nats, nc
+from app.config import Config
 
 app = FastAPI(
     title="The Marketplace API",
@@ -29,7 +30,7 @@ app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 async def startup_event():
     db: Session = next(get_db())
     insert_user_if_empty(db=db)
-    await connect_nats()
+    await connect_nats(server_url=Config.NATS_SERVER_URL)
 
 
 @app.on_event("shutdown")

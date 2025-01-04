@@ -37,7 +37,10 @@ export async function signIn(formData: FormData) {
       return { success: false, message: errorMessage };
     }
   } catch (error) {
-    return { success: false, message: "An error occurred during sign-in" };
+    return {
+      success: false,
+      message: `An error occurred during sign-in: ${error}`,
+    };
   }
 }
 
@@ -69,7 +72,10 @@ export async function signUp(formData: FormData) {
       return { success: false, message: errorMessage };
     }
   } catch (error) {
-    return { success: false, message: "An error occurred during sign-up" };
+    return {
+      success: false,
+      message: `An error occurred during sign-up: ${error}`,
+    };
   }
 }
 

@@ -145,5 +145,15 @@ async def websocket_endpoint(websocket: WebSocket):
         connected_clients.remove(websocket)
 
 
+@app.get("/", tags=["Root"])
+async def root():
+    """
+    Root endpoint for the Notification Service.
+
+    Returns a welcome message.
+    """
+    return {"message": "Welcome to the Notification Service"}
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=5003, reload=True, ws="websockets")

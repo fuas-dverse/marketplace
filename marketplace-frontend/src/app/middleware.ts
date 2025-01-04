@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const AUTH_BACKEND_URL = "http://localhost:8080/api/v1/auth";
+const AUTH_BACKEND_URL = process.env.AUTH_BACKEND_URL;
+const AUTH_FRONTEND_URL = process.env.AUTH_FRONTEND_URL;
 
 export async function middleware(request: Request) {
   const cookieStore = cookies();
@@ -10,7 +11,7 @@ export async function middleware(request: Request) {
   if (!token) {
     console.error("No access token found in cookies");
     return NextResponse.redirect(
-      `http://localhost:3002/?redirect_url=${encodeURIComponent(request.url)}`
+      `${AUTH_FRONTEND_URL}/?redirect_url=${encodeURIComponent(request.url)}`
     );
   }
 
@@ -42,13 +43,13 @@ export async function middleware(request: Request) {
         await response.text()
       );
       return NextResponse.redirect(
-        `http://localhost:3002/?redirect_url=${encodeURIComponent(request.url)}`
+        `${AUTH_FRONTEND_URL}/?redirect_url=${encodeURIComponent(request.url)}`
       );
     }
   } catch (error) {
     console.error("Middleware error:", error);
     return NextResponse.redirect(
-      `http://localhost:3002/?redirect_url=${encodeURIComponent(request.url)}`
+      `${AUTH_FRONTEND_URL}/?redirect_url=${encodeURIComponent(request.url)}`
     );
   }
 }

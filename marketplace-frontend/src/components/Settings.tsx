@@ -1,6 +1,6 @@
 "use client";
 
-import { UserContext, useUser } from "@/contexts/UserProvider";
+import { useUser } from "@/contexts/UserProvider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -15,15 +15,14 @@ export default function Settings({ onSuccess }: SettingsProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // @ts-expect-error - Add types for user, loading, and error
-  const { user, setUser, error: userError } = useUser(UserContext);
+  const { user, setUser, error: userError } = useUser();
 
   const router = useRouter();
 
   const handleDataUpdate = async (e: React.FormEvent) => {
     try {
       const res = await fetch(
-        `${window.location.origin}/api/users/${user.username}`,
+        `${window.location.origin}/api/users/${user?.username}`,
         {
           method: "PUT",
           headers: {
@@ -68,7 +67,7 @@ export default function Settings({ onSuccess }: SettingsProps) {
   const handleDataExport = async () => {
     try {
       const res = await fetch(
-        `${window.location.origin}/api/users/${user.username}`,
+        `${window.location.origin}/api/users/${user?.username}`,
         {
           method: "GET",
         }
@@ -87,7 +86,7 @@ export default function Settings({ onSuccess }: SettingsProps) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${user.username}-data.json`;
+      link.download = `${user?.username}-data.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -102,7 +101,7 @@ export default function Settings({ onSuccess }: SettingsProps) {
   const handleDataDelete = async () => {
     try {
       const res = await fetch(
-        `${window.location.origin}/api/users/${user.username}`,
+        `${window.location.origin}/api/users/${user?.username}`,
         {
           method: "DELETE",
         }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TransactionStatus from "./TransactionStatus";
-import { UserContext, useUser } from "@/contexts/UserProvider";
+import { useUser } from "@/contexts/UserProvider";
 import { Product } from "@/types/marketplace.types";
 
 interface TransactionModalProps {
@@ -19,8 +19,7 @@ export default function TransactionModal({
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
-  // @ts-expect-error - Add types for user, loading, and error
-  const { user } = useUser(UserContext);
+  const { user } = useUser();
 
   useEffect(() => {
     fetchProduct();

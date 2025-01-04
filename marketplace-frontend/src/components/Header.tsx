@@ -2,25 +2,24 @@
 
 import Link from "next/link";
 import { useUser } from "@/contexts/UserProvider";
-import { UserContext } from "@/contexts/UserProvider";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
-  // @ts-expect-error - Add types for user, loading, and error
-  const { user, setUser } = useUser(UserContext);
+  const { user, setUser } = useUser();
   const router = useRouter();
 
   const handleLogin = () => {
-    const authUrl = `http://localhost:3002/?redirect_url=${encodeURIComponent(
+    const authUrl = `${process.env.AUTH_URL}/?redirect_url=${encodeURIComponent(
       window.location.href
     )}`;
     router.push(authUrl);
   };
 
   const handleLogout = () => {
-    const logoutUrl = `http://localhost:3002/logout?redirect_url=${encodeURIComponent(
-      window.location.href
-    )}`;
+    const logoutUrl = `${
+      process.env.AUTH_URL
+    }/logout?redirect_url=${encodeURIComponent(window.location.href)}`;
+    setUser(null); // might break
     router.push(logoutUrl);
   };
 

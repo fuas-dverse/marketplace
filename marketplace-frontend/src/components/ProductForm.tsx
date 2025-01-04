@@ -1,6 +1,6 @@
 "use client";
 
-import { UserContext, useUser } from "@/contexts/UserProvider";
+import { useUser } from "@/contexts/UserProvider";
 import { useState } from "react";
 
 interface ProductFormProps {
@@ -14,8 +14,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // @ts-expect-error - Add types for user, loading, and error
-  const { user, error: userError } = useUser(UserContext);
+  const { user, error: userError } = useUser();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

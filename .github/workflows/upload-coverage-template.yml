@@ -32,29 +32,11 @@ jobs:
 
       - name: Debug Coverage File
         run: |
-          if [ "${{ inputs.coverage_type }}" = "Jest" ]; then
-            echo "Debugging Jest Coverage File:"
-            cat lcov.info
-          elif [ "${{ inputs.coverage_type }}" = "Python" ]; then
-            echo "Debugging Python Coverage File:"
-            cat coverage.xml
-          else
-            echo "Unsupported coverage type: ${{ inputs.coverage_type }}"
-            exit 1
-          fi
+          echo "Jest Coverage File Content:"
+          cat ${{ inputs.coverage_file }}
 
-      - name: Install Codacy Coverage Reporter
-        run: curl -Ls https://coverage.codacy.com/get.sh | bash
-
-      - name: Upload Coverage to Codacy
-        run: |
-          if [ "${{ inputs.coverage_type }}" = "Jest" ]; then
-            echo "Uploading Jest Coverage File to Codacy:"
-            codacy-coverage-reporter --project-token="${{ secrets.CODACY_PROJECT_TOKEN }}" --coverage-reports=lcov.info
-          elif [ "${{ inputs.coverage_type }}" = "Python" ]; then
-            echo "Uploading Python Coverage File to Codacy:"
-            codacy-coverage-reporter --project-token="${{ secrets.CODACY_PROJECT_TOKEN }}" --coverage-reports=coverage.xml
-          else
-            echo "Unsupported coverage type: ${{ inputs.coverage_type }}"
-            exit 1
-          fi
+      - name: Upload Python Coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@master
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: ${{ inputs.coverage_file }}

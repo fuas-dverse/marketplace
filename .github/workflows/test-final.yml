@@ -71,22 +71,22 @@ jobs:
       matrix:
         coverage:
           - {
-              file: "./marketplace-frontend/coverage/jest/lcov.info",
+              file: "lcov.info",
               artifact: "marketplace-frontend-coverage",
               type: "Jest",
             }
           - {
-              file: "./auth-frontend/coverage/jest/lcov.info",
+              file: "lcov.info",
               artifact: "auth-frontend-coverage",
               type: "Jest",
             }
           - {
-              file: "./coverage.xml",
+              file: "coverage.xml",
               artifact: "python-coverage-fastapi_app",
               type: "Python",
             }
           - {
-              file: "./coverage.xml",
+              file: "coverage.xml",
               artifact: "python-coverage-notification_service",
               type: "Python",
             }

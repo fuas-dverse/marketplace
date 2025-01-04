@@ -6,6 +6,6 @@ loguru
 websockets
 python-dotenv
 pytest
-pytest-asyncio
 httpx
-unittest
+pytest-cov==6.0.0
+coverage==7.6.7

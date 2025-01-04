@@ -48,6 +48,9 @@ services:
       dockerfile: Dockerfile
     environment:
       NATS_SERVER_URL: nats://nats:4222
+    ports:
+      - "5003:5003"
+    restart: on-failure
     depends_on:
       - nats
     networks:

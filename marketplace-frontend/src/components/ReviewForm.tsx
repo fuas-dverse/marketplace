@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Modal } from "./Modal";
-import { UserContext, useUser } from "@/contexts/UserProvider";
+import { useUser } from "@/contexts/UserProvider";
 
 interface ReviewFormProps {
   productId: string;
@@ -15,8 +15,7 @@ export default function ReviewFormModal({ productId }: ReviewFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // @ts-expect-error - Add types for user, loading, and error
-  const { user } = useUser(UserContext);
+  const { user } = useUser();
 
   const toggleModal = () => setIsModalOpen((prev) => !prev);
 

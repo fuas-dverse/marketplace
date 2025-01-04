@@ -92,13 +92,13 @@ describe("UserProvider and useUser Hook Tests", () => {
 
     // Check if error state is updated
     expect(screen.getByTestId("error")).toHaveTextContent(
-      "Error fetching user in hook:"
+      "Failed to fetch user"
     );
   });
 
   it("should throw an error if useUser is used outside UserProvider", () => {
     const TestComponent = () => {
-      useUser(UserContext);
+      useUser();
       return null;
     };
 

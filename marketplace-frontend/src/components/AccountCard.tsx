@@ -1,13 +1,12 @@
 "use client";
 
-import { UserContext, useUser } from "@/contexts/UserProvider";
+import { useUser } from "@/contexts/UserProvider";
 import { useState } from "react";
 import ProductForm from "./ProductForm";
 import Settings from "./Settings";
 
 export default function AccountCard() {
-  // @ts-expect-error - Add types for user, loading, and error
-  const { user, loading, error } = useUser(UserContext);
+  const { user, loading, error } = useUser();
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 

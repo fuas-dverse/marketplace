@@ -1,7 +1,7 @@
 from app.models import Base
 import pytest
 from sqlalchemy import create_engine
-from fastapi_app.app.event_builder import build_event
+from dverse_nats_helper.event_builder import build_event
 from fastapi_app.app.models import Product, Review, Transaction, User
 from sqlalchemy.orm import sessionmaker
 import uuid

@@ -17,4 +17,5 @@ pycparser==2.22
 nats-py==2.1.0
 asyncio
 jsonschema
-zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
+dverse-nats-helper==0.2.0
+zipp>=3.19.1

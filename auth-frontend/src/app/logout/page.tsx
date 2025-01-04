@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { logout } from "../actions/auth";
+import { Suspense } from "react";
 
-export default function LogoutPage() {
+function LogoutPageContent() {
   const [redirectUrl, setRedirectUrl] = useState("/");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,4 +33,12 @@ export default function LogoutPage() {
   }, [router]);
 
   return <p>Logging out...</p>;
+}
+
+export default function LogoutPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <LogoutPageContent />
+    </Suspense>
+  );
 }

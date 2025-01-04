@@ -50,9 +50,6 @@ jobs:
             api_check_url: "http://localhost:5003"
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
       - name: Run Backend Test Template
         uses: ./.github/workflows/backend-test-template.yml
         with:
@@ -74,9 +71,6 @@ jobs:
             node_version: "22"
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
       - name: Run Frontend Test Template
         uses: ./.github/workflows/frontend-test-template.yml
         with:

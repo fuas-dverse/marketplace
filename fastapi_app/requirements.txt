@@ -17,3 +17,4 @@ pycparser==2.22
 nats-py==2.1.0
 asyncio
 jsonschema
+dverse-nats-helper

@@ -18,3 +18,4 @@ nats-py==2.1.0
 asyncio
 jsonschema
 dverse-nats-helper
+zipp>=3.19.1

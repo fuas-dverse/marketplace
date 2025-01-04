@@ -1,12 +1,12 @@
-name: CI/CD Workflow
+name: Old CI/CD Workflow
 
 on:
   pull_request:
     branches:
-      - "**"
+      - "none"
   push:
     branches:
-      - main
+      - "none"
 
 permissions:
   contents: read
@@ -73,6 +73,48 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  auth-frontend-tests:
+    name: Run Auth Frontend Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    needs: setup
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Dependencies
+        working-directory: auth-frontend
+        run: npm install
+
+      - name: Run Frontend Tests with Coverage
+        working-directory: auth-frontend
+        run: npm test -- --coverage
+
+      - name: Save Jest Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-frontend-coverage
+          path: auth-frontend/coverage/jest/lcov.info
+
+      - name: Verify Jest Coverage Report
+        run: ls -l auth-frontend/coverage/jest/lcov.info
+
+      - name: Publish Jest Coverage Report
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          working-directory: auth-frontend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   backend-tests:
     name: Run Backend Tests
     runs-on: ubuntu-latest
@@ -118,6 +160,21 @@ jobs:
             sleep 10
           done
           echo "API is ready!"
+
+      - name: Wait for Notification Service to Open Port
+        run: |
+          MAX_RETRIES=5
+          COUNT=0
+          while ! nc -zv localhost 5003; do
+            COUNT=$((COUNT+1))
+            if [ $COUNT -eq $MAX_RETRIES ]; then
+              echo "Port 5003 is not open after $MAX_RETRIES attempts."
+              exit 1
+            fi
+            echo "Waiting for port 5003... attempt $COUNT/$MAX_RETRIES"
+            sleep 10
+          done
+          echo "Port 5003 is open!"
 
       - name: Run Backend Tests with Coverage
         run: |

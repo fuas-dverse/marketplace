@@ -1,0 +1,46 @@
+name: Upload Coverage Template
+
+on:
+  workflow_call:
+    inputs:
+      coverage_file:
+        description: "Path to the coverage file"
+        required: true
+        type: string
+      artifact_name:
+        description: "Name of the coverage artifact"
+        required: true
+        type: string
+      coverage_type:
+        description: "Type of coverage file (e.g., Jest, Python)"
+        required: true
+        type: string
+    secrets:
+      codacy_project_token:
+        description: "Codacy project token"
+        required: true
+
+jobs:
+  upload-coverage:
+    name: Upload Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Coverage Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+
+      - name: Debug Coverage File
+        run: |
+          echo "${{ inputs.coverage_type }} Coverage File Content:"
+          cat ${{ inputs.coverage_file }}
+
+      - name: Upload Python Coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@master
+        with:
+          project-token: ${{ secrets.codacy_project_token }}
+          coverage-reports: ${{ inputs.coverage_file }}

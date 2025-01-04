@@ -1,0 +1,143 @@
+name: Test and Build Workflow
+
+on:
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - "main"
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  setup:
+    name: Set Up Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Debug Directory
+        run: ls -R .github
+
+      - name: Set Up Docker
+        run: docker --version
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+  test-backends:
+    needs: setup
+    strategy:
+      matrix:
+        backend:
+          - name: fastapi_app
+            python_version: "3.10"
+            api_check_url: "http://localhost:5001"
+          - name: notification_service
+            python_version: "3.10"
+            api_check_url: "http://localhost:5003"
+    uses: ./.github/workflows/backend-test-template.yml
+    with:
+      working_directory: ${{ matrix.backend.name }}
+      python_version: ${{ matrix.backend.python_version }}
+      api_check_url: ${{ matrix.backend.api_check_url }}
+
+  test-frontends:
+    needs: setup
+    strategy:
+      matrix:
+        frontend:
+          - name: marketplace-frontend
+            node_version: "22"
+          - name: auth-frontend
+            node_version: "22"
+    uses: ./.github/workflows/frontend-test-template.yml
+    with:
+      working_directory: ${{ matrix.frontend.name }}
+      node_version: ${{ matrix.frontend.node_version }}
+
+  upload-coverage:
+    needs: [test-backends, test-frontends]
+    strategy:
+      matrix:
+        coverage:
+          - {
+              file: "lcov.info",
+              artifact: "marketplace-frontend-coverage",
+              type: "Jest",
+            }
+          - {
+              file: "lcov.info",
+              artifact: "auth-frontend-coverage",
+              type: "Jest",
+            }
+          - {
+              file: "coverage.xml",
+              artifact: "python-coverage-fastapi_app",
+              type: "Python",
+            }
+          - {
+              file: "coverage.xml",
+              artifact: "python-coverage-notification_service",
+              type: "Python",
+            }
+    uses: ./.github/workflows/upload-coverage-template.yml
+    with:
+      coverage_file: ${{ matrix.coverage.file }}
+      artifact_name: ${{ matrix.coverage.artifact }}
+      coverage_type: ${{ matrix.coverage.type }}
+    secrets:
+      codacy_project_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+
+  build-images:
+    needs: [test-backends, test-frontends]
+    strategy:
+      matrix:
+        service:
+          - {
+              name: "marketplace-api",
+              context: "./fastapi_app",
+              dockerfile: "./fastapi_app/Dockerfile",
+            }
+          - {
+              name: "notification-service",
+              context: "./notification_service",
+              dockerfile: "./notification_service/Dockerfile",
+            }
+          - {
+              name: "marketplace-frontend",
+              context: "./marketplace-frontend",
+              dockerfile: "./marketplace-frontend/Dockerfile",
+            }
+          - {
+              name: "auth-frontend",
+              context: "./auth-frontend",
+              dockerfile: "./auth-frontend/Dockerfile",
+            }
+    uses: ./.github/workflows/docker-build-push-template.yml
+    with:
+      context: ${{ matrix.service.context }}
+      dockerfile: ${{ matrix.service.dockerfile }}
+      image_name: dverse/${{ matrix.service.name }}
+      platforms: linux/amd64,linux/arm64
+    secrets:
+      docker_username: ${{ secrets.DOCKER_USERNAME }}
+      docker_password: ${{ secrets.DOCKER_PASSWORD }}
+
+  deploy:
+    needs: build-images
+    uses: ./.github/workflows/deploy-template.yml
+    with:
+      deploy_script: |
+        echo "Starting deployment..."
+        echo "Deploying services to production environment..."
+        echo "Deployment complete!"

@@ -48,6 +48,9 @@ services:
       dockerfile: Dockerfile
     environment:
       NATS_SERVER_URL: nats://nats:4222
+    ports:
+      - "5003:5003"
+    restart: on-failure
     depends_on:
       - nats
     networks:
@@ -59,10 +62,23 @@ services:
       dockerfile: Dockerfile
     environment:
       NATS_SERVER_URL: nats://nats:4222
+      NOTIFICATION_TYPE: in_app
     depends_on:
       - nats
     networks:
       - nats_network
+
+  # auth-frontend:
+  #   build:
+  #     context: ./auth-frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3002:3002"
+  #   environment:
+  #     PORT: 3002
+  #     AUTH_BACKEND_URL: http://localhost:8080/api/v1/auth
+  #   networks:
+  #     - nats_network
 
   # frontend:
   #   build:

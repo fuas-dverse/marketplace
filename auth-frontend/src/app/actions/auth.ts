@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 
 const AUTH_BASE_URL =
-  process.env.AUTH_SVC_BASE_URL || "http://localhost:8080/api/v1/auth"; // Replace with your backend URL
+  process.env.AUTH_BACKEND_URL || "http://localhost:8080/api/v1/auth";
 
 export async function signIn(formData: FormData) {
   const username = formData.get("username") as string;
@@ -37,7 +37,10 @@ export async function signIn(formData: FormData) {
       return { success: false, message: errorMessage };
     }
   } catch (error) {
-    return { success: false, message: "An error occurred during sign-in" };
+    return {
+      success: false,
+      message: `An error occurred during sign-in: ${error}`,
+    };
   }
 }
 
@@ -69,7 +72,10 @@ export async function signUp(formData: FormData) {
       return { success: false, message: errorMessage };
     }
   } catch (error) {
-    return { success: false, message: "An error occurred during sign-up" };
+    return {
+      success: false,
+      message: `An error occurred during sign-up: ${error}`,
+    };
   }
 }
 

@@ -66,10 +66,7 @@ jobs:
       node_version: ${{ matrix.frontend.node_version }}
 
   upload-coverage:
-    name: Upload Coverage Reports
-    runs-on: ubuntu-latest
     needs: [test-backends, test-frontends]
-
     strategy:
       matrix:
         coverage:
@@ -93,36 +90,11 @@ jobs:
               artifact: "python-coverage-notification_service",
               type: "Python",
             }
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Download Coverage Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ matrix.coverage.artifact }}
-
-      - name: Fix Permissions for Coverage File
-        run: |
-          chmod 644 ./coverage.xml ./lcov.info
-          ls -l ./coverage.xml ./lcov.info
-
-      - name: Debug Jest Coverage File
-        run: |
-          echo "Jest Coverage File Content:"
-          cat ./lcov.info
-
-      - name: Debug Python Coverage File
-        run: |
-          echo "Python Coverage File Content:"
-          cat ./coverage.xml
-
-      - name: Upload Coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: ${{ matrix.coverage.file }}
+    uses: ./.github/workflows/upload-coverage-template.yml
+    with:
+      coverage_file: ${{ matrix.coverage.file }}
+      artifact_name: ${{ matrix.coverage.artifact }}
+      coverage_type: ${{ matrix.coverage.type }}
 
   build-images:
     needs: [test-backends, test-frontends]
@@ -157,14 +129,10 @@ jobs:
       platforms: linux/amd64,linux/arm64
 
   deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
     needs: build-images
-    steps:
-      - name: Run Deploy Template
-        uses: ./.github/workflows/deploy-template.yml
-        with:
-          deploy_script: |
-            echo "Starting deployment..."
-            echo "Deploying services to production environment..."
-            echo "Deployment complete!"
+    uses: ./.github/workflows/deploy-template.yml
+    with:
+      deploy_script: |
+        echo "Starting deployment..."
+        echo "Deploying services to production environment..."
+        echo "Deployment complete!"

@@ -32,8 +32,16 @@ jobs:
 
       - name: Debug Coverage File
         run: |
-          echo "Jest Coverage File Content:"
+          echo "${{ inputs.coverage_type }} Coverage File Content:"
           cat ${{ inputs.coverage_file }}
+
+      - name: Verify Codacy Token
+        run: echo $CODACY_PROJECT_TOKEN | wc -c
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+
+      - name: Debug Environment Variables
+        run: printenv | grep CODACY_PROJECT_TOKEN
 
       - name: Upload Python Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master

@@ -35,10 +35,6 @@ jobs:
           docker-compose --version
 
   test-backends:
-    name: Backend Tests
-    runs-on: ubuntu-latest
-    needs: setup
-
     strategy:
       matrix:
         backend:
@@ -48,17 +44,11 @@ jobs:
           - name: notification_service
             python_version: "3.10"
             api_check_url: "http://localhost:5003"
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Run Backend Test Template
-        uses: ./.github/workflows/backend-test-template.yml
-        with:
-          working_directory: ${{ matrix.backend.name }}
-          python_version: ${{ matrix.backend.python_version }}
-          api_check_url: ${{ matrix.backend.api_check_url }}
+    uses: ./.github/workflows/backend-test-template.yml
+    with:
+      working_directory: ${{ matrix.backend.name }}
+      python_version: ${{ matrix.backend.python_version }}
+      api_check_url: ${{ matrix.backend.api_check_url }}
 
   test-frontends:
     name: Frontend Tests

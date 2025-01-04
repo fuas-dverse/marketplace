@@ -1,5 +1,5 @@
 from unittest.mock import AsyncMock, patch
-from fastapi import logger
+from loguru import logger
 import pytest
 from fastapi.testclient import TestClient
 from main import app, NotificationService, connected_clients, missed_notifications

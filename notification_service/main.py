@@ -1,7 +1,6 @@
 import asyncio
 from fastapi import FastAPI, WebSocket
 from nats.aio.client import Client as NATS
-from nats.aio.errors import ErrNoServers
 from loguru import logger
 import uvicorn
 from config import Config
@@ -32,7 +31,7 @@ class NotificationService:
                         self.connected = True
                 logger.info(f"Connected to NATS at {self.nats_url}")
                 return
-            except ErrNoServers as e:
+            except Exception as e:
                 retry_count += 1
                 logger.error(
                     f"Failed to connect to NATS server: {e}. Retrying ({retry_count}/5)"

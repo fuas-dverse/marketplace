@@ -147,12 +147,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.get("/", tags=["Root"])
 async def root():
-    """
-    Root endpoint for the Notification Service.
-
-    Returns a welcome message.
-    """
-    return {"message": "Welcome to the Notification Service"}
+    logger.info("Root endpoint was hit")
+    return {"message": "Welcome to the API"}
 
 
 if __name__ == "__main__":

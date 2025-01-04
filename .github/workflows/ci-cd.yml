@@ -161,20 +161,20 @@ jobs:
           done
           echo "API is ready!"
 
-      - name: Wait for Notfication service to be ready (5 retries)
+      - name: Wait for Notification Service to Open Port
         run: |
           MAX_RETRIES=5
           COUNT=0
-          while ! curl -f http://localhost:5003; do
+          while ! nc -zv localhost 5003; do
             COUNT=$((COUNT+1))
             if [ $COUNT -eq $MAX_RETRIES ]; then
-              echo "API failed to respond after $MAX_RETRIES attempts."
+              echo "Port 5003 is not open after $MAX_RETRIES attempts."
               exit 1
             fi
-            echo "Waiting for API... attempt $COUNT/$MAX_RETRIES"
+            echo "Waiting for port 5003... attempt $COUNT/$MAX_RETRIES"
             sleep 10
           done
-          echo "Notifiction service is ready!"
+          echo "Port 5003 is open!"
 
       - name: Run Backend Tests with Coverage
         run: |

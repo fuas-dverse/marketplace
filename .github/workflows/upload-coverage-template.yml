@@ -33,7 +33,8 @@ jobs:
       - name: Debug Coverage File
         run: |
           echo "Debugging Coverage File (${{inputs.coverage_type}}):"
-          cat ${{ inputs.coverage_file }}
+          ls
+          cat lcov.info
 
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master

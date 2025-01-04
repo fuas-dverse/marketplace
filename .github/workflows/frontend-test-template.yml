@@ -1,0 +1,56 @@
+name: Frontend Test Workflow Template
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: "The directory of the frontend project"
+        required: true
+        type: string
+      node_version:
+        description: "Node.js version"
+        required: false
+        default: "18"
+        type: string
+
+jobs:
+  frontend-tests:
+    name: Run Frontend Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: Install Dependencies
+        working-directory: ${{ inputs.working_directory }}
+        run: npm install
+
+      - name: Run Frontend Tests with Coverage
+        working-directory: ${{ inputs.working_directory }}
+        run: npm test -- --coverage
+
+      - name: Save Jest Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: ${{ inputs.working_directory }}/coverage/jest/${{inputs.working_directory}}-lcov.info
+
+      - name: Verify Jest Coverage Report
+        run: ls -l ${{ inputs.working_directory }}/coverage/jest/${{inputs.working_directory}}-lcov.info
+
+      - name: Publish Jest Coverage Report
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          working-directory: ${{ inputs.working_directory }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

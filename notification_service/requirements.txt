@@ -4,3 +4,7 @@ fastapi
 uvicorn
 loguru
 websockets
+python-dotenv
+pytest
+pytest-asyncio
+httpx

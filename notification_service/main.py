@@ -1,10 +1,10 @@
 import asyncio
-import os
 from fastapi import FastAPI, WebSocket
 from nats.aio.client import Client as NATS
 from nats.aio.errors import ErrNoServers
 from loguru import logger
 import uvicorn
+from config import Config
 
 NOTIFICATION_TYPES = ["email", "in_app"]
 
@@ -16,18 +16,20 @@ missed_notifications = []
 class NotificationService:
     def __init__(self):
         self.nc = NATS()
-        self.nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
-        self.notification_type = os.getenv("NOTIFICATION_TYPE", "in_app")
+        self.nats_url = Config.NATS_SERVER_URL
+        self.notification_type = Config.NOTIFICATION_TYPE
+        self.lock = asyncio.Lock()
+        self.connected = False  # Track connection state
 
     async def connect_to_nats(self):
         retry_count = 0
         while retry_count < 5:
             try:
-                logger.debug(
-                    f"Attempting to connect to NATS at {self.nats_url} "
-                    f"(Attempt {retry_count + 1}/5)"
-                )
-                await self.nc.connect(servers=[self.nats_url])
+                logger.debug(f"Attempting to connect to NATS at {self.nats_url}")
+                async with self.lock:  # Lock for concurrent access
+                    if not self.connected:
+                        await self.nc.connect(servers=[self.nats_url])
+                        self.connected = True
                 logger.info(f"Connected to NATS at {self.nats_url}")
                 return
             except ErrNoServers as e:
@@ -45,10 +47,10 @@ class NotificationService:
             logger.info(f"Received a message on '{subject}': {data}")
             await self.send_notification(subject, data)
 
-        logger.debug(f"Subscribing to NATS subject: {subject}")
-        await self.nc.subscribe(subject, cb=message_handler)
+        async with self.lock:  # Lock for subscription
+            logger.debug(f"Subscribing to NATS subject: {subject}")
+            await self.nc.subscribe(subject, cb=message_handler)
         logger.info(f"Subscribed to NATS subject: {subject}")
-        await asyncio.sleep(1)
 
     async def send_notification(self, subject, message):
         if self.notification_type not in NOTIFICATION_TYPES:
@@ -60,11 +62,9 @@ class NotificationService:
         notification = f"[{subject}] {message}"
         if self.notification_type == "in_app":
             logger.info(f"In-app Notification: {notification}")
-            # Store notification in missed_notifications if no clients are connected
             if not connected_clients:
                 missed_notifications.append(notification)
             else:
-                # Send notification to all connected WebSocket clients
                 disconnected_clients = []
                 for client in connected_clients:
                     try:
@@ -72,11 +72,17 @@ class NotificationService:
                     except Exception as e:
                         logger.error(f"Failed to send notification to client: {e}")
                         disconnected_clients.append(client)
-                # Remove disconnected clients
                 for client in disconnected_clients:
                     connected_clients.remove(client)
         elif self.notification_type == "email":
             logger.info(f"Email Notification: {notification}")
+
+    async def close_connection(self):
+        async with self.lock:
+            if self.connected:
+                await self.nc.close()
+                self.connected = False
+                logger.info("Disconnected from NATS server.")
 
     async def run(self):
         await self.connect_to_nats()
@@ -110,9 +116,10 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    if notification_service.nc.is_connected:
-        await notification_service.nc.close()
-        logger.info("Disconnected from NATS server.")
+    try:
+        await notification_service.close_connection()
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}")
 
 
 @app.websocket("/ws")
@@ -120,7 +127,6 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     connected_clients.append(websocket)
 
-    # Send any missed notifications when the connection opens
     if missed_notifications:
         for notification in missed_notifications:
             try:
@@ -132,7 +138,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         logger.info(f"WebSocket connection opened from {websocket.client}")
         while True:
-            await websocket.receive_text()  # Keep the connection alive
+            await websocket.receive_text()
     except Exception as e:
         logger.error(f"Error: {e}")
     finally:

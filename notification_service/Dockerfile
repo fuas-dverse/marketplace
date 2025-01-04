@@ -10,10 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
-# Set environment variables (can be overridden at runtime)
-ENV NATS_URL=nats://nats-server:4222
-ENV NOTIFICATION_TYPE=in_app
-
 # Expose the port for WebSocket connections
 EXPOSE 5003
 

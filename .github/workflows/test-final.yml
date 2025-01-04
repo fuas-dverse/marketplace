@@ -9,9 +9,9 @@ on:
       - "**"
 
 permissions:
-  contents: read
-  checks: write
+  contents: write
   pull-requests: write
+  checks: write
 
 jobs:
   setup:

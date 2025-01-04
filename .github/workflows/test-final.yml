@@ -105,13 +105,18 @@ jobs:
 
       - name: Fix Permissions for Coverage File
         run: |
-          chmod 644 ${{ matrix.coverage.file }}
-          ls -l ${{ matrix.coverage.file }}
+          chmod 644 ./coverage.xml ./lcov.info
+          ls -l ./coverage.xml ./lcov.info
 
-      - name: Debug Coverage File
+      - name: Debug Jest Coverage File
         run: |
-          echo "Debugging Coverage File (${matrix.coverage.type}):"
-          cat ${{ matrix.coverage.file }}
+          echo "Jest Coverage File Content:"
+          cat ./lcov.info
+
+      - name: Debug Python Coverage File
+        run: |
+          echo "Python Coverage File Content:"
+          cat ./coverage.xml
 
       - name: Upload Coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@master
@@ -120,11 +125,7 @@ jobs:
           coverage-reports: ${{ matrix.coverage.file }}
 
   build-images:
-    name: Build Docker Images
-    runs-on: ubuntu-latest
-    needs:
-      - test-backends
-      - test-frontends
+    needs: [test-backends, test-frontends]
     strategy:
       matrix:
         service:
@@ -148,14 +149,12 @@ jobs:
               context: "./auth-frontend",
               dockerfile: "./auth-frontend/Dockerfile",
             }
-    steps:
-      - name: Run Docker Build and Push Template
-        uses: ./.github/workflows/docker-build-push-template.yml
-        with:
-          context: ${{ matrix.service.context }}
-          dockerfile: ${{ matrix.service.dockerfile }}
-          image_name: dverse/${{ matrix.service.name }}
-          platforms: linux/amd64,linux/arm64
+    uses: ./.github/workflows/docker-build-push-template.yml
+    with:
+      context: ${{ matrix.service.context }}
+      dockerfile: ${{ matrix.service.dockerfile }}
+      image_name: dverse/${{ matrix.service.name }}
+      platforms: linux/amd64,linux/arm64
 
   deploy:
     name: Deploy to Production

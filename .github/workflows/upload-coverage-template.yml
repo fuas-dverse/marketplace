@@ -43,6 +43,9 @@ jobs:
             exit 1
           fi
 
+      - name: Install Codacy Coverage Reporter
+        run: curl -Ls https://coverage.codacy.com/get.sh | bash
+
       - name: Upload Coverage to Codacy
         run: |
           if [ "${{ inputs.coverage_type }}" = "Jest" ]; then

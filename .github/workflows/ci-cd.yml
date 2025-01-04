@@ -1,12 +1,12 @@
-name: CI/CD Workflow
+name: Old CI/CD Workflow
 
 on:
   pull_request:
     branches:
-      - "**"
+      - "none"
   push:
     branches:
-      - "*"
+      - "none"
 
 permissions:
   contents: read

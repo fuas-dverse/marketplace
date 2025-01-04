@@ -129,6 +129,9 @@ jobs:
       dockerfile: ${{ matrix.service.dockerfile }}
       image_name: dverse/${{ matrix.service.name }}
       platforms: linux/amd64,linux/arm64
+    secrets:
+      docker_username: ${{ secrets.DOCKER_USERNAME }}
+      docker_password: ${{ secrets.DOCKER_PASSWORD }}
 
   deploy:
     needs: build-images

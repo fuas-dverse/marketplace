@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db, create_review, update_product
 from app.models import Review, User, Product
 from pydantic import BaseModel
-from dverse_nats_helper import publish_event, build_event
+from dverse_nats_helper.nats_connection import publish_event
+from dverse_nats_helper.event_builder import build_event
 
 router = APIRouter()
 

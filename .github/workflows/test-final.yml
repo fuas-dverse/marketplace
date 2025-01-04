@@ -35,6 +35,7 @@ jobs:
           docker-compose --version
 
   test-backends:
+    needs: setup
     strategy:
       matrix:
         backend:
@@ -51,10 +52,7 @@ jobs:
       api_check_url: ${{ matrix.backend.api_check_url }}
 
   test-frontends:
-    name: Frontend Tests
-    runs-on: ubuntu-latest
     needs: setup
-
     strategy:
       matrix:
         frontend:
@@ -62,16 +60,10 @@ jobs:
             node_version: "22"
           - name: auth-frontend
             node_version: "22"
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Run Frontend Test Template
-        uses: ./.github/workflows/frontend-test-template.yml
-        with:
-          working_directory: ${{ matrix.frontend.name }}
-          node_version: ${{ matrix.frontend.node_version }}
+    uses: ./.github/workflows/frontend-test-template.yml
+    with:
+      working_directory: ${{ matrix.frontend.name }}
+      node_version: ${{ matrix.frontend.node_version }}
 
   upload-coverage:
     name: Upload Coverage Reports

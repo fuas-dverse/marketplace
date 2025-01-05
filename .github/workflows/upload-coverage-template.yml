@@ -16,8 +16,8 @@ on:
         required: true
         type: string
     secrets:
-      codacy_project_token:
-        description: "Codacy project token"
+      codecov_token:
+        description: "Codecov token"
         required: true
 
 jobs:
@@ -34,13 +34,8 @@ jobs:
         with:
           name: ${{ inputs.artifact_name }}
 
-      - name: Debug Coverage File
-        run: |
-          echo "${{ inputs.coverage_type }} Coverage File Content:"
-          cat ${{ inputs.coverage_file }}
-
-      - name: Upload Python Coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@master
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          project-token: ${{ secrets.codacy_project_token }}
-          coverage-reports: ${{ inputs.coverage_file }}
+          token: ${{ secrets.codecov_token }}
+          slug: fuas-dverse/marketplace

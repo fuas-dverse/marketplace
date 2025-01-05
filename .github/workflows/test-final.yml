@@ -96,7 +96,7 @@ jobs:
       artifact_name: ${{ matrix.coverage.artifact }}
       coverage_type: ${{ matrix.coverage.type }}
     secrets:
-      codacy_project_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
   build-images:
     needs: [test-backends, test-frontends]

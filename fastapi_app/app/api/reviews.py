@@ -11,12 +11,26 @@ router = APIRouter()
 
 
 class ReviewCreateRequest(BaseModel):
+    """
+    Represents a request to create a new review for a product.
+
+    Attributes:
+        user_id (str): The ID of the user creating the review.
+        product_id (str): The ID of the product being reviewed.
+        rating (int): The rating given to the product (e.g., 1-5).
+        content (str): The content of the review.
+    """
+
     user_id: str
     product_id: str
     rating: int
     content: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "user_id": 1,
@@ -28,6 +42,20 @@ class ReviewCreateRequest(BaseModel):
 
 
 class ReviewResponse(BaseModel):
+    """
+    Represents the response of a review, including details about the review
+    and updated product ratings.
+
+    Attributes:
+        id (int): The unique identifier of the review.
+        rating (int): The rating given to the product.
+        content (str): The content of the review.
+        user_id (str): The ID of the user who created the review.
+        product_id (str): The ID of the product being reviewed.
+        new_average_rating (float): The updated average rating of the product.
+        rating_count (int): The updated count of ratings for the product.
+    """
+
     id: int
     rating: int
     content: str
@@ -37,6 +65,10 @@ class ReviewResponse(BaseModel):
     rating_count: int
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "id": 1,
@@ -51,9 +83,20 @@ class ReviewResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """
+    Represents an error response.
+
+    Attributes:
+        detail (str): The detailed message describing the error.
+    """
+
     detail: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {"example": {"detail": "User with id 1 not found"}}
 
 
@@ -200,11 +243,11 @@ def get_reviews(db: Session = Depends(get_db)):
                 for review in reviews
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No reviews found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No reviews found",
+    )
 
 
 # Get all reviews per product
@@ -260,8 +303,8 @@ def get_reviews_per_product(product_id: str, db: Session = Depends(get_db)):
                 for review in reviews
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Reviews for product with id {product_id} not found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Reviews for product with id {product_id} not found",
+    )

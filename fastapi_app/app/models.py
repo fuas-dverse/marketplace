@@ -37,6 +37,9 @@ class User(Base):
     reviews = relationship("Review", back_populates="buyer")
 
     def to_event_object(self):
+        """
+        Converts the User object to a dictionary that can be used in events."""
+
         return {
             "user_id": str(self.id),
             "username": self.username,
@@ -79,6 +82,8 @@ class Product(Base):
     reviews = relationship("Review", back_populates="product")
 
     def to_event_object(self):
+        """
+        Converts the Product object to a dictionary that can be used in events."""
         return {
             "product_id": str(self.id),
             "title": self.title,
@@ -114,6 +119,8 @@ class Transaction(Base):
     product = relationship("Product", back_populates="transactions")
 
     def to_event_object(self):
+        """
+        Converts the Transaction object to a dictionary that can be used in events."""
         return {
             "transaction_id": str(self.id),
             "product_id": str(self.product_id),
@@ -150,6 +157,8 @@ class Review(Base):
     product = relationship("Product", back_populates="reviews")
 
     def to_event_object(self):
+        """
+        Converts the Review object to a dictionary that can be used in events."""
         return {
             "review_id": str(self.id),
             "product_id": str(self.product_id),

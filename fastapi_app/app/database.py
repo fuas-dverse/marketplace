@@ -11,8 +11,9 @@ engine = create_engine(Config.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-# Dependency to create and close database sessions
 def get_db():
+    """
+    Dependency to create and close database sessions."""
     db = SessionLocal()
     try:
         yield db
@@ -20,8 +21,9 @@ def get_db():
         db.close()
 
 
-# Add a new user
 def create_user(db, username: str):
+    """
+    Create a new user in the database."""
     new_user = User(id=uuid.uuid4(), username=username, reputation_score=0)
     db.add(new_user)
     db.commit()
@@ -29,7 +31,6 @@ def create_user(db, username: str):
     return new_user
 
 
-# Add a new product
 def create_product(
     db,
     title: str,
@@ -39,6 +40,8 @@ def create_product(
     average_rating: float = 0.0,
     rating_count: int = 0,
 ):
+    """
+    Create a new product in the database."""
     new_product = Product(
         id=uuid.uuid4(),
         title=title,
@@ -55,6 +58,9 @@ def create_product(
 
 
 def update_product(db, product: Product, average_rating: float, rating_count: int):
+    """
+    Update product average rating and rating count in the database."""
+
     if product is None:
         return None
 
@@ -66,8 +72,10 @@ def update_product(db, product: Product, average_rating: float, rating_count: in
     return product
 
 
-# Add a new transaction
 def create_transaction(db, buyer_id: str, product_id: str, status: str, amount: float):
+    """
+    Create a new transaction in the database."""
+
     new_transaction = Transaction(
         id=uuid.uuid4(),
         buyer_id=buyer_id,
@@ -81,8 +89,10 @@ def create_transaction(db, buyer_id: str, product_id: str, status: str, amount: 
     return new_transaction
 
 
-# Add a new review
 def create_review(db, user_id: str, product_id: str, rating: int, content: str):
+    """
+    Create a new review in the database."""
+
     new_review = Review(
         id=uuid.uuid4(),
         user_id=user_id,
@@ -96,8 +106,10 @@ def create_review(db, user_id: str, product_id: str, rating: int, content: str):
     return new_review
 
 
-# Insert a new user if the table is empty
 def insert_user_if_empty(db):
+    """
+    Create a new admin user in the database if the table is empty."""
+
     user_count = db.query(User).count()
 
     if user_count == 0:

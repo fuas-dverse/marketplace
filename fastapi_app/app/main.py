@@ -28,6 +28,16 @@ app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 
 @app.on_event("startup")
 async def startup_event():
+    """
+    Handles startup events for the FastAPI application.
+
+    This function performs the following tasks during the startup of the application:
+    1. Initializes a database session and inserts a user if the database is empty.
+    2. Establishes a connection to a NATS server using the provided server URL.
+
+    Raises:
+    Exception: If there is an error connecting to the NATS server."""
+
     db: Session = next(get_db())
     insert_user_if_empty(db=db)
     await connect_nats(server_url=Config.NATS_SERVER_URL)
@@ -35,6 +45,10 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    """
+    Handles shutdown events for the FastAPI application.
+
+    This function closes the connection to the NATS server."""
     if nc.is_connected:
         await nc.close()
 

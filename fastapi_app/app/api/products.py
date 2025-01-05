@@ -11,6 +11,19 @@ router = APIRouter()
 
 
 class ProductCreateRequest(BaseModel):
+    """
+    ProductCreateRequest model for creating a new product.
+    Attributes:
+        title (str): The title of the product.
+        description (str): A detailed description of the product.
+        price (float): The price of the product.
+        seller_id (str): The ID of the seller.
+        average_rating (float, optional): The average rating of the product.
+        Defaults to 0.0.
+        rating_count (int, optional): The number of ratings the product has
+        received. Defaults to 0.
+    """
+
     title: str
     description: str
     price: float
@@ -19,6 +32,9 @@ class ProductCreateRequest(BaseModel):
     rating_count: int = 0
 
     class Config:
+        """
+        Configuration class for the request product model."""
+
         json_schema_extra = {
             "example": {
                 "title": "Wireless Mouse",
@@ -32,6 +48,18 @@ class ProductCreateRequest(BaseModel):
 
 
 class ProductResponse(BaseModel):
+    """
+    ProductResponse is a Pydantic model representing the response schema for a product.
+    Attributes:
+        id (str): The unique identifier of the product.
+        title (str): The title of the product.
+        description (str): A detailed description of the product.
+        price (float): The price of the product.
+        seller_id (int): The unique identifier of the seller.
+        average_rating (float): The average rating of the product.
+        rating_count (int): The number of ratings the product has received.
+    """
+
     id: str
     title: str
     description: str
@@ -41,6 +69,9 @@ class ProductResponse(BaseModel):
     rating_count: int
 
     class Config:
+        """
+        Configuration class for the response product model."""
+
         json_schema_extra = {
             "example": {
                 "id": "101",
@@ -55,9 +86,18 @@ class ProductResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """ErrorResponse model used to represent error responses in the API.
+    Attributes:
+    detail (str): A detailed error message.
+    Config:
+    json_schema_extra (dict): Example configuration for the error response model."""
+
     detail: str
 
     class Config:
+        """
+        Configuration class for the response error model."""
+
         json_schema_extra = {"example": {"detail": "Product with id 101 not found"}}
 
 
@@ -168,11 +208,11 @@ def get_products(db: Session = Depends(get_db)):
                 for product in products
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No products found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No products found",
+    )
 
 
 # Get a product by ID

@@ -11,12 +11,26 @@ router = APIRouter()
 
 
 class TransactionCreateRequest(BaseModel):
+    """
+    Represents a request to create a new transaction.
+
+    Attributes:
+        buyer_id (str): The ID of the buyer initiating the transaction.
+        product_id (str): The ID of the product being purchased.
+        status (str): The current status of the transaction (e.g., Pending, Completed).
+        amount (float): The total amount of the transaction.
+    """
+
     buyer_id: str
     product_id: str
     status: str
     amount: float
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "buyer_id": 1,
@@ -28,10 +42,23 @@ class TransactionCreateRequest(BaseModel):
 
 
 class TransactionResponse(BaseModel):
+    """
+    Represents the response of a transaction, including its unique identifier
+    and status.
+
+    Attributes:
+        id (int): The unique identifier of the transaction.
+        status (str): The current status of the transaction (e.g., Pending, Completed).
+    """
+
     id: int
     status: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "id": 1,
@@ -41,9 +68,20 @@ class TransactionResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """
+    Represents an error response.
+
+    Attributes:
+        detail (str): The detailed message describing the error.
+    """
+
     detail: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {"example": {"detail": "Buyer (user) with id 1 not found"}}
 
 
@@ -183,11 +221,11 @@ def get_all_transactions(db: Session = Depends(get_db)):
                 for transaction in transactions
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No transactions found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No transactions found",
+    )
 
 
 # Get transactions by user ID
@@ -253,8 +291,8 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
                 for transaction in transactions
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No transactions found for user with id {user_id}",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"No transactions found for user with id {user_id}",
+    )

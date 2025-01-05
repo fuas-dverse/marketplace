@@ -1,3 +1,16 @@
+"""
+This module contains tests for the review functionality of the marketplace application.
+
+Fixtures:
+    add_user: Adds a new user at the start of the test module.
+    add_product: Adds a new product at the start of each test.
+    add_review: Adds a new review for a product.
+
+Tests:
+    test_get_reviews_per_product: Tests fetching reviews for a specific product
+    by product ID.
+"""
+
 import json
 import secrets
 import string

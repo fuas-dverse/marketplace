@@ -1,3 +1,27 @@
+"""
+This module contains tests for the product-related endpoints of the FastAPI application.
+
+The tests include:
+- Adding a new user (fixture).
+- Adding a new product (fixture).
+- Fetching all products.
+- Fetching a product by its ID.
+- Deleting a product.
+
+Fixtures:
+- add_user: Creates a new user at the start of the test module.
+- add_product: Creates a new product associated with the user created by the
+  `add_user` fixture.
+
+Tests:
+- test_get_products: Verifies that all products can be fetched successfully.
+- test_get_product_by_id: Verifies that a product can be fetched by its ID.
+- test_delete_product: Verifies that a product can be deleted by its ID.
+
+Usage:
+Run the tests using pytest.
+"""
+
 import json
 import secrets
 import string

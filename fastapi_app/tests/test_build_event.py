@@ -1,3 +1,24 @@
+"""
+Unit tests for the `build_event` function from `dverse_nats_helper.event_builder`.
+
+Fixtures:
+    sample_system: Sample system metadata.
+    sample_actor: Sample actor metadata.
+    test_session: In-memory SQLite database session.
+
+Functions:
+    custom_message_structure_for(object): Prints object attributes.
+    test_build_event_with_valid_product(): Tests with a valid Product.
+    test_build_event_with_invalid_object(): Tests with an invalid object.
+    test_build_event_with_product(sample_system, sample_actor, test_session):
+        Tests with a valid Product.
+    test_build_event_with_transaction(sample_system, sample_actor):
+        Tests with a valid Transaction.
+    test_build_event_with_review(sample_system, sample_actor):
+        Tests with a valid Review.
+    test_build_event_with_user(sample_system, sample_actor): Tests with a valid User.
+"""
+
 import inspect
 import uuid
 import pytest

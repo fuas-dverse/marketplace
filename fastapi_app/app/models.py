@@ -1,5 +1,19 @@
-import uuid
+"""
+This module defines the SQLAlchemy ORM models for the marketplace application.
 
+Models:
+    User: Represents a user in the marketplace.
+    Product: Represents a product in the marketplace.
+    Transaction: Represents a transaction in the marketplace.
+    Review: Represents a review for a product in the marketplace.
+
+Each model includes attributes that map to the corresponding database columns and
+relationships to other models.
+Additionally, each model provides a `to_event_object` method to convert
+the model instance to a dictionary format suitable for events.
+"""
+
+import uuid
 from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base

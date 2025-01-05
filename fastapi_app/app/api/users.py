@@ -1,3 +1,26 @@
+"""
+This module defines the API endpoints for user management using FastAPI.
+
+Endpoints:
+- POST /users/: Create a new user.
+- GET /users/: Retrieve all users.
+- GET /users/{username}: Retrieve a user by username.
+- DELETE /users/{username}: Delete a user by username.
+- PUT /users/{username}: Update user data.
+
+Models:
+- UserCreateRequest: Request model for creating a new user.
+- UserResponse: Response model for user details.
+- ErrorResponse: Response model for error messages.
+
+Dependencies:
+- get_db: Dependency to get the database session.
+
+Exceptions:
+- HTTPException: Raised for various HTTP errors such as user not found
+  or username conflict.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session

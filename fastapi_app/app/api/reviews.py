@@ -1,3 +1,23 @@
+"""
+This module defines the API endpoints for managing product reviews using FastAPI.
+
+Endpoints:
+- POST /reviews/: Add a new review for a product.
+- GET /reviews/: Retrieve all reviews across all products.
+- GET /reviews/{product_id}: Retrieve all reviews for a specific product.
+
+Classes:
+- ReviewCreateRequest: Represents a request to create a new review.
+- ReviewResponse: Represents the response of a review,
+    including updated product ratings.
+- ErrorResponse: Represents an error response.
+
+Functions:
+- add_review: Endpoint to create a new review for a product.
+- get_reviews: Endpoint to retrieve all reviews.
+- get_reviews_per_product: Endpoint to retrieve all reviews for a specific product.
+"""
+
 from dverse_nats_helper.event_builder import build_event
 from dverse_nats_helper.nats_connection import publish_event
 from fastapi import APIRouter, Depends, HTTPException, status

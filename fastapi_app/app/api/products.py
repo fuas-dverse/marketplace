@@ -1,3 +1,33 @@
+"""
+    This module defines the API endpoints for managing products in the marketplace
+    using FastAPI.
+
+    Endpoints:
+    - **POST /products/**: Add a new product to the catalog.
+    - **GET /products/**: Retrieve a list of all products.
+    - **GET /products/{product_id}**: Retrieve details of a specific product by its ID.
+    - **POST /products/{product_id}/review/**: Update the average rating and
+        rating count of a specific product.
+    - **DELETE /products/{product_id}**: Delete a specific product by its ID.
+
+    Models:
+    - **ProductCreateRequest**: Pydantic model for creating a new product.
+    - **ProductResponse**: Pydantic model representing
+        the response schema for a product.
+    - **ErrorResponse**: Pydantic model used to represent error responses in the API.
+
+    Dependencies:
+    - **get_db**: Dependency to get the database session.
+
+    Utilities:
+    - **build_event**: Utility to build an event for NATS.
+    - **publish_event**: Utility to publish an event to NATS.
+
+    Raises:
+    - **HTTPException**: Raised when a requested resource is not found
+        or an error occurs during processing.
+    """
+
 from dverse_nats_helper.event_builder import build_event
 from dverse_nats_helper.nats_connection import publish_event
 from fastapi import APIRouter, Depends, HTTPException, status

@@ -1,3 +1,16 @@
+"""
+This module contains tests for the transaction API of a marketplace application
+using FastAPI.
+
+Fixtures:
+    add_user: A pytest fixture that adds a new user at the start of the test module.
+    add_transaction: A pytest fixture that adds a new transaction for the user
+    created by the add_user fixture.
+
+Tests:
+    test_get_user_transactions: Tests fetching transactions by user ID.
+"""
+
 import json
 import secrets
 import string

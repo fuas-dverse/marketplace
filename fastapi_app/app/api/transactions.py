@@ -1,3 +1,31 @@
+"""
+This module defines the API endpoints for managing transactions in the marketplace
+application using FastAPI.
+It includes endpoints for creating a new transaction, retrieving all transactions,
+and retrieving transactions for a specific user.
+
+Endpoints:
+- POST /transactions/: Create a new transaction.
+- GET /transactions/: Retrieve all transactions.
+- GET /transactions/{user_id}: Retrieve transactions for a specific user.
+
+Dependencies:
+- FastAPI for API routing and request handling.
+- SQLAlchemy for database interactions.
+- Pydantic for data validation and serialization.
+- dverse_nats_helper for event building and publishing.
+
+Models:
+- TransactionCreateRequest: Schema for creating a new transaction.
+- TransactionResponse: Schema for the response of a transaction.
+- ErrorResponse: Schema for error responses.
+
+Functions:
+- add_transaction: Endpoint to add a new transaction.
+- get_all_transactions: Endpoint to retrieve all transactions.
+- get_user_transactions: Endpoint to retrieve transactions for a specific user.
+"""
+
 from dverse_nats_helper.event_builder import build_event
 from dverse_nats_helper.nats_connection import publish_event
 from fastapi import APIRouter, Depends, HTTPException, status

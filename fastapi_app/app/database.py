@@ -1,5 +1,18 @@
-import uuid
+"""
+This module sets up the database connection and provides functions to interact with the
+database.
 
+Functions:
+    get_db: Dependency to create and close database sessions.
+    create_user: Create a new user in the database.
+    create_product: Create a new product in the database.
+    update_product: Update product average rating and rating count in the database.
+    create_transaction: Create a new transaction in the database.
+    create_review: Create a new review in the database.
+    insert_user_if_empty: Create a new admin user in the database if the table is empty.
+"""
+
+import uuid
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

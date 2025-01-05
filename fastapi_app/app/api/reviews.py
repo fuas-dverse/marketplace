@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.database import get_db, create_review, update_product
-from app.models import Review, User, Product
-from pydantic import BaseModel
-from dverse_nats_helper.nats_connection import publish_event
 from dverse_nats_helper.event_builder import build_event
+from dverse_nats_helper.nats_connection import publish_event
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database import create_review, get_db, update_product
+from app.models import Product, Review, User
 
 router = APIRouter()
 

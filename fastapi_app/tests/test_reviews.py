@@ -1,8 +1,9 @@
-import secrets
-import requests
 import json
-import pytest
+import secrets
 import string
+
+import pytest
+import requests
 
 BASE_URL = "http://localhost:5001/api"
 

@@ -19,3 +19,4 @@ asyncio
 jsonschema
 dverse-nats-helper==0.2.0
 zipp>=3.19.1
+pylint

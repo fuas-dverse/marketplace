@@ -1,8 +1,10 @@
 import uuid
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.models import User, Product, Transaction, Review
+
 from app.config import Config
+from app.models import Product, Review, Transaction, User
 
 # Set up the SQLAlchemy engine and session
 engine = create_engine(Config.DATABASE_URL)

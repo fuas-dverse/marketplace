@@ -10,3 +10,4 @@ httpx
 pytest-cov==6.0.0
 coverage==7.6.7
 pytest-asyncio
+pylint

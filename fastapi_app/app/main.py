@@ -1,14 +1,14 @@
-from fastapi import FastAPI
-from app.api.products import router as products_router
-from app.api.users import router as users_router
-from app.api.transactions import router as transactions_router
-from app.api.reviews import router as reviews_router
-from app.database import engine
-from app.models import Base
-from sqlalchemy.orm import Session
-from app.database import insert_user_if_empty, get_db
 from dverse_nats_helper.nats_connection import connect_nats, nc
+from fastapi import FastAPI
+from sqlalchemy.orm import Session
+
+from app.api.products import router as products_router
+from app.api.reviews import router as reviews_router
+from app.api.transactions import router as transactions_router
+from app.api.users import router as users_router
 from app.config import Config
+from app.database import engine, get_db, insert_user_if_empty
+from app.models import Base
 
 app = FastAPI(
     title="The Marketplace API",

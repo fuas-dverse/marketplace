@@ -24,9 +24,9 @@ def add_user():
         response_json = response.json()
         print(f"User added successfully with response: {response_json}.")
         return response_json["user"]["id"]
-    else:
-        print(f"Failed to add user: {response.status_code} {response.text}")
-        pytest.skip("Skipping test as user could not be added.")
+    print(f"Failed to add user: {response.status_code} {response.text}")
+    pytest.skip("Skipping test as user could not be added.")
+    return None
 
 
 @pytest.fixture
@@ -49,9 +49,9 @@ def add_transaction(add_user):
         response_json = response.json()
         print(f"Transaction added successfully with response: {response_json}.")
         return {"response": response_json, "buyer_id": buyer_id}
-    else:
-        print(f"Failed to add transaction: {response.status_code} {response.text}")
-        pytest.skip("Skipping test as transaction could not be added.")
+    print(f"Failed to add transaction: {response.status_code} {response.text}")
+    pytest.skip("Skipping test as transaction could not be added.")
+    return None
 
 
 def test_get_user_transactions(add_transaction):

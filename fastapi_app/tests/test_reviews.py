@@ -24,9 +24,9 @@ def add_user():
         response_json = response.json()
         print(f"User added successfully with response: {response_json}.")
         return response_json["user"]["id"]
-    else:
-        print(f"Failed to add user: {response.status_code} {response.text}")
-        pytest.skip("Skipping test as user could not be added.")
+    print(f"Failed to add user: {response.status_code} {response.text}")
+    pytest.skip("Skipping test as user could not be added.")
+    return None
 
 
 @pytest.fixture
@@ -49,9 +49,9 @@ def add_product(add_user):
         response_json = response.json()
         print(f"Product added successfully with response: {response_json}.")
         return response_json["product"]["id"]
-    else:
-        print(f"Failed to add product: {response.status_code} {response.text}")
-        pytest.skip("Skipping test as product could not be added.")
+    print(f"Failed to add product: {response.status_code} {response.text}")
+    pytest.skip("Skipping test as product could not be added.")
+    return None
 
 
 @pytest.fixture

@@ -16,7 +16,7 @@ permissions:
 jobs:
   setup:
     name: Set Up Environment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -33,7 +33,7 @@ jobs:
 
   frontend-tests:
     name: Run Frontend Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
       pull-requests: write
@@ -75,7 +75,7 @@ jobs:
 
   auth-frontend-tests:
     name: Run Auth Frontend Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
       pull-requests: write
@@ -117,7 +117,7 @@ jobs:
 
   backend-tests:
     name: Run Backend Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: setup
 
     steps:
@@ -195,7 +195,7 @@ jobs:
 
   upload-coverage:
     name: Upload Coverage Reports
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [frontend-tests, backend-tests]
 
     steps:
@@ -241,7 +241,7 @@ jobs:
 
   push-docker-image-marketplace-api:
     name: Build and Push Marketplace API Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, backend-tests]
     if: github.event_name == 'push' && github.ref_name == 'main'
 
@@ -274,7 +274,7 @@ jobs:
 
   push-docker-image-notification-service:
     name: Build and Push Notification Service Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, backend-tests]
     if: github.event_name == 'push' && github.ref_name == 'main'
 
@@ -307,7 +307,7 @@ jobs:
 
   push-docker-image-marketplace-frontend:
     name: Build and Push Marketplace Frontend Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, frontend-tests]
     if: github.event_name == 'push' && github.ref_name == 'main'
 
@@ -340,7 +340,7 @@ jobs:
 
   deploy:
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       [
         push-docker-image-marketplace-frontend,

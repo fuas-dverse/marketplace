@@ -15,7 +15,7 @@ on:
 jobs:
   setup:
     name: Setup Deployment Workflow
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Placeholder Setup Step
@@ -23,7 +23,7 @@ jobs:
 
   deploy:
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.event_name == 'push' && github.ref_name == 'main'
 
     steps:

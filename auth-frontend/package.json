@@ -10,9 +10,10 @@
     "test:client": "jest --coverage --env=jsdom --testPathPattern='__tests__/client/'",
     "test:server": "jest --coverage --env=node --testPathPattern='__tests__/server/'",
     "test": "npm run test:client && npm run test:server",
-    "test:e2e": "npxplaywright test",
+    "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
-    "test:e2e:report": "npx playwright show-report"
+    "test:e2e:report": "npx playwright show-report",
+    "playwright:open": "npx playwright codegen"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.1",

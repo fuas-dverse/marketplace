@@ -20,7 +20,7 @@ on:
 jobs:
   code-analysis:
     name: Run Code Analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -48,7 +48,7 @@ jobs:
         if: env.python_exists == 'true'
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: "3.10"
 
       - name: Install Python Dependencies
         if: env.python_exists == 'true'
@@ -69,7 +69,7 @@ jobs:
         if: env.eslint_exists == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22"
 
       - name: Install Node.js Dependencies
         if: env.eslint_exists == 'true'

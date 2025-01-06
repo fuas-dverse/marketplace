@@ -81,4 +81,4 @@ jobs:
         if: env.eslint_exists == 'true'
         working-directory: ${{ inputs.eslint_directory }}
         run: |
-          npx eslint .
+          npm run lint

@@ -1,6 +1,7 @@
 "use client";
 
 import { Product } from "@/types/marketplace.types";
+import Image from "next/image";
 
 export const ProductRow = (product: Product & { onBuyNow: () => void }) => {
   return (
@@ -8,7 +9,7 @@ export const ProductRow = (product: Product & { onBuyNow: () => void }) => {
       className="border border-gray-200 rounded-lg shadow-md bg-white overflow-hidden transition-transform transform hover:scale-105"
       data-testid="product-container"
     >
-      <img
+      <Image
         src="https://picsum.photos/600/450"
         alt="Product Image"
         className="w-full h-48 object-cover sm:h-64"

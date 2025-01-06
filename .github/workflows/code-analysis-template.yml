@@ -1,0 +1,84 @@
+name: Static Code Analysis
+
+on:
+  workflow_call:
+    inputs:
+      python_directory:
+        description: "The directory containing Python code"
+        required: false
+        type: string
+      eslint_directory:
+        description: "The directory containing JavaScript/TypeScript code"
+        required: false
+        type: string
+      pylint_rcfile:
+        description: "Path to the .pylintrc file (if applicable)"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  code-analysis:
+    name: Run Code Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check Python Directory
+        id: check-python
+        run: |
+          if [ -n "${{ inputs.python_directory }}" ] && [ "$(ls -A ${{ inputs.python_directory }})" ]; then
+            echo "python_exists=true" >> $GITHUB_ENV
+          else
+            echo "python_exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Check ESLint Directory
+        id: check-eslint
+        run: |
+          if [ -n "${{ inputs.eslint_directory }}" ] && [ "$(ls -A ${{ inputs.eslint_directory }})" ]; then
+            echo "eslint_exists=true" >> $GITHUB_ENV
+          else
+            echo "eslint_exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Set up Python
+        if: env.python_exists == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Install Python Dependencies
+        if: env.python_exists == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint
+
+      - name: Run pylint
+        if: env.python_exists == 'true'
+        run: |
+          if [ -n "${{ inputs.pylint_rcfile }}" ]; then
+            pylint --rcfile=${{ inputs.pylint_rcfile }} ${{ inputs.python_directory }}
+          else
+            pylint ${{ inputs.python_directory }}
+          fi
+
+      - name: Set up Node.js
+        if: env.eslint_exists == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Node.js Dependencies
+        if: env.eslint_exists == 'true'
+        working-directory: ${{ inputs.eslint_directory }}
+        run: |
+          npm install
+
+      - name: Run eslint
+        if: env.eslint_exists == 'true'
+        working-directory: ${{ inputs.eslint_directory }}
+        run: |
+          npx eslint .

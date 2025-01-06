@@ -4,7 +4,6 @@ import { useUser } from "@/contexts/UserProvider";
 import { useState } from "react";
 import ProductForm from "./ProductForm";
 import Settings from "./Settings";
-import Image from "next/image";
 
 export default function AccountCard() {
   const { user, loading, error } = useUser();
@@ -45,7 +44,7 @@ export default function AccountCard() {
           backgroundPosition: "center",
         }}
       >
-        <Image
+        <img
           src="https://picsum.photos/100"
           alt="User Image"
           className="w-20 h-20 rounded-full border-4 border-white shadow-lg"

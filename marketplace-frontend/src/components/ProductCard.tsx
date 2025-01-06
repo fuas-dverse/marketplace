@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import ReviewList from "./ReviewList";
 import ReviewFormModal from "./ReviewForm";
-import Image from "next/image";
 
 interface Product {
   id: string;
@@ -74,7 +73,7 @@ export default function ProductCard(props: ProductCardProps) {
     >
       <div className="flex flex-col md:flex-row gap-8">
         {/* Product Image */}
-        <Image
+        <img
           src="https://picsum.photos/600/450"
           alt="Product Image"
           className="w-full md:w-1/2 h-auto rounded-lg shadow-md object-cover"

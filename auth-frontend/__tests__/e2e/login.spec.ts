@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 const generateRandomNumber = () => {
   return Math.floor(1000 + Math.random() * 9000);
 };
-test("test", async ({ page }) => {
+test("Flow Test", async ({ page }) => {
   const randomNumber = generateRandomNumber();
   await page.goto("http://localhost:3002/");
   await page.getByRole("tab", { name: "Sign Up" }).click();

@@ -23,7 +23,6 @@ describe("Header Component Tests", () => {
   it("should render navigation links for a logged-out user", () => {
     renderWithNullUserProvider(<Header />);
     expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Transactions")).toBeInTheDocument();
     expect(screen.getByText("Login")).toBeInTheDocument();
   });
 

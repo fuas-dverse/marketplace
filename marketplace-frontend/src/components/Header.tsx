@@ -46,15 +46,6 @@ export default function Header() {
                 Home
               </Link>
             </li>
-            <li>
-              <Link
-                href="/transactions"
-                className="hover:text-purple-300 transition"
-                data-testid="header-nav-link-transactions"
-              >
-                Transactions
-              </Link>
-            </li>
             {user ? (
               <>
                 <li>

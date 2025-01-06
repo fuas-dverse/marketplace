@@ -5,7 +5,6 @@ test("Initial content visibility", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Marketplace" })).toBeVisible();
   await expect(page.getByTestId("product-list-container")).toBeVisible();
   await expect(page.getByTestId("header-nav-link-home")).toBeVisible();
-  await expect(page.getByTestId("header-nav-link-transactions")).toBeVisible();
   await expect(page.getByTestId("header-nav-link-logout")).toBeVisible();
   await expect(page.getByTestId("search-bar")).toBeVisible();
   await expect(page.getByTestId("footer-link-privacy")).toBeVisible();
@@ -17,7 +16,7 @@ test("Search for product", async ({ page }) => {
   await page.goto("http://localhost:3001/");
   await page.getByTestId("search-bar").click();
   await page.getByTestId("search-bar").fill("lap");
-  await expect(page.getByTestId("product-container")).toBeVisible();
+  await expect(page.getByTestId("product-container").nth(0)).toBeVisible();
   await expect(
     page.getByTestId("product-item-c1326082-ca00-4d90-9d93-738d05337dda")
   ).toBeVisible();

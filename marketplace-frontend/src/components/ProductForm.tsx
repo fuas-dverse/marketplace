@@ -24,7 +24,6 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
       price: parseFloat(price),
       seller_id: user?.id,
     };
-
     try {
       const res = await fetch(`${window.location.origin}/api/products`, {
         method: "POST",

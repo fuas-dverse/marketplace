@@ -1,8 +1,28 @@
-import requests
+"""
+This module contains tests for user-related operations in a FastAPI application.
+
+The tests include:
+- Adding a new user
+- Fetching user data by username
+- Deleting a user profile
+
+Fixtures:
+- add_user: Registers a new user and returns the user data.
+
+Tests:
+- test_get_user_by_username: Verifies that user data can be fetched by username.
+- test_delete_user: Verifies that a user profile can be deleted.
+
+Usage:
+Run the tests using pytest.
+"""
+
 import json
-import pytest
 import secrets
 import string
+
+import pytest
+import requests
 
 BASE_URL = "http://localhost:5001/api"
 

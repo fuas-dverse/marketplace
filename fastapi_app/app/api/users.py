@@ -1,16 +1,51 @@
+"""
+This module defines the API endpoints for user management using FastAPI.
+
+Endpoints:
+- POST /users/: Create a new user.
+- GET /users/: Retrieve all users.
+- GET /users/{username}: Retrieve a user by username.
+- DELETE /users/{username}: Delete a user by username.
+- PUT /users/{username}: Update user data.
+
+Models:
+- UserCreateRequest: Request model for creating a new user.
+- UserResponse: Response model for user details.
+- ErrorResponse: Response model for error messages.
+
+Dependencies:
+- get_db: Dependency to get the database session.
+
+Exceptions:
+- HTTPException: Raised for various HTTP errors such as user not found
+  or username conflict.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.database import get_db, create_user
-from app.models import User
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database import create_user, get_db
+from app.models import User
 
 router = APIRouter()
 
 
 class UserCreateRequest(BaseModel):
+    """
+    Represents a request to create a new user.
+
+    Attributes:
+        username (str): The username of the new user.
+    """
+
     username: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "username": "johndoe",
@@ -19,10 +54,22 @@ class UserCreateRequest(BaseModel):
 
 
 class UserResponse(BaseModel):
+    """
+    Represents the response for a user, including their unique identifier and username.
+
+    Attributes:
+        id (int): The unique identifier of the user.
+        username (str): The username of the user.
+    """
+
     id: int
     username: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "id": 1,
@@ -32,9 +79,20 @@ class UserResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """
+    Represents an error response.
+
+    Attributes:
+        detail (str): The detailed message describing the error.
+    """
+
     detail: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {"detail": "Username already exists"},
         }
@@ -126,11 +184,11 @@ def get_users(db: Session = Depends(get_db)):
                 for user in users
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No users found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No users found",
+    )
 
 
 # Get user by username

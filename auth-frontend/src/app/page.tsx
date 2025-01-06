@@ -59,7 +59,7 @@ function AuthPageContent() {
     if (signInState.success) {
       router.push(redirectUrl); // Ensure redirection on successful sign-in
     }
-  }, [signInState.success, router]);
+  }, [signInState.success, router, redirectUrl]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

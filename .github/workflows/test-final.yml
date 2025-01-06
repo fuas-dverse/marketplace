@@ -34,8 +34,23 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-  test-backends:
+  code-analysis:
     needs: setup
+    strategy:
+      matrix:
+        include:
+          - python_directory: "./fastapi_app"
+          - python_directory: "./notification_service"
+          - eslint_directory: "./marketplace-frontend"
+          - eslint_directory: "./auth-frontend"
+    uses: ./.github/workflows/code-analysis-template.yml
+    with:
+      python_directory: ${{ matrix.python_directory }}
+      eslint_directory: ${{ matrix.eslint_directory }}
+      pylint_rcfile: .pylintrc
+
+  test-backends:
+    needs: [setup, code-analysis]
     strategy:
       matrix:
         backend:
@@ -52,7 +67,7 @@ jobs:
       api_check_url: ${{ matrix.backend.api_check_url }}
 
   test-frontends:
-    needs: setup
+    needs: [setup, code-analysis]
     strategy:
       matrix:
         frontend:

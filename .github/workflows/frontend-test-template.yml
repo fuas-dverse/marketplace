@@ -10,7 +10,7 @@ on:
       node_version:
         description: "Node.js version"
         required: false
-        default: "18"
+        default: "22"
         type: string
 
 jobs:

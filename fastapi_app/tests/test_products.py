@@ -1,15 +1,50 @@
-import requests
+"""
+This module contains tests for the product-related endpoints of the FastAPI application.
+
+The tests include:
+- Adding a new user (fixture).
+- Adding a new product (fixture).
+- Fetching all products.
+- Fetching a product by its ID.
+- Deleting a product.
+
+Fixtures:
+- add_user: Creates a new user at the start of the test module.
+- add_product: Creates a new product associated with the user created by the
+  `add_user` fixture.
+
+Tests:
+- test_get_products: Verifies that all products can be fetched successfully.
+- test_get_product_by_id: Verifies that a product can be fetched by its ID.
+- test_delete_product: Verifies that a product can be deleted by its ID.
+
+Usage:
+Run the tests using pytest.
+"""
+
 import json
-import pytest
 import secrets
 import string
+
+import pytest
+import requests
 
 BASE_URL = "http://localhost:5001/api"
 
 
 @pytest.fixture(scope="module", autouse=True)
 def add_user():
-    """Add a new user at test startup."""
+    """
+    Add a new user at test startup.
+
+    This fixture creates a new user by sending a POST request to the `/users/` endpoint.
+    The user's username is randomly generated to ensure uniqueness.
+
+    Returns:
+        str: The ID of the newly created user.
+
+    Skips the test if the user cannot be added successfully.
+    """
     print("Adding a new user...")
     user_url = f"{BASE_URL}/users/"
     random_suffix = "".join(
@@ -23,14 +58,26 @@ def add_user():
         response_json = response.json()
         print(f"User added successfully with response: {response_json}.")
         return response_json["user"]["id"]
-    else:
-        print(f"Failed to add user: {response.status_code} {response.text}")
-        pytest.skip("Skipping test as user could not be added.")
+    print(f"Failed to add user: {response.status_code} {response.text}")
+    pytest.skip("Skipping test as user could not be added.")
+    return None
 
 
 @pytest.fixture
 def add_product(add_user):
-    """Add a new product."""
+    """
+    Add a new product.
+
+    This fixture creates a new product by sending a POST request to the `/products/`
+    endpoint.
+    The product is associated with the user created by the `add_user` fixture.
+
+    Args:
+        add_user (str): The ID of the seller (user).
+
+    Returns:
+        dict: The JSON response containing the details of the created product.
+    """
     print("Adding a new product...")
     product_url = f"{BASE_URL}/products/"
     seller_id = add_user
@@ -53,7 +100,15 @@ def add_product(add_user):
 
 
 def test_get_products(add_product):
-    """Get all products."""
+    """
+    Test fetching all products.
+
+    This test creates multiple products using the `add_product` fixture
+    and verifies that they can be fetched successfully using the `/products/` endpoint.
+
+    Args:
+        add_product (dict): The details of the created product.
+    """
     product1 = add_product
     product2 = add_product
     product3 = add_product
@@ -67,7 +122,15 @@ def test_get_products(add_product):
 
 
 def test_get_product_by_id(add_product):
-    """Get product by id."""
+    """
+    Test fetching a product by its ID.
+
+    This test verifies that a product can be fetched successfully using its ID
+    via the `/products/{product_id}` endpoint.
+
+    Args:
+        add_product (dict): The details of the created product.
+    """
     product_id = add_product["product"]["id"]
     print(f"Fetching product data for id: {product_id}")
     response = requests.get(f"{BASE_URL}/products/{product_id}", timeout=60)
@@ -78,7 +141,15 @@ def test_get_product_by_id(add_product):
 
 
 def test_delete_product(add_product):
-    """Delete product."""
+    """
+    Test deleting a product.
+
+    This test verifies that a product can be deleted successfully using its ID
+    via the `/products/{product_id}` endpoint.
+
+    Args:
+        add_product (dict): The details of the created product.
+    """
     product_id = add_product["product"]["id"]
     print(f"Deleting product data for id: {product_id}")
     response = requests.delete(f"{BASE_URL}/products/{product_id}", timeout=60)

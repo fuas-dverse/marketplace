@@ -1,21 +1,56 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.database import get_db, create_review, update_product
-from app.models import Review, User, Product
-from pydantic import BaseModel
-from dverse_nats_helper.nats_connection import publish_event
+"""
+This module defines the API endpoints for managing product reviews using FastAPI.
+
+Endpoints:
+- POST /reviews/: Add a new review for a product.
+- GET /reviews/: Retrieve all reviews across all products.
+- GET /reviews/{product_id}: Retrieve all reviews for a specific product.
+
+Classes:
+- ReviewCreateRequest: Represents a request to create a new review.
+- ReviewResponse: Represents the response of a review,
+    including updated product ratings.
+- ErrorResponse: Represents an error response.
+
+Functions:
+- add_review: Endpoint to create a new review for a product.
+- get_reviews: Endpoint to retrieve all reviews.
+- get_reviews_per_product: Endpoint to retrieve all reviews for a specific product.
+"""
+
 from dverse_nats_helper.event_builder import build_event
+from dverse_nats_helper.nats_connection import publish_event
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database import create_review, get_db, update_product
+from app.models import Product, Review, User
 
 router = APIRouter()
 
 
 class ReviewCreateRequest(BaseModel):
+    """
+    Represents a request to create a new review for a product.
+
+    Attributes:
+        user_id (str): The ID of the user creating the review.
+        product_id (str): The ID of the product being reviewed.
+        rating (int): The rating given to the product (e.g., 1-5).
+        content (str): The content of the review.
+    """
+
     user_id: str
     product_id: str
     rating: int
     content: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "user_id": 1,
@@ -27,6 +62,20 @@ class ReviewCreateRequest(BaseModel):
 
 
 class ReviewResponse(BaseModel):
+    """
+    Represents the response of a review, including details about the review
+    and updated product ratings.
+
+    Attributes:
+        id (int): The unique identifier of the review.
+        rating (int): The rating given to the product.
+        content (str): The content of the review.
+        user_id (str): The ID of the user who created the review.
+        product_id (str): The ID of the product being reviewed.
+        new_average_rating (float): The updated average rating of the product.
+        rating_count (int): The updated count of ratings for the product.
+    """
+
     id: int
     rating: int
     content: str
@@ -36,6 +85,10 @@ class ReviewResponse(BaseModel):
     rating_count: int
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "id": 1,
@@ -50,9 +103,20 @@ class ReviewResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """
+    Represents an error response.
+
+    Attributes:
+        detail (str): The detailed message describing the error.
+    """
+
     detail: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {"example": {"detail": "User with id 1 not found"}}
 
 
@@ -199,11 +263,11 @@ def get_reviews(db: Session = Depends(get_db)):
                 for review in reviews
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No reviews found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No reviews found",
+    )
 
 
 # Get all reviews per product
@@ -259,8 +323,8 @@ def get_reviews_per_product(product_id: str, db: Session = Depends(get_db)):
                 for review in reviews
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Reviews for product with id {product_id} not found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Reviews for product with id {product_id} not found",
+    )

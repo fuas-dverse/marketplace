@@ -1,8 +1,23 @@
+"""
+This module defines the SQLAlchemy ORM models for the marketplace application.
+
+Models:
+    User: Represents a user in the marketplace.
+    Product: Represents a product in the marketplace.
+    Transaction: Represents a transaction in the marketplace.
+    Review: Represents a review for a product in the marketplace.
+
+Each model includes attributes that map to the corresponding database columns and
+relationships to other models.
+Additionally, each model provides a `to_event_object` method to convert
+the model instance to a dictionary format suitable for events.
+"""
+
 import uuid
-from sqlalchemy import Column, String, Float, ForeignKey, Integer
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 # Base class for creating models
 Base = declarative_base()
@@ -36,6 +51,9 @@ class User(Base):
     reviews = relationship("Review", back_populates="buyer")
 
     def to_event_object(self):
+        """
+        Converts the User object to a dictionary that can be used in events."""
+
         return {
             "user_id": str(self.id),
             "username": self.username,
@@ -78,6 +96,8 @@ class Product(Base):
     reviews = relationship("Review", back_populates="product")
 
     def to_event_object(self):
+        """
+        Converts the Product object to a dictionary that can be used in events."""
         return {
             "product_id": str(self.id),
             "title": self.title,
@@ -113,6 +133,8 @@ class Transaction(Base):
     product = relationship("Product", back_populates="transactions")
 
     def to_event_object(self):
+        """
+        Converts the Transaction object to a dictionary that can be used in events."""
         return {
             "transaction_id": str(self.id),
             "product_id": str(self.product_id),
@@ -149,6 +171,8 @@ class Review(Base):
     product = relationship("Product", back_populates="reviews")
 
     def to_event_object(self):
+        """
+        Converts the Review object to a dictionary that can be used in events."""
         return {
             "review_id": str(self.id),
             "product_id": str(self.product_id),

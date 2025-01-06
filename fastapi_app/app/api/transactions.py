@@ -1,21 +1,64 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.database import get_db, create_transaction
-from app.models import Transaction, User, Product
-from pydantic import BaseModel
-from dverse_nats_helper.nats_connection import publish_event
+"""
+This module defines the API endpoints for managing transactions in the marketplace
+application using FastAPI.
+It includes endpoints for creating a new transaction, retrieving all transactions,
+and retrieving transactions for a specific user.
+
+Endpoints:
+- POST /transactions/: Create a new transaction.
+- GET /transactions/: Retrieve all transactions.
+- GET /transactions/{user_id}: Retrieve transactions for a specific user.
+
+Dependencies:
+- FastAPI for API routing and request handling.
+- SQLAlchemy for database interactions.
+- Pydantic for data validation and serialization.
+- dverse_nats_helper for event building and publishing.
+
+Models:
+- TransactionCreateRequest: Schema for creating a new transaction.
+- TransactionResponse: Schema for the response of a transaction.
+- ErrorResponse: Schema for error responses.
+
+Functions:
+- add_transaction: Endpoint to add a new transaction.
+- get_all_transactions: Endpoint to retrieve all transactions.
+- get_user_transactions: Endpoint to retrieve transactions for a specific user.
+"""
+
 from dverse_nats_helper.event_builder import build_event
+from dverse_nats_helper.nats_connection import publish_event
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database import create_transaction, get_db
+from app.models import Product, Transaction, User
 
 router = APIRouter()
 
 
 class TransactionCreateRequest(BaseModel):
+    """
+    Represents a request to create a new transaction.
+
+    Attributes:
+        buyer_id (str): The ID of the buyer initiating the transaction.
+        product_id (str): The ID of the product being purchased.
+        status (str): The current status of the transaction (e.g., Pending, Completed).
+        amount (float): The total amount of the transaction.
+    """
+
     buyer_id: str
     product_id: str
     status: str
     amount: float
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "buyer_id": 1,
@@ -27,10 +70,23 @@ class TransactionCreateRequest(BaseModel):
 
 
 class TransactionResponse(BaseModel):
+    """
+    Represents the response of a transaction, including its unique identifier
+    and status.
+
+    Attributes:
+        id (int): The unique identifier of the transaction.
+        status (str): The current status of the transaction (e.g., Pending, Completed).
+    """
+
     id: int
     status: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {
             "example": {
                 "id": 1,
@@ -40,9 +96,20 @@ class TransactionResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
+    """
+    Represents an error response.
+
+    Attributes:
+        detail (str): The detailed message describing the error.
+    """
+
     detail: str
 
     class Config:
+        """
+        Configuration for the schema example.
+        """
+
         json_schema_extra = {"example": {"detail": "Buyer (user) with id 1 not found"}}
 
 
@@ -182,11 +249,11 @@ def get_all_transactions(db: Session = Depends(get_db)):
                 for transaction in transactions
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No transactions found",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No transactions found",
+    )
 
 
 # Get transactions by user ID
@@ -252,8 +319,8 @@ def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
                 for transaction in transactions
             ],
         }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No transactions found for user with id {user_id}",
-        )
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"No transactions found for user with id {user_id}",
+    )

@@ -1,8 +1,22 @@
-import secrets
-import requests
+"""
+This module contains tests for the review functionality of the marketplace application.
+
+Fixtures:
+    add_user: Adds a new user at the start of the test module.
+    add_product: Adds a new product at the start of each test.
+    add_review: Adds a new review for a product.
+
+Tests:
+    test_get_reviews_per_product: Tests fetching reviews for a specific product
+    by product ID.
+"""
+
 import json
-import pytest
+import secrets
 import string
+
+import pytest
+import requests
 
 BASE_URL = "http://localhost:5001/api"
 
@@ -23,9 +37,9 @@ def add_user():
         response_json = response.json()
         print(f"User added successfully with response: {response_json}.")
         return response_json["user"]["id"]
-    else:
-        print(f"Failed to add user: {response.status_code} {response.text}")
-        pytest.skip("Skipping test as user could not be added.")
+    print(f"Failed to add user: {response.status_code} {response.text}")
+    pytest.skip("Skipping test as user could not be added.")
+    return None
 
 
 @pytest.fixture
@@ -48,9 +62,9 @@ def add_product(add_user):
         response_json = response.json()
         print(f"Product added successfully with response: {response_json}.")
         return response_json["product"]["id"]
-    else:
-        print(f"Failed to add product: {response.status_code} {response.text}")
-        pytest.skip("Skipping test as product could not be added.")
+    print(f"Failed to add product: {response.status_code} {response.text}")
+    pytest.skip("Skipping test as product could not be added.")
+    return None
 
 
 @pytest.fixture

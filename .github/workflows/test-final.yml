@@ -50,7 +50,7 @@ jobs:
       pylint_rcfile: ${{ matrix.python_directory }}/.pylintrc
 
   test-backends:
-    needs: setup
+    needs: [setup, code-analysis]
     strategy:
       matrix:
         backend:
@@ -67,7 +67,7 @@ jobs:
       api_check_url: ${{ matrix.backend.api_check_url }}
 
   test-frontends:
-    needs: setup
+    needs: [setup, code-analysis]
     strategy:
       matrix:
         frontend:

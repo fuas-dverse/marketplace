@@ -17,6 +17,7 @@ const config: Config = {
     "<rootDir>/node_modules/",
     "<rootDir>/.next/",
     "<rootDir>/__tests__/utils/",
+    "<rootDir>/__tests__/e2e/",
   ],
   testMatch: [
     "**/__tests__/**/*.+(ts|tsx|js)",

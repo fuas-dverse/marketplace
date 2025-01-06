@@ -47,7 +47,7 @@ jobs:
     with:
       python_directory: ${{ matrix.python_directory }}
       eslint_directory: ${{ matrix.eslint_directory }}
-      pylint_rcfile: ${{ matrix.python_directory }}/.pylintrc
+      pylint_rcfile: .pylintrc
 
   test-backends:
     needs: [setup, code-analysis]

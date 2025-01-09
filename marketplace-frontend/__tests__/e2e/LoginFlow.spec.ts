@@ -1,9 +1,7 @@
 import { test, expect } from "@playwright/test";
+import { generateRandomNumber } from "./utils";
 
-const generateRandomNumber = () => {
-  return Math.floor(1000 + Math.random() * 9000);
-};
-test("Flow Test", async ({ page }) => {
+test("Login Flow Test", async ({ page }) => {
   const randomNumber = generateRandomNumber();
   await page.goto("http://localhost:3001/");
   await page.getByTestId("header-nav-link-logout").click();
@@ -21,6 +19,11 @@ test("Flow Test", async ({ page }) => {
   await page.locator("#signup-confirm-password").click();
   await page.locator("#signup-confirm-password").fill("test" + randomNumber);
   await page.getByRole("button", { name: "Sign Up" }).click();
+
+  await page.waitForSelector("text=Account created successfully", {
+    timeout: 5000,
+  });
+
   await expect(page.getByLabel("Sign Up").getByRole("paragraph")).toContainText(
     "Account created successfully"
   );

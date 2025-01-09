@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { generateRandomNumber } from "./utils";
+const randomNumber = generateRandomNumber();
 
-test("Login Flow Test", async ({ page }) => {
-  const randomNumber = generateRandomNumber();
+test("Register Test", async ({ page }) => {
   await page.goto("http://localhost:3001/");
   await page.getByTestId("header-nav-link-logout").click();
   await expect(
@@ -27,6 +27,14 @@ test("Login Flow Test", async ({ page }) => {
   await expect(page.getByLabel("Sign Up").getByRole("paragraph")).toContainText(
     "Account created successfully"
   );
+});
+test("Login Test", async ({ page }) => {
+  await page.goto("http://localhost:3001/");
+  await page.getByTestId("header-nav-link-logout").click();
+  await expect(
+    page.locator("div").filter({ hasText: "WelcomeSign in to your" }).first()
+  ).toBeVisible();
+  await expect(page).toHaveURL(/^http:\/\/localhost:3002\/\?redirect_url=/);
   await page.getByRole("tab", { name: "Sign In" }).click();
   await page.getByLabel("Username").click();
   await page.getByLabel("Username").fill("test" + randomNumber);

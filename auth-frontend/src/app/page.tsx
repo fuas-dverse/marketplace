@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from "next/navigation";
+import { addUser } from "./actions/addUser";
 
 function AuthPageContent() {
   const [signInState, setSignInState] = useState({
@@ -47,7 +48,11 @@ function AuthPageContent() {
 
   const signUpAction = async (formData: FormData) => {
     setSignUpState({ ...signUpState, pending: true });
+    const username = formData.get("username") as string;
+    console.log(username);
     const result = await signUp(formData);
+    const createdUser = await addUser(username);
+    console.log(createdUser);
     setSignUpState({
       pending: false,
       success: result.success,

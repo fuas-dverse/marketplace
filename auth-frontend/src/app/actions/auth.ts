@@ -65,7 +65,7 @@ export async function signUp(formData: FormData) {
     });
 
     if (response.ok) {
-      return { success: true, message: "Account created successfully" };
+      return { success: true, message: "[Auth] Account created successfully" };
     } else {
       const errorMessage =
         (await response.json())?.error || "Registration failed";

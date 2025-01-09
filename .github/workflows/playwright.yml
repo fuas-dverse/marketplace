@@ -10,7 +10,7 @@ on:
 
 jobs:
   e2e-tests:
-    name: Run Backend Tests
+    name: Run End to End Tests
     runs-on: ubuntu-22.04
 
     steps:
@@ -37,6 +37,13 @@ jobs:
       - name: Install dependencies
         working-directory: ${{ inputs.working_directory }}
         run: npm ci
+
+      - name: Build Frontend
+        working-directory: ${{ inputs.working_directory }}
+        run: npm run build
+      - name: Start Frontend
+        working-directory: ${{ inputs.working_directory }}
+        run: npm run start
       - name: Install Playwright Browsers
         working-directory: ${{ inputs.working_directory }}
         run: npx playwright install --with-deps

@@ -113,6 +113,17 @@ jobs:
     secrets:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
+  end-to-end:
+    needs: test-frontends
+    strategy:
+      matrix:
+        frontend:
+          - name: marketplace-frontend
+          - name: auth-frontend
+    uses: ./.github/workflows/playwright.yml
+    with:
+      working_directory: ${{ matrix.frontend.name }}
+
   build-images:
     needs: [test-backends, test-frontends]
     strategy:

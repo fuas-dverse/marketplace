@@ -1,0 +1,61 @@
+name: Playwright End2End Tests Template
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: "The directory of the backend project"
+        required: true
+        type: string
+
+jobs:
+  e2e-tests:
+    name: Run End to End Tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      - name: Build and Start Services
+        run: |
+          docker-compose build --no-cache
+          docker-compose up -d
+          docker-compose ps
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working_directory }}
+        run: npm ci
+
+      - name: Build Frontend
+        working-directory: ${{ inputs.working_directory }}
+        run: npm run build
+      - name: Start Frontend
+        working-directory: ${{ inputs.working_directory }}
+        run: npm run start
+      - name: Install Playwright Browsers
+        working-directory: ${{ inputs.working_directory }}
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        working-directory: ${{ inputs.working_directory }}
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: ${{ inputs.working_directory }}/playwright-report/
+          retention-days: 30
+      - name: Tear Down Services
+        if: always()
+        run: docker-compose down

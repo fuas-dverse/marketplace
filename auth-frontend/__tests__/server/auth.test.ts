@@ -132,7 +132,7 @@ describe("Auth Functions", () => {
       );
       expect(result).toEqual({
         success: true,
-        message: "Account created successfully",
+        message: "[Auth] Account created successfully",
       });
     });
   });

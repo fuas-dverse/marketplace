@@ -9,15 +9,15 @@ export default function Header() {
   const router = useRouter();
 
   const handleLogin = () => {
-    const authUrl = `${process.env.AUTH_URL}/?redirect_url=${encodeURIComponent(
-      window.location.href
-    )}`;
+    const authUrl = `${
+      process.env.AUTH_FRONTEND_URL
+    }/?redirect_url=${encodeURIComponent(window.location.href)}`;
     router.push(authUrl);
   };
 
   const handleLogout = () => {
     const logoutUrl = `${
-      process.env.AUTH_URL
+      process.env.AUTH_FRONTEND_URL
     }/logout?redirect_url=${encodeURIComponent(window.location.href)}`;
     setUser(null); // might break
     router.push(logoutUrl);
@@ -44,15 +44,6 @@ export default function Header() {
                 data-testid="header-nav-link-home"
               >
                 Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/transactions"
-                className="hover:text-purple-300 transition"
-                data-testid="header-nav-link-transactions"
-              >
-                Transactions
               </Link>
             </li>
             {user ? (

@@ -1,30 +1,30 @@
 "use client";
 
-import { useUser } from "@/contexts/UserProvider";
 import { useState } from "react";
 
 interface ProductFormProps {
   onSuccess: () => void;
+  sellerId: string | undefined;
 }
 
-export default function ProductForm({ onSuccess }: ProductFormProps) {
+export default function ProductForm({ onSuccess, sellerId }: ProductFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const { user, error: userError } = useUser();
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log(sellerId);
     e.preventDefault();
     const productData = {
       title,
       description,
       price: parseFloat(price),
-      seller_id: user?.id,
+      seller_id: sellerId,
     };
 
+    console.log(productData);
     try {
       const res = await fetch(`${window.location.origin}/api/products`, {
         method: "POST",
@@ -59,7 +59,6 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
     }
   };
 
-  if (userError) return <div>Error: {userError}</div>;
   if (error) return <div>Error: {error}</div>;
 
   return success ? (

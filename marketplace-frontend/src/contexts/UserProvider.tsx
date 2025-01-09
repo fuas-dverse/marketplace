@@ -5,18 +5,24 @@ import { User, UserContextType } from "@/types/marketplace.types";
 
 export const UserContext = createContext<UserContextType | null>(null);
 
+type UserResponse = {
+  message: string;
+  user: User | null;
+};
+
 export function UserProvider({
   children,
   initialUser,
 }: {
   children: React.ReactNode;
-  initialUser?: User | null;
+  initialUser?: UserResponse | null;
 }) {
   const [user, setUser] = useState<User | null>(initialUser || null);
   const [loading, setLoading] = useState<boolean>(!initialUser); // Skip loading if initialUser is provided
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("initialUser", initialUser);
     if (!initialUser) {
       const fetchUser = async () => {
         setLoading(true);
@@ -24,7 +30,11 @@ export function UserProvider({
           const response = await fetch("/api/get-user");
           if (response.ok) {
             const userData = await response.json();
-            setUser(userData);
+            setUser(userData.user);
+            sessionStorage.setItem(
+              "username",
+              JSON.stringify(userData.user.username)
+            );
           } else {
             throw new Error("Unauthorized");
           }
@@ -37,6 +47,28 @@ export function UserProvider({
 
       fetchUser();
     }
+    const getUserInfo = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `/api/users/${initialUser?.user?.username}`
+        );
+        console.log("response", response);
+        if (response.ok) {
+          const userData = await response.json();
+          console.log("userdata", userData);
+          setUser(userData);
+          sessionStorage.setItem("username", JSON.stringify(userData.username));
+        } else {
+          throw new Error("Unauthorized");
+        }
+      } catch (err) {
+        setError("Failed to fetch user");
+      } finally {
+        setLoading(false);
+      }
+    };
+    getUserInfo();
   }, [initialUser]);
 
   return (

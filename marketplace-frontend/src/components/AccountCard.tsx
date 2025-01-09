@@ -93,7 +93,10 @@ export default function AccountCard() {
                 ✕
               </button>
             </div>
-            <ProductForm onSuccess={handleProductModalToggle} />
+            <ProductForm
+              onSuccess={handleProductModalToggle}
+              sellerId={user?.id}
+            />
           </div>
         </div>
       )}

@@ -18,28 +18,28 @@ interface ParsedMessage {
 
 export default function NotificationsList() {
   const { messages } = useContext(NotificationsContext);
-
   // Filter messages to ensure uniqueness
   const uniqueMessages = Array.from(
     new Set(messages.map((message) => message)) // Use Set to filter duplicates
   );
-
   // Filter messages for the logged-in user
   const userMessages = uniqueMessages.filter((message) => {
     try {
       const eventTypeEndIndex = message.indexOf(" ");
       const jsonString = message.substring(eventTypeEndIndex + 1);
       const parsedMessage = JSON.parse(jsonString);
-
-      return (
+      const result =
         parsedMessage.actor &&
-        parsedMessage.actor.username === sessionStorage.getItem("username")
-      );
+        parsedMessage.actor.username ===
+          sessionStorage.getItem("username")?.replace(/['"]+/g, "");
+      return result;
     } catch (e) {
       console.error(e);
       return false;
     }
   });
+
+  console.log("userMessages", userMessages);
 
   return (
     <div className="p-4 bg-gray-100 rounded-md shadow-md">
@@ -47,7 +47,6 @@ export default function NotificationsList() {
       <ul className="space-y-2">
         {[...userMessages].reverse().map((message, index) => {
           let parsedMessage: ParsedMessage | string;
-
           try {
             const eventTypeEndIndex = message.indexOf(" ");
             const jsonString = message.substring(eventTypeEndIndex + 1);

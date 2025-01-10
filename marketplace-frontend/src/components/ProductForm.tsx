@@ -15,7 +15,6 @@ export default function ProductForm({ onSuccess, sellerId }: ProductFormProps) {
   const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log(sellerId);
     e.preventDefault();
     const productData = {
       title,
@@ -24,7 +23,6 @@ export default function ProductForm({ onSuccess, sellerId }: ProductFormProps) {
       seller_id: sellerId,
     };
 
-    console.log(productData);
     try {
       const res = await fetch(`${window.location.origin}/api/products`, {
         method: "POST",

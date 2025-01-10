@@ -17,7 +17,6 @@ export function UserProvider({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("initialUser", initialUser);
     if (!initialUser) {
       const fetchUser = async () => {
         setLoading(true);
@@ -46,10 +45,8 @@ export function UserProvider({
       setLoading(true);
       try {
         const response = await fetch(`/api/users/${initialUser?.username}`);
-        console.log("response", response);
         if (response.ok) {
           const userData = await response.json();
-          console.log("userdata", userData);
           setUser(userData);
           sessionStorage.setItem("username", JSON.stringify(userData.username));
         } else {

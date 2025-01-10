@@ -17,11 +17,6 @@ export interface Product {
   user?: User;
 }
 
-export type UserResponse = {
-  message: string;
-  user: User | null;
-};
-
 export interface UserContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;

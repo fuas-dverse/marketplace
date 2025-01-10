@@ -4,8 +4,9 @@ const randomNumber = generateRandomNumber();
 const username_password = "test" + randomNumber;
 
 test("Login Flow Test", async ({ page }) => {
-  signIn(page, username_password, username_password);
-  await expect(page.getByTestId("header-nav-link-logout")).toContainText(
-    "Logout"
-  );
+  await signIn(page, username_password, username_password).then(async () => {
+    await expect(page.getByTestId("header-nav-link-logout")).toContainText(
+      "Logout"
+    );
+  });
 });

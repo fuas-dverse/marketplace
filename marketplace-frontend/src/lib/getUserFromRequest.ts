@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 const AUTH_BACKEND_URL =
-  process.env.AUTH_BACKEND_URL || "http://localhost:8080/api/v1/auth";
+  process.env.AUTH_BACKEND_URL ?? "http://localhost:8080/api/v1/auth";
 
 export async function getUserFromRequest() {
   const cookieStore = cookies();

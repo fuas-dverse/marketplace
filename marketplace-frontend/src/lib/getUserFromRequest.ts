@@ -19,10 +19,11 @@ export async function getUserFromRequest() {
       },
     });
 
-    if (response.ok) {
-      const user = await response.json();
-      return user;
+    if (!response.ok) {
+      throw new Error("Unauthorized");
     }
+    const data = await response.json();
+    return data.user;
   } catch (error) {
     console.error("Error fetching user on server:", error);
   }

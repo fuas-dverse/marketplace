@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 const AUTH_BACKEND_URL =
-  process.env.AUTH_BACKEND_URL || "http://localhost:8080/api/v1/auth";
+  process.env.AUTH_BACKEND_URL ?? "http://localhost:8080/api/v1/auth";
 
 export async function getUserFromRequest() {
   const cookieStore = cookies();
@@ -19,10 +19,11 @@ export async function getUserFromRequest() {
       },
     });
 
-    if (response.ok) {
-      const user = await response.json();
-      return user;
+    if (!response.ok) {
+      throw new Error("Unauthorized");
     }
+    const data = await response.json();
+    return data.user;
   } catch (error) {
     console.error("Error fetching user on server:", error);
   }

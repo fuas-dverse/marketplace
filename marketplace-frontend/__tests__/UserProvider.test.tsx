@@ -17,7 +17,7 @@ beforeAll(() => {
 
 global.fetch = jest.fn();
 
-describe.skip("UserProvider and useUser Hook Tests", () => {
+describe("UserProvider and useUser Hook Tests", () => {
   const mockUser = {
     id: "user123",
     username: "TestUser",
@@ -30,14 +30,14 @@ describe.skip("UserProvider and useUser Hook Tests", () => {
 
   it("should fetch user data and update state", async () => {
     // Mock sessionStorage and fetch response
-    (sessionStorage.getItem as jest.Mock).mockReturnValue("TestUser");
+    (sessionStorage.getItem as jest.Mock).mockReturnValue(null); // Simulate no username in sessionStorage
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ id: "user123", username: "TestUser" }),
+      json: async () => ({ user: mockUser }), // Mock API response
     });
 
     render(
-      <UserProvider>
+      <UserProvider initialUser={null}>
         <UserContext.Consumer>
           {(context) => (
             <>
@@ -51,16 +51,23 @@ describe.skip("UserProvider and useUser Hook Tests", () => {
       </UserProvider>
     );
 
-    // Initially, loading should be true
-    expect(screen.getByTestId("loading")).toHaveTextContent("true");
+    // Assert loading state is true initially
+    expect(screen.getByTestId("loading").textContent).toBe("true");
 
-    // Wait for the fetch to resolve
+    // Wait for fetch and state update
     await waitFor(() => {
-      expect(screen.getByTestId("loading")).toHaveTextContent("false");
+      expect(screen.getByTestId("loading").textContent).toBe("false");
+      expect(screen.getByTestId("user").textContent).toBe(mockUser.username);
     });
 
-    // Check if user data is updated
-    expect(screen.getByTestId("user")).toHaveTextContent("TestUser");
+    // Verify sessionStorage.setItem was called
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      "username",
+      JSON.stringify(mockUser.username)
+    );
+
+    // Verify fetch was called with correct endpoint
+    expect(global.fetch).toHaveBeenCalledWith("/api/get-user");
   });
 
   it("should handle fetch error and set error state", async () => {

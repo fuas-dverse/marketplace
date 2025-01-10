@@ -5,24 +5,18 @@ import { User, UserContextType } from "@/types/marketplace.types";
 
 export const UserContext = createContext<UserContextType | null>(null);
 
-type UserResponse = {
-  message: string;
-  user: User | null;
-};
-
 export function UserProvider({
   children,
   initialUser,
 }: {
   children: React.ReactNode;
-  initialUser?: UserResponse | null;
+  initialUser?: User | null;
 }) {
   const [user, setUser] = useState<User | null>(initialUser || null);
-  const [loading, setLoading] = useState<boolean>(!initialUser); // Skip loading if initialUser is provided
+  const [loading, setLoading] = useState<boolean>(!initialUser);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("initialUser", initialUser);
     if (!initialUser) {
       const fetchUser = async () => {
         setLoading(true);
@@ -50,13 +44,9 @@ export function UserProvider({
     const getUserInfo = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `/api/users/${initialUser?.user?.username}`
-        );
-        console.log("response", response);
+        const response = await fetch(`/api/users/${initialUser?.username}`);
         if (response.ok) {
           const userData = await response.json();
-          console.log("userdata", userData);
           setUser(userData);
           sessionStorage.setItem("username", JSON.stringify(userData.username));
         } else {

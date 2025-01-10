@@ -39,8 +39,6 @@ export default function NotificationsList() {
     }
   });
 
-  console.log("userMessages", userMessages);
-
   return (
     <div className="p-4 bg-gray-100 rounded-md shadow-md">
       <h2 className="text-xl font-semibold mb-4">Notifications</h2>

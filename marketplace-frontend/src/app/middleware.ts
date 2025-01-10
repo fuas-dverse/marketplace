@@ -25,7 +25,6 @@ export async function middleware(request: Request) {
 
     if (response.ok) {
       const user = await response.json();
-      console.log("user middleware", user);
 
       const res = NextResponse.next();
 

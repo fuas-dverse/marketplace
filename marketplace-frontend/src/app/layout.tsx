@@ -6,6 +6,7 @@ import { UserProvider } from "@/contexts/UserProvider";
 import { ToastContainer } from "react-toastify";
 import { NotificationsProvider } from "@/contexts/NotificationsProvider";
 import { getUserFromRequest } from "../lib/getUserFromRequest";
+import { User } from "@/types/marketplace.types";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,7 +18,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUserFromRequest(); // Fetch user data server-side
+  const user: User | null = await getUserFromRequest(); // Fetch user data server-side
 
   return (
     <html lang="en">

@@ -6,6 +6,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+
 name: Security Check Workflow
 jobs:
   sonarqube:

@@ -73,7 +73,7 @@ app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event(get_db=get_db):
     """
     Handles startup events for the FastAPI application.
 

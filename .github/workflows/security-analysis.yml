@@ -26,10 +26,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Start the application
+      - name: Install Docker Compose
         run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      - name: Build and Start Services
+        run: |
+          docker-compose build
           docker-compose up -d
-          sleep 10
+          docker-compose ps
 
       - name: OWASP ZAP Full Scan - Target 1
         uses: zaproxy/action-full-scan@v0.12.0

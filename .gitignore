@@ -26,6 +26,7 @@ var/
 .installed.cfg
 *.egg
 grafana_data/
+.scannerwork/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

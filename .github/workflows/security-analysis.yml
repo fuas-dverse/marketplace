@@ -1,10 +1,16 @@
 on:
-  # Trigger analysis when pushing to your main branches, and when creating a pull request.
   push:
     branches:
       - main
+      - fix-security-issues
   pull_request:
     types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+  issues: write
 
 name: Security Check Workflow
 jobs:
@@ -13,9 +19,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Disabling shallow clones is recommended for improving the relevancy of reporting
           fetch-depth: 0
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  zap-full-scan:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      - name: Build and Start Services
+        run: |
+          docker-compose build
+          docker-compose up -d
+          docker-compose ps
+
+      - name: OWASP ZAP Full Scan - Marketplace API
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          target: "http://localhost:5001"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

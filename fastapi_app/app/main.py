@@ -48,6 +48,8 @@ from app.api.users import router as users_router
 from app.config import Config
 from app.database import engine, get_db, insert_user_if_empty
 from app.models import Base
+from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.responses import PlainTextResponse
 
 app = FastAPI(
     title="The Marketplace API",
@@ -57,6 +59,18 @@ app = FastAPI(
     ),
 )
 
+CACHE_CONTROL = "no-store, no-cache, must-revalidate, max-age=0"
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Cache-Control"] = CACHE_CONTROL
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
 Instrumentator().instrument(app).expose(app)
 app.add_middleware(
     ApitallyMiddleware,
@@ -73,7 +87,7 @@ app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 
 
 @app.on_event("startup")
-async def startup_event(get_db=get_db):
+async def startup_event():
     """
     Handles startup events for the FastAPI application.
 
@@ -107,3 +121,41 @@ async def root():
     Returns a welcome message.
     """
     return {"message": "Welcome to the API"}
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt():
+    """
+    Serve the robots.txt file for web crawlers.
+
+    The robots.txt file instructs web crawlers (e.g., search engine bots)
+    on which parts of the website they are allowed to access. In this case,
+    it disallows all crawling.
+
+    Returns:
+        PlainTextResponse: The robots.txt file content with security headers.
+    """
+    content = "User-agent: *\nDisallow: /"
+    headers = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "X-Content-Type-Options": "nosniff",
+    }
+    return PlainTextResponse(content, headers=headers)
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap_xml():
+    """
+    Serve an empty sitemap.xml file.
+
+    The sitemap.xml file is used by search engines to understand the
+    structure of a website. In this case, it serves an empty sitemap.
+
+    Returns:
+        PlainTextResponse: The sitemap.xml file content with security headers.
+    """
+    content = """<?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    </urlset>"""
+    headers = {"Cache-Control": CACHE_CONTROL, "X-Content-Type-Options": "nosniff"}
+    return PlainTextResponse(content, headers=headers)

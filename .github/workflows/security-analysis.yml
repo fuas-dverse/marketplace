@@ -71,7 +71,6 @@ jobs:
 
       - name: Run Locust Tests
         run: |
-          docker-compose up -d
           locust -f locustfile.py \
             --headless \
             --users 100 \

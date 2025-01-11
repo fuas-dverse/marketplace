@@ -122,26 +122,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: marketplace-frontend-coverage
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: auth-frontend-coverage
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: python-coverage-fastapi_app
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: python-coverage-notification_service
-
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:

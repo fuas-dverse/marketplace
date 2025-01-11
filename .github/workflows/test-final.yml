@@ -152,9 +152,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.javascript.lcov.reportPaths=frontend-coverage/lcov.info,auth-frontend-coverage/lcov.info
             -Dsonar.python.coverage.reportPaths=fastapi-coverage/coverage.xml,notification-service-coverage/coverage.xml
-
+            -Dsonar.javascript.lcov.reportPaths=marketplace-frontend-coverage/lcov.info,auth-frontend-coverage/lcov.info
   # end-to-end:
   #   needs: test-frontends
   #   strategy:

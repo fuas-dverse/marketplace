@@ -71,7 +71,7 @@ jobs:
 
       - name: Run Locust Tests
         run: |
-          locust -f locustfile.py \
+          locust -f fastapi_app/app/tests/load_tests/locustfile.py \
             --headless \
             --users 100 \
             --spawn-rate 10 \

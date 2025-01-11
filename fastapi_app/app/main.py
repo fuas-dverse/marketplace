@@ -37,6 +37,8 @@ Startup and shutdown events:
 
 from dverse_nats_helper.nats_connection import connect_nats, nc
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
+from apitally.fastapi import ApitallyMiddleware
 from sqlalchemy.orm import Session
 
 from app.api.products import router as products_router
@@ -55,6 +57,13 @@ app = FastAPI(
     ),
 )
 
+Instrumentator().instrument(app).expose(app)
+app.add_middleware(
+    ApitallyMiddleware,
+    client_id="3fd3190f-26c3-4eff-b7a1-66307cd50078",
+    env="dev",
+)
+
 Base.metadata.create_all(bind=engine)
 
 app.include_router(products_router, prefix="/api", tags=["Products"])
@@ -64,7 +73,7 @@ app.include_router(reviews_router, prefix="/api", tags=["Reviews"])
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event(get_db=get_db):
     """
     Handles startup events for the FastAPI application.
 

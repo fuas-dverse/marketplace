@@ -84,7 +84,8 @@ jobs:
 
       - name: Run Backend Tests with Coverage
         run: |
-          pytest ${{ inputs.working_directory }} --cov=${{ inputs.working_directory }} --cov-report=xml
+          coverage run -m pytest ${{ inputs.working_directory }}
+          coverage xml -o coverage.xml
 
       - name: Save Python Coverage Report
         uses: actions/upload-artifact@v4

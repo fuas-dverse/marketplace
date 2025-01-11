@@ -68,6 +68,16 @@ services:
     networks:
       - nats_network
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
   # auth-frontend:
   #   build:
   #     context: ./auth-frontend
@@ -100,4 +110,16 @@ networks:
     driver: bridge
 
 volumes:
+  prometheus_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./prometheus_data
+  grafana_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./grafana_data
   pgdata:

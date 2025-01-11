@@ -113,6 +113,24 @@ jobs:
     secrets:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
+  sonarqube:
+    needs: upload-coverage
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.python.coverage.reportPaths=python-coverage-fastapi_app/coverage.xml,python-coverage-notification_service/coverage.xml
+            -Dsonar.javascript.lcov.reportPaths=marketplace-frontend-coverage/lcov.info,auth-frontend-coverage/lcov.info
+
   # end-to-end:
   #   needs: test-frontends
   #   strategy:

@@ -6,5 +6,9 @@
   "python.testing.unittestArgs": ["-v", "-s", "./tests", "-p", "test_*.py"],
   "black-formatter.args": ["--line-length", "88", "--target-version", "py310"],
   "flake8.args": ["--config", "setup.cfg"],
-  "pylint.args": ["--rcfile", ".pylintrc"]
+  "pylint.args": ["--rcfile", ".pylintrc"],
+  "sonarlint.connectedMode.project": {
+    "connectionId": "marketplace_ide",
+    "projectKey": "fuas-dverse_marketplace"
+  }
 }

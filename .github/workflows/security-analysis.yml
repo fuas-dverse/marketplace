@@ -10,6 +10,7 @@ permissions:
   contents: write
   pull-requests: write
   checks: write
+  issues: write
 
 name: Security Check Workflow
 jobs:
@@ -54,11 +55,11 @@ jobs:
         with:
           target: "http://localhost:5001"
         env:
-          GITHUB_TOKEN: ${{ secrets.ZAP_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Scan Target 2
       - name: OWASP ZAP Full Scan - Notification Service
         uses: zaproxy/action-full-scan@v0.12.0
         with:
           target: "http://localhost:5003"
         env:
-          GITHUB_TOKEN: ${{ secrets.ZAP_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -23,8 +23,9 @@ services:
     build:
       context: ./fastapi_app
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      DATABASE_URL: postgresql://marketplace:marketplace@db/marketplace_db
+      NATS_SERVER_URL: nats://nats:4222
     ports:
       - "5001:5001"
     depends_on:
@@ -45,8 +46,8 @@ services:
     build:
       context: ./nats_app
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      NATS_SERVER_URL: nats://nats:4222
     ports:
       - "5003:5003"
     restart: on-failure
@@ -59,8 +60,9 @@ services:
     build:
       context: ./notification_service
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      NATS_SERVER_URL: nats://nats:4222
+      NOTIFICATION_TYPE: in_app
     depends_on:
       - nats
     networks:
@@ -114,10 +116,10 @@ volumes:
       o: bind
       type: none
       device: ./prometheus_data
-  grafana_data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./grafana_data
+  # grafana_data:
+  #   driver: local
+  #   driver_opts:
+  #     o: bind
+  #     type: none
+  #     device: ./grafana_data
   pgdata:

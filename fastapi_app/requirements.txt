@@ -22,3 +22,4 @@ zipp>=3.19.1
 pylint
 prometheus-fastapi-instrumentator
 apitally[fastapi]
+locust

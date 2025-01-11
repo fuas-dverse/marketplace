@@ -126,25 +126,21 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: marketplace-frontend-coverage
-          path: frontend-coverage
 
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: auth-frontend-coverage
-          path: auth-frontend-coverage
 
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: python-coverage-fastapi_app
-          path: fastapi-coverage
 
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           name: python-coverage-notification_service
-          path: notification-service-coverage
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
@@ -152,8 +148,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.python.coverage.reportPaths=fastapi-coverage/coverage.xml,notification-service-coverage/coverage.xml
+            -Dsonar.python.coverage.reportPaths=python-coverage-fastapi_app/coverage.xml,python-coverage-notification_service/coverage.xml
             -Dsonar.javascript.lcov.reportPaths=marketplace-frontend-coverage/lcov.info,auth-frontend-coverage/lcov.info
+
   # end-to-end:
   #   needs: test-frontends
   #   strategy:

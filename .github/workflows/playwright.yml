@@ -7,6 +7,22 @@ on:
         description: "The directory of the backend project"
         required: true
         type: string
+    secrets:
+      DATABASE_URL:
+        description: "Database URL"
+        required: true
+      NATS_SERVER_URL:
+        description: "NATS server URL"
+        required: true
+      POSTGRES_USER:
+        description: "Postgres user"
+        required: true
+      POSTGRES_PASSWORD:
+        description: "Postgres password"
+        required: true
+      POSTGRES_DB:
+        description: "Postgres database"
+        required: true
 
 jobs:
   e2e-tests:
@@ -29,6 +45,12 @@ jobs:
           docker-compose --version
 
       - name: Build and Start Services
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         run: |
           docker-compose build --no-cache
           docker-compose up -d

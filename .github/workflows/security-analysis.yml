@@ -2,7 +2,7 @@ on:
   push:
     branches:
       - main
-      - stress-tests
+      - config
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -39,6 +39,12 @@ jobs:
           docker-compose --version
 
       - name: Build and Start Services
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         run: |
           docker-compose build
           docker-compose up -d
@@ -65,6 +71,12 @@ jobs:
           docker-compose --version
 
       - name: Build and Start Services
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         run: |
           docker-compose build
           docker-compose up -d

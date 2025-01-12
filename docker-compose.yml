@@ -1,8 +1,10 @@
 services:
   db:
     image: postgres:latest
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -21,8 +23,9 @@ services:
     build:
       context: ./fastapi_app
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NATS_SERVER_URL: ${NATS_SERVER_URL}
     ports:
       - "5001:5001"
     depends_on:
@@ -43,8 +46,8 @@ services:
     build:
       context: ./nats_app
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      NATS_SERVER_URL: ${NATS_SERVER_URL}
     ports:
       - "5003:5003"
     restart: on-failure
@@ -57,8 +60,9 @@ services:
     build:
       context: ./notification_service
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      NATS_SERVER_URL: ${NATS_SERVER_URL}
+      NOTIFICATION_TYPE: in_app
     depends_on:
       - nats
     networks:

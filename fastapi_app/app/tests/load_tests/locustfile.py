@@ -1,4 +1,5 @@
 from locust import HttpUser, TaskSet, task, between
+import random
 
 
 class ProductTasks(TaskSet):
@@ -12,13 +13,13 @@ class ProductTasks(TaskSet):
     @task(1)
     def get_products(self):
         """
-        Simulates retrieving a list of all products via the GET /products/ endpoint.
+        Simulates retrieving a list of all products via the GET /api/products/ endpoint.
 
-        Sends a GET request to the /products/ endpoint and verifies the response.
+        Sends a GET request to the /api/products/ endpoint and verifies the response.
         The task runs with a weight of 1.
         """
         with self.client.get(
-            "/products/", name="GET /products/", catch_response=True
+            "/api/products/", name="GET /api/products/", catch_response=True
         ) as response:
             if response.status_code == 200:
                 response.success()
@@ -28,22 +29,32 @@ class ProductTasks(TaskSet):
     @task(2)
     def create_product(self):
         """
-        Simulates creating a new product via the POST /products/ endpoint.
+        Simulates creating a new product via the POST /api/products/ endpoint.
 
         Sends a POST request with a JSON payload containing the product's details.
         This task runs with a weight of 2.
         """
+
+        if not self.user.user_id:
+            print("User ID is not set. Skipping product creation.")
+            return
+
         product_data = {
             "title": f"Product {self.user.product_count}",
             "description": "A product created by Locust.",
             "price": 99.99,
-            "seller_id": "1",
+            "seller_id": self.user.user_id,
         }
         with self.client.post(
-            "/products/", json=product_data, name="POST /products/", catch_response=True
+            "/api/products/",
+            json=product_data,
+            name="POST /api/products/",
+            catch_response=True,
         ) as response:
             if response.status_code == 201:
                 self.user.product_count += 1
+                response_data = response.json()
+                self.user.product_ids.append(response_data["product"]["id"])
                 response.success()
             else:
                 response.failure(f"Failed with status {response.status_code}")
@@ -51,43 +62,24 @@ class ProductTasks(TaskSet):
     @task(1)
     def get_product_by_id(self):
         """
-        Simulates retrieving a specific product by ID via the GET /products/{product_id}
-        endpoint.
+        Simulates retrieving a specific product by ID via the GET /api/products/
+        {product_id} endpoint.
 
         Sends a GET request to retrieve the details of a product using its ID.
         The task runs with a weight of 1.
         """
-        product_id = "101"  # Replace with a valid product ID for your tests
+        number = self.user.product_count - 1 if self.user.product_count > 0 else 0
+        product_id = self.user.product_ids[number]
+        if not product_id:
+            print("No product IDs found. Skipping product retrieval.")
+            return
+
         with self.client.get(
-            f"/products/{product_id}", name="GET /products/{id}", catch_response=True
-        ) as response:
-            if response.status_code in [200, 404]:  # 404 if the product doesn't exist
-                response.success()
-            else:
-                response.failure(f"Failed with status {response.status_code}")
-
-    @task(1)
-    def update_product_rating(self):
-        """
-        Simulates updating the rating of a product via the POST /products/{product_id}/
-        review/ endpoint.
-
-        Sends a POST request with JSON data to update the average rating and
-        rating count of a product.
-        The task runs with a weight of 1.
-        """
-        product_id = "101"  # Replace with a valid product ID for your tests
-        review_data = {
-            "average_rating": 4.5,
-            "rating_count": 150,
-        }
-        with self.client.post(
-            f"/products/{product_id}/review/",
-            json=review_data,
-            name="POST /products/{id}/review/",
+            f"/api/products/{product_id}",
+            name="GET /api/products/{id}",
             catch_response=True,
         ) as response:
-            if response.status_code in [200, 404]:  # 404 if the product doesn't exist
+            if response.status_code in [200, 404]:
                 response.success()
             else:
                 response.failure(f"Failed with status {response.status_code}")
@@ -95,14 +87,21 @@ class ProductTasks(TaskSet):
     @task(1)
     def delete_product(self):
         """
-        Simulates deleting a product via the DELETE /products/{product_id} endpoint.
+        Simulates deleting a product via the DELETE /api/products/{product_id} endpoint.
 
         Sends a DELETE request to remove a product using its ID.
         The task runs with a weight of 1.
         """
-        product_id = "101"  # Replace with a valid product ID for your tests
+        number = self.user.product_count - 1 if self.user.product_count > 0 else 0
+        product_id = self.user.product_ids[number]
+        if not product_id:
+            print("No product IDs found. Skipping product retrieval.")
+            return
+
         with self.client.delete(
-            f"/products/{product_id}", name="DELETE /products/{id}", catch_response=True
+            f"/api/products/{product_id}",
+            name="DELETE /api/products/{id}",
+            catch_response=True,
         ) as response:
             if response.status_code in [204, 404]:  # 404 if the product doesn't exist
                 response.success()
@@ -119,5 +118,29 @@ class MarketplaceUser(HttpUser):
     """
 
     tasks = [ProductTasks]
-    wait_time = between(1, 3)  # Wait time between tasks (1-3 seconds)
-    product_count = 0  # Tracks the number of products created during the test
+    wait_time = between(1, 3)
+    product_count = 0
+    user_id = None
+    product_ids = []
+
+    def on_start(self):
+        """
+        Called when a simulated user starts. It creates a user and assigns the user ID.
+        """
+        self.create_user()
+
+    def create_user(self):
+        """
+        Helper function to create a user via POST /api/users/ and assign the ID
+        to the Locust user.
+        """
+        username = f"user_{random.randint(1000, 9999)}"
+        response = self.client.post(
+            "/api/users/", json={"username": username}, name="POST /api/users/"
+        )
+        if response.status_code == 201:
+            response_data = response.json()
+            self.user_id = response_data["user"]["id"]
+            print(f"User created successfully with ID: {self.user_id}")
+        else:
+            print(f"Failed to create user. Status code: {response.status_code}")

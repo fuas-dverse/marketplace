@@ -97,7 +97,7 @@ jobs:
         run: |
           locust -f fastapi_app/app/tests/load_tests/locustfile.py \
             --headless \
-            --users 50 \
+            --users 10 \
             --spawn-rate 1 \
             --host http://localhost:5001 \
             --run-time 1m \

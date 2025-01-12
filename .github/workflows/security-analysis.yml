@@ -12,7 +12,7 @@ permissions:
   checks: write
   issues: write
 
-name: Security Check Workflow
+name: Security and Performance Check
 jobs:
   sonarqube:
     runs-on: ubuntu-22.04
@@ -97,10 +97,10 @@ jobs:
         run: |
           locust -f fastapi_app/app/tests/load_tests/locustfile.py \
             --headless \
-            --users 10 \
-            --spawn-rate 1 \
+            --users 100 \
+            --spawn-rate 10 \
             --host http://localhost:5001 \
-            --run-time 1m \
+            --run-time 3m \
             --html locust_report.html
 
       - name: Upload Locust Report

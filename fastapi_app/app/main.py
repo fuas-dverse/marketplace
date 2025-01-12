@@ -37,6 +37,7 @@ Startup and shutdown events:
 
 from dverse_nats_helper.nats_connection import connect_nats, nc
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 from apitally.fastapi import ApitallyMiddleware
 from sqlalchemy.orm import Session
@@ -49,7 +50,7 @@ from app.config import Config
 from app.database import engine, get_db, insert_user_if_empty
 from app.models import Base
 from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi.responses import PlainTextResponse
+from loguru import logger
 
 app = FastAPI(
     title="The Marketplace API",
@@ -108,9 +109,20 @@ async def shutdown_event():
     """
     Handles shutdown events for the FastAPI application.
 
-    This function closes the connection to the NATS server."""
+    This function performs the following tasks during the shutdown of the application:
+    1. Closes the NATS server connection if connected.
+    2. Closes the database session to release resources.
+    """
     if nc.is_connected:
         await nc.close()
+        logger.info("NATS connection closed successfully.")
+
+    try:
+        db: Session = next(get_db())
+        db.close()
+        logger.info("Database session closed successfully.")
+    except Exception as e:
+        logger.error(f"Error closing the database session: {e}")
 
 
 @app.get("/", tags=["Root"])

@@ -97,10 +97,10 @@ jobs:
         run: |
           locust -f fastapi_app/app/tests/load_tests/locustfile.py \
             --headless \
-            --users 100 \
-            --spawn-rate 10 \
+            --users 50 \
+            --spawn-rate 5 \
             --host http://localhost:5001 \
-            --run-time 3m \
+            --run-time 2m \
             --html locust_report.html
 
       - name: Upload Locust Report

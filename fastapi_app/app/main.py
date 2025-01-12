@@ -123,6 +123,16 @@ async def root():
     return {"message": "Welcome to the API"}
 
 
+@app.get("/health", tags=["Health"])
+async def health():
+    """
+    Health check endpoint for the API.
+
+    Returns a simple health check response.
+    """
+    return {"status": "ok"}, 200
+
+
 @app.get("/robots.txt", include_in_schema=False)
 async def robots_txt():
     """

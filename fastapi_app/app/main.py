@@ -109,20 +109,28 @@ async def shutdown_event():
     """
     Handles shutdown events for the FastAPI application.
 
-    This function performs the following tasks during the shutdown of the application:
-    1. Closes the NATS server connection if connected.
-    2. Closes the database session to release resources.
+    Tasks during shutdown:
+    1. Closes the NATS connection.
+    2. Closes the database session.
+    3. Logs the shutdown process.
     """
-    if nc.is_connected:
-        await nc.close()
-        logger.info("NATS connection closed successfully.")
+    try:
+        # Close NATS connection
+        if nc.is_connected:
+            await nc.close()
+            logger.info("NATS connection closed successfully.")
+    except Exception as e:
+        logger.error(f"Error closing NATS connection: {e}")
 
     try:
+        # Close database session
         db: Session = next(get_db())
         db.close()
         logger.info("Database session closed successfully.")
     except Exception as e:
         logger.error(f"Error closing the database session: {e}")
+
+    logger.info("Application shutdown complete.")
 
 
 @app.get("/", tags=["Root"])

@@ -120,7 +120,7 @@ jobs:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
   end-to-end:
-    needs: test-frontends
+    needs: [test-frontends, test-backends]
     strategy:
       matrix:
         frontend:

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    AUTH_FRONTEND_URL: process.env.AUTH_FRONTEND_URL,
+    NEXT_PUBLIC_AUTH_FRONTEND_URL: process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL,
     AUTH_BACKEND_URL: process.env.AUTH_BACKEND_URL,
   },
 };

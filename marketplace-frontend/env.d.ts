@@ -6,7 +6,7 @@ namespace NodeJS {
     WEBSOCKET_URL: string | undefined;
     API_URL: string;
     PORT: string;
-    AUTH_FRONTEND_URL: string | undefined;
+    NEXT_PUBLIC_AUTH_FRONTEND_URL: string | undefined;
     AUTH_BACKEND_URL: string | undefined;
   }
 }

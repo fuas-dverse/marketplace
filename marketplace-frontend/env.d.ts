@@ -7,6 +7,6 @@ namespace NodeJS {
     API_URL: string;
     PORT: string;
     NEXT_PUBLIC_AUTH_FRONTEND_URL: string | undefined;
-    AUTH_BACKEND_URL: string | undefined;
+    NEXT_PUBLIC_AUTH_BACKEND_URL: string | undefined;
   }
 }

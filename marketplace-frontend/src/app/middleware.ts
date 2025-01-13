@@ -1,27 +1,33 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
+const AUTH_FRONTEND_URL =
+  process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL || "http://localhost:3002";
+
 export async function middleware(request: Request) {
   const cookieStore = cookies();
   const token = cookieStore.get("access_token")?.value;
-
+  console.log("Token:", token);
+  console.log("Request URL:", request.url);
+  console.log("Frontedn url:", AUTH_FRONTEND_URL);
   if (!token) {
     console.error("No access token found in cookies");
     return NextResponse.redirect(
-      `${
-        process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL
-      }/?redirect_url=${encodeURIComponent(request.url)}`
+      `${AUTH_FRONTEND_URL}/?redirect_url=${encodeURIComponent(request.url)}`
     );
   }
 
   try {
-    const response = await fetch(`${process.env.AUTH_BACKEND_URL}/verify`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_AUTH_BACKEND_URL}/verify`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (response.ok) {
       const user = await response.json();
@@ -39,17 +45,13 @@ export async function middleware(request: Request) {
         await response.text()
       );
       return NextResponse.redirect(
-        `${
-          process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL
-        }/?redirect_url=${encodeURIComponent(request.url)}`
+        `${AUTH_FRONTEND_URL}/?redirect_url=${encodeURIComponent(request.url)}`
       );
     }
   } catch (error) {
     console.error("Middleware error:", error);
     return NextResponse.redirect(
-      `${
-        process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL
-      }/?redirect_url=${encodeURIComponent(request.url)}`
+      `${AUTH_FRONTEND_URL}/?redirect_url=${encodeURIComponent(request.url)}`
     );
   }
 }

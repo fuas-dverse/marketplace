@@ -4,21 +4,24 @@ import Link from "next/link";
 import { useUser } from "@/contexts/UserProvider";
 import { useRouter } from "next/navigation";
 
+const AUTH_FRONTEND_URL =
+  process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL || "http://localhost:3002";
+
 export default function Header() {
   const { user, setUser } = useUser();
   const router = useRouter();
 
   const handleLogin = () => {
-    const authUrl = `${
-      process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL
-    }/?redirect_url=${encodeURIComponent(window.location.href)}`;
+    const authUrl = `${AUTH_FRONTEND_URL}/?redirect_url=${encodeURIComponent(
+      window.location.href
+    )}`;
     router.push(authUrl);
   };
 
   const handleLogout = () => {
-    const logoutUrl = `${
-      process.env.NEXT_PUBLIC_AUTH_FRONTEND_URL
-    }/logout?redirect_url=${encodeURIComponent(window.location.href)}`;
+    const logoutUrl = `${AUTH_FRONTEND_URL}/logout?redirect_url=${encodeURIComponent(
+      window.location.href
+    )}`;
     setUser(null); // might break
     router.push(logoutUrl);
   };

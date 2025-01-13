@@ -30,5 +30,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Apply Database Migrations
+        run: |
+          docker-compose run api alembic upgrade head
+
       - name: Deploy Application
         run: ${{ inputs.deploy_script }}

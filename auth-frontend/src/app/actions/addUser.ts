@@ -1,8 +1,10 @@
 "use server";
 
+const API_URL = process.env.API_BASE_URL ?? "http://localhost:8080/api/v1";
+
 export async function addUser(username: string) {
   try {
-    const response = await fetch(`${process.env.API_BASE_URL}/users/`, {
+    const response = await fetch(`${API_URL}/users/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

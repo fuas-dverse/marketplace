@@ -37,6 +37,7 @@ Startup and shutdown events:
 
 from dverse_nats_helper.nats_connection import connect_nats, nc
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 from apitally.fastapi import ApitallyMiddleware
 from sqlalchemy.orm import Session
@@ -49,7 +50,7 @@ from app.config import Config
 from app.database import engine, get_db, insert_user_if_empty
 from app.models import Base
 from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi.responses import PlainTextResponse
+from loguru import logger
 
 app = FastAPI(
     title="The Marketplace API",
@@ -108,9 +109,28 @@ async def shutdown_event():
     """
     Handles shutdown events for the FastAPI application.
 
-    This function closes the connection to the NATS server."""
-    if nc.is_connected:
-        await nc.close()
+    Tasks during shutdown:
+    1. Closes the NATS connection.
+    2. Closes the database session.
+    3. Logs the shutdown process.
+    """
+    try:
+        # Close NATS connection
+        if nc.is_connected:
+            await nc.close()
+            logger.info("NATS connection closed successfully.")
+    except Exception as e:
+        logger.error(f"Error closing NATS connection: {e}")
+
+    try:
+        # Close database session
+        db: Session = next(get_db())
+        db.close()
+        logger.info("Database session closed successfully.")
+    except Exception as e:
+        logger.error(f"Error closing the database session: {e}")
+
+    logger.info("Application shutdown complete.")
 
 
 @app.get("/", tags=["Root"])
@@ -121,6 +141,16 @@ async def root():
     Returns a welcome message.
     """
     return {"message": "Welcome to the API"}
+
+
+@app.get("/health", tags=["Health"])
+async def health():
+    """
+    Health check endpoint for the API.
+
+    Returns a simple health check response.
+    """
+    return {"status": "ok"}, 200
 
 
 @app.get("/robots.txt", include_in_schema=False)

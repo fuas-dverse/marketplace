@@ -2,11 +2,11 @@ services:
   db:
     image: postgres:latest
     environment:
-      POSTGRES_USER: marketplace
-      POSTGRES_PASSWORD: marketplace
-      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -24,8 +24,8 @@ services:
       context: ./fastapi_app
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql://marketplace:marketplace@db/marketplace_db
-      NATS_SERVER_URL: nats://nats:4222
+      DATABASE_URL: ${DATABASE_URL}
+      NATS_SERVER_URL: ${NATS_SERVER_URL}
     ports:
       - "5001:5001"
     depends_on:
@@ -47,7 +47,7 @@ services:
       context: ./nats_app
       dockerfile: Dockerfile
     environment:
-      NATS_SERVER_URL: nats://nats:4222
+      NATS_SERVER_URL: ${NATS_SERVER_URL}
     ports:
       - "5003:5003"
     restart: on-failure
@@ -61,7 +61,7 @@ services:
       context: ./notification_service
       dockerfile: Dockerfile
     environment:
-      NATS_SERVER_URL: nats://nats:4222
+      NATS_SERVER_URL: ${NATS_SERVER_URL}
       NOTIFICATION_TYPE: in_app
     depends_on:
       - nats

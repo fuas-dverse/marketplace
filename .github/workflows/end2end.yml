@@ -1,9 +1,6 @@
 name: END 2 END
 
 on:
-  pull_request:
-    branches:
-      - "**"
   push:
     branches:
       - "update-docker-compose"
@@ -107,6 +104,22 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Wait for services
+        run: |
+          docker ps
+          for i in {1..10}; do
+          curl -f http://localhost:3002 && break || sleep 5
+          done
+          for i in {1..10}; do
+          curl -f http://localhost:8080/hello && break || sleep 5
+          done
+
+      - name: Check auth-service logs
+        run: docker logs $(docker ps -qf "name=auth-service")
+
+      - name: Check api-gateway logs
+        run: docker logs $(docker ps -qf "name=api-gateway")
 
       - name: Install dependencies
         working-directory: auth-frontend

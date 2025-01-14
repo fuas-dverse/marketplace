@@ -116,11 +116,15 @@ jobs:
         working-directory: auth-frontend
         run: npx playwright install --with-deps
 
-      - name: Check running services
+      - name: Wait for services
         run: |
-          docker ps
-          curl -v http://localhost:3002 || echo "Service at 3002 is not reachable"
-          curl -v http://localhost:8080/hello || echo "Service at 8080 is not reachable"
+          for i in {1..10}; do
+          curl -f http://localhost:3002 && break || sleep 5
+          done
+          for i in {1..10}; do
+          curl -f http://localhost:8080/hello && break || sleep 5
+          done
+
       - name: Run Playwright tests
         working-directory: auth-frontend
         run: npm run test:e2e

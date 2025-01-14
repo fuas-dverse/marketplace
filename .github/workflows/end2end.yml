@@ -15,7 +15,16 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        node-version: ["22"]
+        project:
+          - name: auth-frontend
+            working_directory: auth-frontend
+            test_command: npm run test:e2e
+            report_path: .src/auth-frontend/playwright-report/
+          - name: marketplace-frontend
+            working_directory: marketplace-frontend
+            test_command: npm run test:e2e
+            report_path: .src/marketplace-frontend/playwright-report/
+
     services:
       postgres:
         image: postgres:latest
@@ -102,19 +111,19 @@ jobs:
         options: >-
           --platform linux/amd64
 
-    #   marketplace-frontend:
-    #     image: dverse/marketplace-frontend:latest
-    #     ports:
-    #       - "3001:3001"
-    #     env:
-    #       NATS_SERVER_URL: nats://nats:4222
-    #       FASTAPI_URL: http://marketplace-service:5001
-    #       CUDA_DEVICE: 0
-    #       WEBSOCKET_URL: ws://notification-service:5003/ws
-    #       API_URL: http://api-gateway:8080/api/v1
-    #       PORT: 3001
-    #       NEXT_PUBLIC_AUTH_FRONTEND_URL: http://localhost:3002
-    #       NEXT_PUBLIC_AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
+      marketplace-frontend:
+        image: dverse/marketplace-frontend:multiplatform
+        ports:
+          - "3001:3001"
+        env:
+          NATS_SERVER_URL: nats://nats:4222
+          FASTAPI_URL: http://marketplace-service:5001
+          CUDA_DEVICE: 0
+          WEBSOCKET_URL: ws://notification-service:5003/ws
+          API_URL: http://api-gateway:8080/api/v1
+          PORT: 3001
+          NEXT_PUBLIC_AUTH_FRONTEND_URL: http://localhost:3002
+          NEXT_PUBLIC_AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
 
     steps:
       - name: Checkout code
@@ -123,7 +132,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "22"
 
       - name: Wait for services
         run: |
@@ -133,48 +142,26 @@ jobs:
           done
           for i in {1..10}; do
           curl -f http://localhost:8080/hello && break || sleep 5
+          done
+          for i in {1..10}; do
+          curl -f http://localhost:3001 && break || sleep 5
           done
 
       - name: Install dependencies
-        working-directory: auth-frontend
+        working-directory: ${{ matrix.project.working_directory }}
         run: npm install
 
       - name: Install Playwright Browsers
-        working-directory: auth-frontend
+        working-directory: ${{ matrix.project.working_directory }}
         run: npx playwright install --with-deps
 
-      - name: Wait for services
-        run: |
-          docker ps
-          for i in {1..10}; do
-          curl -f http://localhost:3002 && break || sleep 5
-          done
-          for i in {1..10}; do
-          curl -f http://localhost:8080/hello && break || sleep 5
-          done
-
       - name: Run Playwright tests
-        working-directory: auth-frontend
-        run: npm run test:e2e
+        working-directory: ${{ matrix.project.working_directory }}
+        run: ${{ matrix.project.test_command }}
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
-          path: .src/auth-frontend/playwright-report/
+          name: ${{ matrix.project.name }}-playwright-report
+          path: ${{ matrix.project.report_path }}
           retention-days: 30
-#   end-to-end:
-#     strategy:
-#       matrix:
-#         frontend:
-#           - name: marketplace-frontend
-#           - name: auth-frontend
-#     uses: ./.github/workflows/playwright.yml
-#     with:
-#       working_directory: ${{ matrix.frontend.name }}
-#     secrets:
-#       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-#       NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
-#       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-#       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-#       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}

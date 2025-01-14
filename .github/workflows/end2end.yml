@@ -25,6 +25,11 @@ jobs:
           POSTGRES_DB: auth_db
         ports:
           - "5432:5432"
+        options: >-
+          --health-cmd="pg_isready -U username -d auth_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
       db:
         image: postgres:latest
@@ -34,6 +39,11 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
           - "5435:5432"
+        options: >-
+          --health-cmd="pg_isready -U marketplace -d marketplace_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
       nats:
         image: nats:latest
@@ -48,6 +58,11 @@ jobs:
           NOTIFICATION_SVC_ADDRESS: "notification-service:5003"
         ports:
           - "8080:8080"
+        options: >-
+          --health-cmd="curl -f http://localhost:8080/hello"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
       auth-service:
         image: dverse/auth-service:anna
@@ -56,6 +71,11 @@ jobs:
           JWT_SECRET_KEY: secretkey
         ports:
           - "5000:5000"
+        options: >-
+          --health-cmd="curl -f http://localhost:5000"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
       marketplace-service:
         image: dverse/marketplace-api:latest
@@ -64,6 +84,11 @@ jobs:
           NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
         ports:
           - "5001:5001"
+        options: >-
+          --health-cmd="curl -f http://localhost:5001/health"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
       notification-service:
         image: dverse/notification-service:latest
@@ -72,6 +97,11 @@ jobs:
           NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
         ports:
           - "5003:5003"
+        options: >-
+          --health-cmd="curl -f http://localhost:5003"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
       auth-frontend:
         image: dverse/auth-frontend:latest
@@ -81,6 +111,11 @@ jobs:
           PORT: 3002
           AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
           API_BASE_URL: http://api-gateway:8080/api/v1
+        options: >-
+          --health-cmd="curl -f http://localhost:3002"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     #   marketplace-frontend:
     #     image: dverse/marketplace-frontend:latest

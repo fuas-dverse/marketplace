@@ -109,7 +109,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        working-directory: ./src/auth-frontend
+        working-directory: auth-frontend
         run: npm install
 
       - name: Install Playwright Browsers
@@ -119,10 +119,10 @@ jobs:
       - name: Check running services
         run: |
           docker ps
-          curl -v http://localhost:3002 || echo "Service at 4173 is not reachable"
+          curl -v http://localhost:3002 || echo "Service at 3002 is not reachable"
           curl -v http://localhost:8080/hello || echo "Service at 8080 is not reachable"
       - name: Run Playwright tests
-        working-directory: ./src/auth-frontend
+        working-directory: auth-frontend
         run: npm run test:e2e
 
       - uses: actions/upload-artifact@v4

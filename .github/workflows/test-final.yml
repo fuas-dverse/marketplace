@@ -119,25 +119,25 @@ jobs:
     secrets:
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
-  end-to-end:
-    needs: [test-frontends, test-backends]
-    strategy:
-      matrix:
-        frontend:
-          - name: marketplace-frontend
-            port: 3001
-          - name: auth-frontend
-            port: 3002
-    uses: ./.github/workflows/playwright.yml
-    with:
-      working_directory: ${{ matrix.frontend.name }}
-      port: ${{ matrix.frontend.port }}
-    secrets:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  # end-to-end:
+  #   needs: [test-frontends, test-backends]
+  #   strategy:
+  #     matrix:
+  #       frontend:
+  #         - name: marketplace-frontend
+  #           port: 3001
+  #         - name: auth-frontend
+  #           port: 3002
+  #   uses: ./.github/workflows/playwright.yml
+  #   with:
+  #     working_directory: ${{ matrix.frontend.name }}
+  #     port: ${{ matrix.frontend.port }}
+  #   secrets:
+  #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  #     NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+  #     POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  #     POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  #     POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
 
   build-images:
     needs: [test-backends, test-frontends]

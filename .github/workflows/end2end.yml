@@ -60,7 +60,7 @@ jobs:
           - "8080:8080"
         options: >-
           --platform linux/amd64
-          --health-cmd="curl -f http://localhost:8080/hello"
+          --health-cmd="curl -f http://172.18.0.5:8080/hello"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -88,7 +88,7 @@ jobs:
           - "5001:5001"
         options: >-
           --platform linux/amd64
-          --health-cmd="curl -f http://localhost:5001/health"
+          --health-cmd="curl -f http://0.0.0.0:5001/health"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -102,7 +102,7 @@ jobs:
           - "5003:5003"
         options: >-
           --platform linux/amd64
-          --health-cmd="curl -f http://localhost:5003"
+          --health-cmd="curl -f http://0.0.0.0:5003"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5

@@ -59,6 +59,7 @@ jobs:
         ports:
           - "8080:8080"
         options: >-
+          --platform linux/amd64
           --health-cmd="curl -f http://localhost:8080/hello"
           --health-interval=10s
           --health-timeout=5s
@@ -72,6 +73,7 @@ jobs:
         ports:
           - "5000:5000"
         options: >-
+          --platform linux/amd64
           --health-cmd="curl -f http://localhost:5000"
           --health-interval=10s
           --health-timeout=5s
@@ -85,6 +87,7 @@ jobs:
         ports:
           - "5001:5001"
         options: >-
+          --platform linux/amd64
           --health-cmd="curl -f http://localhost:5001/health"
           --health-interval=10s
           --health-timeout=5s
@@ -98,6 +101,7 @@ jobs:
         ports:
           - "5003:5003"
         options: >-
+          --platform linux/amd64
           --health-cmd="curl -f http://localhost:5003"
           --health-interval=10s
           --health-timeout=5s
@@ -112,6 +116,7 @@ jobs:
           AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
           API_BASE_URL: http://api-gateway:8080/api/v1
         options: >-
+          --platform linux/amd64
           --health-cmd="curl -f http://localhost:3002"
           --health-interval=10s
           --health-timeout=5s

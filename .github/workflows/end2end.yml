@@ -125,15 +125,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Check auth-service logs (wildcard match)
-        run: |
-          CONTAINER_ID=$(docker ps -qf "name=auth-frontend")
-          if [ -n "$CONTAINER_ID" ]; then
-          docker logs $CONTAINER_ID
-          else
-          echo "auth-service container not found."
-          fi
-
       - name: Wait for services
         run: |
           docker ps

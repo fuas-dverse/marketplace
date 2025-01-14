@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   end2end-testing:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         node-version: ["22"]
@@ -51,7 +51,7 @@ jobs:
           - "4222:4222"
 
       api-gateway:
-        image: dverse/api-gateway:anna
+        image: dverse/api-gateway:multiplatform
         env:
           AUTH_SVC_ADDRESS: "auth-service:5000"
           MARKETPLACE_SVC_ADDRESS: "marketplace-service:5001"

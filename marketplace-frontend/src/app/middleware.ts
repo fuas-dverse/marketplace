@@ -7,9 +7,6 @@ const AUTH_FRONTEND_URL =
 export async function middleware(request: Request) {
   const cookieStore = cookies();
   const token = cookieStore.get("access_token")?.value;
-  console.log("Token:", token);
-  console.log("Request URL:", request.url);
-  console.log("Frontedn url:", AUTH_FRONTEND_URL);
   if (!token) {
     console.error("No access token found in cookies");
     return NextResponse.redirect(

@@ -49,10 +49,8 @@ function AuthPageContent() {
   const signUpAction = async (formData: FormData) => {
     setSignUpState({ ...signUpState, pending: true });
     const username = formData.get("username") as string;
-    console.log(username);
     const result = await signUp(formData);
     const createdUser = await addUser(username);
-    console.log(createdUser);
     setSignUpState({
       pending: false,
       success: result.success,

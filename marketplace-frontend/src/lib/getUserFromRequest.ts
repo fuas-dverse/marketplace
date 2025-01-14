@@ -1,11 +1,10 @@
 import { cookies } from "next/headers";
-const AUTH_BACKEND_URL = process.env.NEXT_PUBLIC_AUTH_BACKEND_URL; // ?? "http://localhost:8080/api/v1/auth";
+const AUTH_BACKEND_URL = process.env.NEXT_PUBLIC_AUTH_BACKEND_URL;
 
 export async function getUserFromRequest() {
   const cookieStore = cookies();
   const token = cookieStore.get("access_token")?.value;
-  console.log("token", token);
-  console.log("AUTH_BACKEND_URL", AUTH_BACKEND_URL);
+
   if (!token) {
     return null;
   }

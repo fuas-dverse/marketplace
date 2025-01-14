@@ -1,4 +1,4 @@
-name: Test and Build Workflow
+name: END 2 END
 
 on:
   pull_request:
@@ -14,18 +14,139 @@ permissions:
   checks: write
 
 jobs:
-  end-to-end:
+  end2end-testing:
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        frontend:
-          - name: marketplace-frontend
-          - name: auth-frontend
-    uses: ./.github/workflows/playwright.yml
-    with:
-      working_directory: ${{ matrix.frontend.name }}
-    secrets:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        node-version: ["22"]
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: auth_db
+        ports:
+          - "5432:5432"
+
+      db:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - "5435:5432"
+
+      nats:
+        image: nats:latest
+        ports:
+          - "4222:4222"
+
+      api-gateway:
+        image: dverse/api-gateway:anna
+        env:
+          AUTH_SVC_ADDRESS: "auth-service:5000"
+          MARKETPLACE_SVC_ADDRESS: "marketplace-service:5001"
+          NOTIFICATION_SVC_ADDRESS: "notification-service:5003"
+        ports:
+          - "8080:8080"
+
+      auth-service:
+        image: dverse/auth-service:anna
+        env:
+          DATABASE_URL: postgresql://username:password@postgres/auth_db
+          JWT_SECRET_KEY: secretkey
+        ports:
+          - "5000:5000"
+
+      marketplace-service:
+        image: dverse/marketplace-api:latest
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+        ports:
+          - "5001:5001"
+
+      notification-service:
+        image: dverse/notification-service:latest
+        env:
+          NOTIFICATION_TYPE: in_app
+          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+        ports:
+          - "5003:5003"
+
+      auth-frontend:
+        image: dverse/auth-frontend:latest
+        ports:
+          - "3002:3002"
+        env:
+          PORT: 3002
+          AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
+          API_BASE_URL: http://api-gateway:8080/api/v1
+
+    #   marketplace-frontend:
+    #     image: dverse/marketplace-frontend:latest
+    #     ports:
+    #       - "3001:3001"
+    #     env:
+    #       NATS_SERVER_URL: nats://nats:4222
+    #       FASTAPI_URL: http://marketplace-service:5001
+    #       CUDA_DEVICE: 0
+    #       WEBSOCKET_URL: ws://notification-service:5003/ws
+    #       API_URL: http://api-gateway:8080/api/v1
+    #       PORT: 3001
+    #       NEXT_PUBLIC_AUTH_FRONTEND_URL: http://localhost:3002
+    #       NEXT_PUBLIC_AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        working-directory: ./src/auth-frontend
+        run: npm install
+
+      - name: Install Playwright Browsers
+        working-directory: ./src/auth-frontend
+        run: npx playwright install --with-deps
+
+      - name: Check running services
+        run: |
+          docker ps
+          curl -v http://localhost:3002 || echo "Service at 4173 is not reachable"
+          curl -v http://localhost:8080/hello || echo "Service at 8080 is not reachable"
+      - name: Run Playwright tests
+        working-directory: ./src/auth-frontend
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: .src/auth-frontend/playwright-report/
+          retention-days: 30
+
+      - name: Tear Down Services
+        if: always()
+        run: docker-compose down
+#   end-to-end:
+#     strategy:
+#       matrix:
+#         frontend:
+#           - name: marketplace-frontend
+#           - name: auth-frontend
+#     uses: ./.github/workflows/playwright.yml
+#     with:
+#       working_directory: ${{ matrix.frontend.name }}
+#     secrets:
+#       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+#       NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+#       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+#       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+#       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}

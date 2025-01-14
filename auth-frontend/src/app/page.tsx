@@ -50,7 +50,7 @@ function AuthPageContent() {
     setSignUpState({ ...signUpState, pending: true });
     const username = formData.get("username") as string;
     const result = await signUp(formData);
-    const createdUser = await addUser(username);
+    await addUser(username);
     setSignUpState({
       pending: false,
       success: result.success,

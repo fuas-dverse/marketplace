@@ -19,11 +19,11 @@ jobs:
           - name: auth-frontend
             working_directory: auth-frontend
             test_command: npm run test:e2e
-            report_path: .src/auth-frontend/playwright-report/
+            report_path: .src/auth-frontend/auth-frontend-playwright-report/
           - name: marketplace-frontend
             working_directory: marketplace-frontend
             test_command: npm run test:e2e
-            report_path: .src/marketplace-frontend/playwright-report/
+            report_path: .src/marketplace-frontend/marketplace-frontend-playwright-report/
 
     services:
       postgres:

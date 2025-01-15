@@ -1,23 +1,17 @@
-name: Playwright End2End Tests Template
+name: End-to-End Testing Workflow
 
 on:
   workflow_call:
     inputs:
-      working_directory:
-        description: "The directory of the backend project"
+      name:
+        description: "Name of the project"
         required: true
         type: string
-      port:
-        description: "Port where the frontend is running"
+      working_directory:
+        description: "Directory of the project"
         required: true
         type: string
     secrets:
-      DATABASE_URL:
-        description: "Database URL"
-        required: true
-      NATS_SERVER_URL:
-        description: "NATS server URL"
-        required: true
       POSTGRES_USER:
         description: "Postgres user"
         required: true
@@ -27,54 +21,142 @@ on:
       POSTGRES_DB:
         description: "Postgres database"
         required: true
+      DATABASE_URL:
+        description: "Database URL"
+        required: true
+      NATS_SERVER_URL:
+        description: "NATS server URL"
+        required: true
 
 jobs:
-  e2e-tests:
-    name: Run End to End Tests
+  end2end-testing:
     runs-on: ubuntu-22.04
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: auth_db
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd="pg_isready -U username -d auth_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      db:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - "5435:5432"
+        options: >-
+          --health-cmd="pg_isready -U marketplace -d marketplace_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      nats:
+        image: nats:latest
+        ports:
+          - "4222:4222"
+
+      api-gateway:
+        image: dverse/api-gateway:multiplatform
+        env:
+          AUTH_SVC_ADDRESS: "auth-service:5000"
+          MARKETPLACE_SVC_ADDRESS: "marketplace-service:5001"
+          NOTIFICATION_SVC_ADDRESS: "notification-service:5003"
+        ports:
+          - "8080:8080"
+        options: >-
+          --platform linux/amd64
+
+      auth-service:
+        image: dverse/auth-service:multiplatform
+        env:
+          DATABASE_URL: postgresql://username:password@postgres/auth_db
+          JWT_SECRET_KEY: secretkey
+        ports:
+          - "5000:5000"
+        options: >-
+          --platform linux/amd64
+
+      marketplace-service:
+        image: dverse/marketplace-api:multiplatform
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+        ports:
+          - "5001:5001"
+        options: >-
+          --platform linux/amd64
+
+      notification-service:
+        image: dverse/notification-service:multiplatform
+        env:
+          NOTIFICATION_TYPE: in_app
+          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
+        ports:
+          - "5003:5003"
+        options: >-
+          --platform linux/amd64
+
+      auth-frontend:
+        image: dverse/auth-frontend:multiplatform
+        ports:
+          - "3002:3002"
+        env:
+          PORT: 3002
+          AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
+          API_BASE_URL: http://api-gateway:8080/api/v1
+        options: >-
+          --platform linux/amd64
+
+      marketplace-frontend:
+        image: dverse/marketplace-frontend:multiplatform
+        ports:
+          - "3001:3001"
+        env:
+          NATS_SERVER_URL: nats://nats:4222
+          FASTAPI_URL: http://marketplace-service:5001
+          CUDA_DEVICE: 0
+          WEBSOCKET_URL: ws://notification-service:5003/ws
+          API_URL: http://api-gateway:8080/api/v1
+          PORT: 3001
+          NEXT_PUBLIC_AUTH_FRONTEND_URL: http://localhost:3002
+          NEXT_PUBLIC_AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
+
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set Up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Install Docker Compose
+      - name: Wait for services
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
-
-      - name: Build and Start Services
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        run: |
-          docker-compose build --no-cache
-          docker-compose up -d
-          docker-compose ps
+          docker ps
+          for i in {1..10}; do
+            curl -f http://localhost:3002 && break || sleep 5
+          done
+          for i in {1..10}; do
+            curl -f http://localhost:8080/hello && break || sleep 5
+          done
+          for i in {1..10}; do
+            curl -f http://localhost:3001 && break || sleep 5
+          done
 
       - name: Install dependencies
         working-directory: ${{ inputs.working_directory }}
-        run: npm ci
-
-      - name: Build Frontend
-        working-directory: ${{ inputs.working_directory }}
-        run: npm run build
-
-      - name: Start Frontend
-        working-directory: ${{ inputs.working_directory }}
-        run: npm run start &
-
-      - name: Wait for Frontend to Start
-        working-directory: ${{ inputs.working_directory }}
-        run: npx wait-on http://localhost:${{ inputs.port }}
+        run: npm install
 
       - name: Install Playwright Browsers
         working-directory: ${{ inputs.working_directory }}
@@ -82,15 +164,11 @@ jobs:
 
       - name: Run Playwright tests
         working-directory: ${{ inputs.working_directory }}
-        run: npx playwright test
+        run: npm run test:e2e
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: ${{ inputs.name }}-playwright-report
           path: ${{ inputs.working_directory }}/playwright-report/
           retention-days: 30
-
-      - name: Tear Down Services
-        if: always()
-        run: docker-compose down

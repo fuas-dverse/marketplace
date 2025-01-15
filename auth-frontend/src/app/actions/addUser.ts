@@ -1,6 +1,6 @@
 "use server";
 
-const API_URL = process.env.API_BASE_URL ?? "http://localhost:8080/api/v1";
+const API_URL = process.env.API_BASE_URL ?? "http://api-gateway:8080/api/v1";
 
 export async function addUser(username: string) {
   try {
@@ -11,7 +11,6 @@ export async function addUser(username: string) {
       },
       body: JSON.stringify({ username: username }),
     });
-
     if (response.ok) {
       return { success: true, message: "[Users] Account created successfully" };
     } else {

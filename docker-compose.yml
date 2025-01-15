@@ -1,4 +1,52 @@
 services:
+  api-gateway:
+    image: dverse/api-gateway:anna
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - nats_network
+    environment:
+      AUTH_SVC_ADDRESS: "auth-service:5000"
+      MARKETPLACE_SVC_ADDRESS: "marketplace-service:5001"
+      #USER_SVC_ADDRESS: "user-service:6000"
+      NOTIFICATION_SVC_ADDRESS: "notification-service:5003"
+    restart: on-failure
+
+  auth-service:
+    image: dverse/auth-service:anna
+    container_name: auth-service
+    ports:
+      - "5000:5000"
+    networks:
+      - nats_network
+    environment:
+      DATABASE_URL: postgresql://username:password@postgres/auth_db
+      JWT_SECRET_KEY: secretkey
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./auth-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - nats_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U username -d auth_db -h postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
   db:
     image: postgres:latest
     environment:
@@ -19,7 +67,7 @@ services:
       retries: 5
     restart: always
 
-  api:
+  marketplace-service:
     build:
       context: ./fastapi_app
       dockerfile: Dockerfile
@@ -42,19 +90,19 @@ services:
     networks:
       - nats_network
 
-  nats_client:
-    build:
-      context: ./nats_app
-      dockerfile: Dockerfile
-    environment:
-      NATS_SERVER_URL: ${NATS_SERVER_URL}
-    ports:
-      - "5003:5003"
-    restart: on-failure
-    depends_on:
-      - nats
-    networks:
-      - nats_network
+  # nats_client:
+  #   build:
+  #     context: ./nats_app
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     NATS_SERVER_URL: ${NATS_SERVER_URL}
+  #   ports:
+  #     - "5003:5003"
+  #   restart: on-failure
+  #   depends_on:
+  #     - nats
+  #   networks:
+  #     - nats_network
 
   notification-service:
     build:
@@ -63,10 +111,13 @@ services:
     environment:
       NATS_SERVER_URL: ${NATS_SERVER_URL}
       NOTIFICATION_TYPE: in_app
+    ports:
+      - "5003:5003"
     depends_on:
       - nats
     networks:
       - nats_network
+    restart: on-failure
 
   prometheus:
     image: prom/prometheus
@@ -78,32 +129,39 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
 
-  # auth-frontend:
-  #   build:
-  #     context: ./auth-frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3002:3002"
-  #   environment:
-  #     PORT: 3002
-  #     AUTH_BACKEND_URL: http://localhost:8080/api/v1/auth
-  #     API_URL: http://localhost:8080/api/v1
-  #   networks:
-  #     - nats_network
+  auth-frontend:
+    build:
+      context: ./auth-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    networks:
+      - nats_network
+    depends_on:
+      - auth-service
+    environment:
+      PORT: 3002
+      AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
+      API_BASE_URL: http://api-gateway:8080/api/v1
+    restart: on-failure
 
-  # frontend:
-  #   build:
-  #     context: ./marketplace-frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     PORT: 3001
-  #     NODE_ENV: production
-  #     NATS_SERVER_URL: nats://nats:4222
-  #     FAST_API_URL: http://api:5001
-  #   networks:
-  #     - nats_network
+  frontend:
+    build:
+      context: ./marketplace-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NATS_SERVER_URL: nats://nats:4222
+      FASTAPI_URL: http://marketplace-service:5001
+      CUDA_DEVICE: 0
+      WEBSOCKET_URL: ws://notification-service:5003/ws
+      API_URL: http://api-gateway:8080/api/v1
+      PORT: 3001
+      NEXT_PUBLIC_AUTH_FRONTEND_URL: http://localhost:3002
+      NEXT_PUBLIC_AUTH_BACKEND_URL: http://api-gateway:8080/api/v1/auth
+    networks:
+      - nats_network
 
 networks:
   nats_network:

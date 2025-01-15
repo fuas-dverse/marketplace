@@ -125,13 +125,13 @@ jobs:
       matrix:
         frontend:
           - name: marketplace-frontend
-            port: 3001
+            working_directory: marketplace-frontend
           - name: auth-frontend
-            port: 3002
+            working_directory: auth-frontend
     uses: ./.github/workflows/playwright.yml
     with:
-      working_directory: ${{ matrix.frontend.name }}
-      port: ${{ matrix.frontend.port }}
+      name: ${{ matrix.frontend.name }}
+      working_directory: ${{ matrix.frontend.working_directory }}
     secrets:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NATS_SERVER_URL: ${{ secrets.NATS_SERVER_URL }}

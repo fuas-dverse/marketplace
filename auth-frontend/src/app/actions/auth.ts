@@ -1,9 +1,8 @@
 "use server";
 
 import { cookies } from "next/headers";
-
 const AUTH_BASE_URL =
-  process.env.AUTH_BACKEND_URL || "http://localhost:8080/api/v1/auth";
+  process.env.AUTH_BACKEND_URL ?? "http://api-gateway:8080/api/v1/auth";
 
 export async function signIn(formData: FormData) {
   const username = formData.get("username") as string;
@@ -20,7 +19,6 @@ export async function signIn(formData: FormData) {
         Authorization: `Basic ${btoa(`${username}:${password}`)}`, // Send Basic Auth header
       },
     });
-
     if (response.ok) {
       const data = await response.json();
       const accessToken = data.access_token;

@@ -162,6 +162,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: ${{matrix.project.name}}-playwright-report
           path: ${{ matrix.project.working_directory }}/playwright-report/
           retention-days: 30

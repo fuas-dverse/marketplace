@@ -49,5 +49,5 @@ jobs:
         run: |
           IMAGE_NAME=$(echo "${{ inputs.image }}" | cut -d':' -f1)
           IMAGE_TAG=$(echo "${{ inputs.image }}" | cut -d':' -f2)
-          docker tag ${{ inputs.image }} gcr.io/${{ secrets.project_id }}/${IMAGE_NAME}:${IMAGE_TAG}
+          docker tag dverse/${{ inputs.image }} gcr.io/${{ secrets.project_id }}/${IMAGE_NAME}:${IMAGE_TAG}
           docker push gcr.io/${{ secrets.project_id }}/${IMAGE_NAME}:${IMAGE_TAG}

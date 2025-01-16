@@ -49,7 +49,8 @@ jobs:
 
       - name: Force Rollout by Updating Annotation
         run: |
-          DEPLOYMENT_NAME=$(yq e '.metadata.name' ${{ inputs.deployment_yaml }})
+          DEPLOYMENT_NAME=$(yq e '.metadata.name' ${{ inputs.deployment_yaml }} | tr -d '\n')
+          echo "Deployment name: $DEPLOYMENT_NAME" \
           kubectl patch deployment "$DEPLOYMENT_NAME" \
           --patch "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"force-rollout\":\"$(date +'%s')\"}}}}}"
 

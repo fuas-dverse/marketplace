@@ -5,7 +5,7 @@ metadata:
   labels:
     app: marketplace-service
 spec:
-  replicas: 3 # Adjust replicas as needed
+  replicas: 1 # Adjust replicas as needed
   selector:
     matchLabels:
       app: marketplace-service
@@ -14,9 +14,11 @@ spec:
       labels:
         app: marketplace-service
     spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
       containers:
         - name: marketplace-service
-          image: dverse/marketplace-api:multiplatform
+          image: gcr.io/intense-clarity-448014-u7/marketplace-api:multiplatform
           ports:
             - containerPort: 5001
           env:
@@ -35,11 +37,11 @@ spec:
               mountPath: /app/alembic
           resources:
             requests:
-              memory: "256Mi" # Minimum memory per container
-              cpu: "250m" # Minimum CPU per container
+              cpu: 100m
+              memory: 256Mi
             limits:
-              memory: "512Mi" # Maximum memory per container
-              cpu: "500m" # Maximum CPU per container
+              cpu: 200m
+              memory: 512Mi
           livenessProbe:
             httpGet:
               path: "/health" # Update with your health endpoint if applicable

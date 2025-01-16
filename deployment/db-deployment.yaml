@@ -12,6 +12,8 @@ spec:
       labels:
         app: db
     spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
       containers:
         - name: db
           image: postgres:latest

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: notification-service
 spec:
-  replicas: 2 # Adjust replicas as needed
+  replicas: 1 # Adjust replicas as needed
   selector:
     matchLabels:
       app: notification-service
@@ -14,9 +14,11 @@ spec:
       labels:
         app: notification-service
     spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
       containers:
         - name: notification-service
-          image: dverse/notification-service:multiplatform
+          image: gcr.io/intense-clarity-448014-u7/notification-service:multiplatform
           ports:
             - containerPort: 5003
           env:
@@ -32,11 +34,11 @@ spec:
                   key: NATS_SERVER_URL
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              cpu: 100m
+              memory: 256Mi
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              cpu: 200m
+              memory: 512Mi
       restartPolicy: Always
 ---
 apiVersion: v1

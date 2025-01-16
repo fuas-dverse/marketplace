@@ -23,7 +23,7 @@ metadata:
     app: api-gateway
 
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: api-gateway
@@ -36,9 +36,11 @@ spec:
       labels:
         app: api-gateway
     spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
       containers:
         - name: api-gateway
-          image: dverse/api-gateway:multiplatform
+          image: gcr.io/intense-clarity-448014-u7/api-gateway:multiplatform
           resources:
             limits:
               cpu: 0
@@ -64,6 +66,13 @@ spec:
                 configMapKeyRef:
                   name: marketplace-env-test
                   key: NOTIFICATION_SVC_ADDRESS
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
 ---
 apiVersion: v1
 kind: Service

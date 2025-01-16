@@ -5,7 +5,7 @@ metadata:
   labels:
     app: marketplace-frontend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: marketplace-frontend
@@ -14,9 +14,11 @@ spec:
       labels:
         app: marketplace-frontend
     spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
       containers:
         - name: marketplace-frontend
-          image: dverse/marketplace-frontend:multiplatform
+          image: gcr.io/intense-clarity-448014-u7/marketplace-frontend:multiplatform
           ports:
             - containerPort: 3001
           env:
@@ -38,11 +40,11 @@ spec:
               value: "http://api-gateway:8080/api/v1/auth"
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              cpu: 100m
+              memory: 256Mi
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              cpu: 200m
+              memory: 512Mi
           livenessProbe:
             httpGet:
               path: "/"

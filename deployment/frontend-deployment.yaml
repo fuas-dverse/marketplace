@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketplace-frontend
+  labels:
+    app: marketplace-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: marketplace-frontend
+  template:
+    metadata:
+      labels:
+        app: marketplace-frontend
+    spec:
+      containers:
+        - name: marketplace-frontend
+          image: dverse/marketplace-frontend:multiplatform
+          ports:
+            - containerPort: 3001
+          env:
+            - name: NATS_SERVER_URL
+              value: "nats://nats:4222"
+            - name: FASTAPI_URL
+              value: "http://marketplace-service:5001"
+            - name: CUDA_DEVICE
+              value: "0"
+            - name: WEBSOCKET_URL
+              value: "ws://notification-service:5003/ws"
+            - name: API_URL
+              value: "http://api-gateway:8080/api/v1"
+            - name: PORT
+              value: "3001"
+            - name: NEXT_PUBLIC_AUTH_FRONTEND_URL
+              value: "http://localhost:3002"
+            - name: NEXT_PUBLIC_AUTH_BACKEND_URL
+              value: "http://api-gateway:8080/api/v1/auth"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketplace-frontend
+  labels:
+    app: marketplace-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: marketplace-frontend
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001

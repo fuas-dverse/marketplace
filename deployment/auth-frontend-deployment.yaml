@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-frontend
+  labels:
+    app: auth-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-frontend
+  template:
+    metadata:
+      labels:
+        app: auth-frontend
+    spec:
+      containers:
+        - name: auth-frontend
+          image: dverse/auth-frontend:multiplatform
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+            - name: AUTH_BACKEND_URL
+              value: "http://api-gateway:8080/api/v1/auth"
+            - name: API_BASE_URL
+              value: "http://api-gateway:8080/api/v1"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-frontend
+  labels:
+    app: auth-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-frontend
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 3002

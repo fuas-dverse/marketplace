@@ -198,14 +198,19 @@ jobs:
     #needs: push-to-gcr
     strategy:
       matrix:
-        deployment_yaml:
-          - deployment/marketplace-service.yaml
-          - deployment/notification-service.yaml
-          - deployment/frontend-deployment.yaml
-          - deployment/auth-frontend-deployment.yaml
+        deployment:
+          - deployment_yaml: deployment/marketplace-service.yaml
+            service_name: marketplace-service
+          - deployment_yaml: deployment/notification-service.yaml
+            service_name: notification-service
+          - deployment_yaml: deployment/frontend-deployment.yaml
+            service_name: marketplace-frontend
+          - deployment_yaml: deployment/auth-frontend-deployment.yaml
+            service_name: auth-frontend
     uses: ./.github/workflows/deploy-to-gke-template.yml
     with:
-      deployment_yaml: ${{ matrix.deployment_yaml }}
+      deployment_yaml: ${{ matrix.deployment.deployment_yaml }}
+      service_name: ${{ matrix.deployment.service_name }}
     secrets:
       gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
       cluster_name: ${{ secrets.GKE_CLUSTER_NAME }}

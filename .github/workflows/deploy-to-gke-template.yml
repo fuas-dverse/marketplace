@@ -7,6 +7,10 @@ on:
         description: "Path to the Kubernetes deployment YAML file"
         required: true
         type: string
+      service_name:
+        description: "Name of the service to deploy"
+        required: true
+        type: string
     secrets:
       gcp_credentials:
         description: "Google Cloud Service Account Key"
@@ -60,4 +64,4 @@ jobs:
 
       - name: Verify Deployment
         run: |
-          kubectl rollout status -f ${{ inputs.deployment_yaml }}
+          kubectl rollout status deployment ${{ inputs.service_name }}

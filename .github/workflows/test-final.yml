@@ -181,10 +181,10 @@ jobs:
     strategy:
       matrix:
         image:
-          - dverse/marketplace-api:multiplatform
-          - dverse/notification-service:multiplatform
-          - dverse/marketplace-frontend:multiplatform
-          - dverse/auth-frontend:multiplatform
+          - marketplace-api:multiplatform
+          - notification-service:multiplatform
+          - marketplace-frontend:multiplatform
+          - auth-frontend:multiplatform
 
     uses: ./.github/workflows/push-to-gcr-template.yml
     with:

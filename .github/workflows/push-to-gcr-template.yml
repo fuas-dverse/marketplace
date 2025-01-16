@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       image:
-        description: "Docker image to push to GCR"
+        description: "Docker image to push to GCR (including tag)"
         required: true
         type: string
     secrets:
@@ -24,8 +24,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set upn Auth for GCR
-        uses: "google-github-actions/auth@v1"
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v1
         with:
           credentials_json: "${{ secrets.gcp_credentials }}"
 
@@ -34,14 +34,13 @@ jobs:
         with:
           project_id: ${{ secrets.project_id }}
 
-      - name: "Use gcloud CLI"
-        run: "gcloud info"
-
-      - name: Authenticate Docker to GCR
+      - name: Authenticate Docker with GCR
         run: |
           gcloud auth configure-docker
 
       - name: Push Image to GCR
         run: |
-          docker tag ${{ inputs.image }} gcr.io/${{ secrets.project_id }}/$(basename ${{ inputs.image }}):multiplatform
-          docker push gcr.io/${{ secrets.project_id }}/$(basename ${{ inputs.image }}):multiplatform
+          IMAGE_NAME=$(echo "${{ inputs.image }}" | cut -d':' -f1)
+          IMAGE_TAG=$(echo "${{ inputs.image }}" | cut -d':' -f2)
+          docker tag ${{ inputs.image }} gcr.io/${{ secrets.project_id }}/${IMAGE_NAME}:${IMAGE_TAG}
+          docker push gcr.io/${{ secrets.project_id }}/${IMAGE_NAME}:${IMAGE_TAG}

@@ -175,27 +175,27 @@ jobs:
   #     docker_username: ${{ secrets.DOCKER_USERNAME }}
   #     docker_password: ${{ secrets.DOCKER_PASSWORD }}
 
-  push-to-gcr:
-    name: Push Images to GCR
-    #needs: build-images
-    strategy:
-      matrix:
-        image:
-          - marketplace-api:multiplatform
-          - notification-service:multiplatform
-          - marketplace-frontend:multiplatform
-          - auth-frontend:multiplatform
+  # push-to-gcr:
+  #   name: Push Images to GCR
+  #   #needs: build-images
+  #   strategy:
+  #     matrix:
+  #       image:
+  #         - marketplace-api:multiplatform
+  #         - notification-service:multiplatform
+  #         - marketplace-frontend:multiplatform
+  #         - auth-frontend:multiplatform
 
-    uses: ./.github/workflows/push-to-gcr-template.yml
-    with:
-      image: ${{ matrix.image }}
-    secrets:
-      project_id: ${{ secrets.GCP_PROJECT_ID }}
-      gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+  #   uses: ./.github/workflows/push-to-gcr-template.yml
+  #   with:
+  #     image: ${{ matrix.image }}
+  #   secrets:
+  #     project_id: ${{ secrets.GCP_PROJECT_ID }}
+  #     gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
 
   deploy:
     name: Deploy to GKE
-    needs: push-to-gcr
+    #needs: push-to-gcr
     strategy:
       matrix:
         deployment_yaml:

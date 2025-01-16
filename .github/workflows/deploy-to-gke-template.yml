@@ -51,8 +51,8 @@ jobs:
         run: |
           DEPLOYMENT_NAME=$(yq e '.metadata.name' ${{ inputs.deployment_yaml }})
           NAMESPACE=$(yq e '.metadata.namespace // "default"' ${{ inputs.deployment_yaml }})
-          kubectl patch deployment $DEPLOYMENT_NAME -n $NAMESPACE \
-            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"force-rollout\":\"$(date +'%s')\"}}}}}"
+          kubectl patch deployment "$DEPLOYMENT_NAME" -n "$NAMESPACE" \
+          --patch "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"force-rollout\":\"$(date +'%s')\"}}}}}"
 
       - name: Deploy to Kubernetes
         run: |

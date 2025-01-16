@@ -38,6 +38,13 @@ jobs:
         run: |
           gcloud auth configure-docker
 
+      - name: Set Up Docker
+        run: docker --version
+
+      - name: Pull Docker Image
+        run: |
+          docker pull ${{ inputs.image }}
+
       - name: Push Image to GCR
         run: |
           IMAGE_NAME=$(echo "${{ inputs.image }}" | cut -d':' -f1)

@@ -176,7 +176,7 @@ jobs:
 
   push-to-gcr:
     name: Push Images to GCR
-    #needs: build-images
+    needs: build-images
     strategy:
       matrix:
         image:

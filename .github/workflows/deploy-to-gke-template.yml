@@ -21,7 +21,7 @@ on:
 jobs:
   deploy:
     name: Deploy to GKE
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -46,6 +46,13 @@ jobs:
         run: |
           gcloud container clusters get-credentials ${{ secrets.cluster_name }} \
             --region ${{ secrets.region }}
+
+      - name: Force Rollout by Updating Annotation
+        run: |
+          DEPLOYMENT_NAME=$(yq e '.metadata.name' ${{ inputs.deployment_yaml }})
+          NAMESPACE=$(yq e '.metadata.namespace // "default"' ${{ inputs.deployment_yaml }})
+          kubectl patch deployment $DEPLOYMENT_NAME -n $NAMESPACE \
+            -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"force-rollout\":\"$(date +'%s')\"}}}}}"
 
       - name: Deploy to Kubernetes
         run: |

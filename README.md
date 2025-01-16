@@ -3,7 +3,7 @@
 # Marketplace Application - v4
 
 This is the fourth version of the Marketplace application, providing CRUD functionalities using FastAPI, PostgreSQL, and NATS for messaging. The app also has a simple frontend to interact with in a more user-friendly manner.
-The register and login functionalities are on a very basic level due to the goal of using our group authentication service. 
+The register and login functionalities are on a very basic level due to the goal of using our group authentication service.
 Starting from this version, the project is integrated with the group's gateway and all the endpoints are configuired to use it.
 
 ## Features
@@ -40,7 +40,7 @@ Starting from this version, the project is integrated with the group's gateway a
    docker-compose up --build
    ```
    - This command builds and starts all the services in one network, including the FastAPI app, PostgreSQL, and NATS.
-  
+
 2.1. **Pull docker image**:
 https://hub.docker.com/repository/docker/dverse/marketplace-api/tags
 

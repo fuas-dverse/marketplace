@@ -1,0 +1,47 @@
+name: Push Docker Images to GCR
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: "Docker image to push to GCR"
+        required: true
+        type: string
+    secrets:
+      gcp_credentials:
+        description: "Google Cloud Service Account Key"
+        required: true
+      project_id:
+        description: "Google Cloud Project ID"
+        required: true
+
+jobs:
+  push-images:
+    name: Push Docker Images to GCR
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set upn Auth for GCR
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.gcp_credentials }}"
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.project_id }}
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+
+      - name: Authenticate Docker to GCR
+        run: |
+          gcloud auth configure-docker
+
+      - name: Push Image to GCR
+        run: |
+          docker tag ${{ inputs.image }} gcr.io/${{ secrets.project_id }}/$(basename ${{ inputs.image }}):multiplatform
+          docker push gcr.io/${{ secrets.project_id }}/$(basename ${{ inputs.image }}):multiplatform

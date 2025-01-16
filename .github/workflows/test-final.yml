@@ -174,11 +174,36 @@ jobs:
       docker_username: ${{ secrets.DOCKER_USERNAME }}
       docker_password: ${{ secrets.DOCKER_PASSWORD }}
 
-  deploy:
-    needs: build-images
-    uses: ./.github/workflows/deploy-template.yml
+  push-to-gcr:
+    name: Push Images to GCR
+    strategy:
+      matrix:
+        image:
+          - dverse/marketplace-api
+          - dverse/notification-service
+          - dverse/marketplace-frontend
+          - dverse/auth-frontend
+
+    uses: ./.github/workflows/push-to-gcr-template.yml
     with:
-      deploy_script: |
-        echo "Starting deployment..."
-        echo "Deploying services to production environment..."
-        echo "Deployment complete!"
+      image: ${{ matrix.image }}
+    secrets:
+      project_id: ${{ secrets.GCP_PROJECT_ID }}
+      gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+
+  deploy:
+    needs: push-to-gcr
+    strategy:
+      matrix:
+        deployment_yaml:
+          - deployment/marketplace-service.yaml
+          - deployment/notification-service.yaml
+          - deployment/frontend-deployment.yaml
+          - deployment/auth-frontend-deployment.yaml
+    uses: ./.github/workflows/deploy-to-gke-template.yml
+    with:
+      deployment_yaml: ${{ matrix.deployment_yaml }}
+    secrets:
+      gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+      cluster_name: ${{ secrets.GKE_CLUSTER_NAME }}
+      region: ${{ secrets.GKE_CLUSTER_ZONE }}

@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - "main"
-      - "deployment-config"
+      - "deployment-confog"
 
 permissions:
   contents: write

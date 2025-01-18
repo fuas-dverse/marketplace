@@ -54,3 +54,4 @@ class Config:
     POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5435")
     DATABASE_URL = os.getenv("DATABASE_URL")
     TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
+    LOCAL_DATABASE_URL = os.getenv("LOCAL_DATABASE_URL")

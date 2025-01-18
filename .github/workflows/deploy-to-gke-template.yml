@@ -1,0 +1,67 @@
+name: Deploy to GKE
+
+on:
+  workflow_call:
+    inputs:
+      deployment_yaml:
+        description: "Path to the Kubernetes deployment YAML file"
+        required: true
+        type: string
+      service_name:
+        description: "Name of the service to deploy"
+        required: true
+        type: string
+    secrets:
+      gcp_credentials:
+        description: "Google Cloud Service Account Key"
+        required: true
+      cluster_name:
+        description: "Name of the GKE cluster"
+        required: true
+      region:
+        description: "Region or zone of the GKE cluster"
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to GKE
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set upn Auth for GCR
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.gcp_credentials }}"
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.project_id }}
+
+      - name: Configure gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+          export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+
+      - name: Authenticate with GKE Cluster
+        run: |
+          gcloud container clusters get-credentials ${{ secrets.cluster_name }} \
+            --region ${{ secrets.region }}
+
+      - name: Force Rollout by Updating Annotation
+        run: |
+          DEPLOYMENT_NAME=$(yq e '.metadata.name' ${{ inputs.deployment_yaml }} | tr -d '\n')
+          echo "Deployment name: $DEPLOYMENT_NAME" \
+          kubectl patch deployment "$DEPLOYMENT_NAME" \
+          --patch "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"force-rollout\":\"$(date +'%s')\"}}}}}"
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f ${{ inputs.deployment_yaml }}
+
+      - name: Verify Deployment
+        run: |
+          kubectl rollout status deployment ${{ inputs.service_name }}

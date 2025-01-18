@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketplace-service
+  labels:
+    app: marketplace-service
+spec:
+  replicas: 1 # Adjust replicas as needed
+  selector:
+    matchLabels:
+      app: marketplace-service
+  template:
+    metadata:
+      labels:
+        app: marketplace-service
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+        - name: marketplace-service
+          image: gcr.io/intense-clarity-448014-u7/marketplace-api:multiplatform
+          ports:
+            - containerPort: 5001
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: marketplace-env-test
+                  key: DATABASE_URL
+            - name: NATS_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: marketplace-env-test
+                  key: NATS_SERVER_URL
+          volumeMounts:
+            - name: alembic-files
+              mountPath: /app/alembic
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: "/health" # Update with your health endpoint if applicable
+              port: 5001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: "/health" # Update with your readiness endpoint if applicable
+              port: 5001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      restartPolicy: Always
+      volumes:
+        - name: alembic-files
+          emptyDir: {} # For temporary storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketplace-service
+  labels:
+    app: marketplace-service
+spec:
+  selector:
+    app: marketplace-service
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
+  type: ClusterIP

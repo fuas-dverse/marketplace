@@ -249,11 +249,43 @@ jobs:
       docker_username: ${{ secrets.DOCKER_USERNAME }}
       docker_password: ${{ secrets.DOCKER_PASSWORD }}
 
-  deploy:
+  push-to-gcr:
+    name: Push Images to GCR
     needs: build-images
-    uses: ./.github/workflows/deploy-template.yml
+    strategy:
+      matrix:
+        image:
+          - marketplace-api:multiplatform
+          - notification-service:multiplatform
+          - marketplace-frontend:multiplatform
+          - auth-frontend:multiplatform
+
+    uses: ./.github/workflows/push-to-gcr-template.yml
     with:
-      deploy_script: |
-        echo "Starting deployment..."
-        echo "Deploying services to production environment..."
-        echo "Deployment complete!"
+      image: ${{ matrix.image }}
+    secrets:
+      project_id: ${{ secrets.GCP_PROJECT_ID }}
+      gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+
+  deploy:
+    name: Deploy to GKE
+    needs: push-to-gcr
+    strategy:
+      matrix:
+        deployment:
+          - deployment_yaml: deployment/marketplace-service.yaml
+            service_name: marketplace-service
+          - deployment_yaml: deployment/notification-service.yaml
+            service_name: notification-service
+          - deployment_yaml: deployment/frontend-deployment.yaml
+            service_name: marketplace-frontend
+          - deployment_yaml: deployment/auth-frontend-deployment.yaml
+            service_name: auth-frontend
+    uses: ./.github/workflows/deploy-to-gke-template.yml
+    with:
+      deployment_yaml: ${{ matrix.deployment.deployment_yaml }}
+      service_name: ${{ matrix.deployment.service_name }}
+    secrets:
+      gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+      cluster_name: ${{ secrets.GKE_CLUSTER_NAME }}
+      region: ${{ secrets.GKE_CLUSTER_ZONE }}

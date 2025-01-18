@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+        - name: db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_USER
+              value: marketplace
+            - name: POSTGRES_PASSWORD
+              value: marketplace
+            - name: POSTGRES_DB
+              value: marketplace_db
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pg-data
+              mountPath: /var/lib/postgresql/data
+            - name: db-scripts
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "rm -rf /var/lib/postgresql/data/*"]
+      volumes:
+        - name: pg-data
+          emptyDir: {} # For testing; replace with a PVC for persistent storage
+        - name: db-scripts
+          configMap:
+            name: db-scripts
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  ports:
+    - port: 5435
+      targetPort: 5432
+  selector:
+    app: db
+  type: ClusterIP

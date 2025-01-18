@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-frontend
+  labels:
+    app: auth-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-frontend
+  template:
+    metadata:
+      labels:
+        app: auth-frontend
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+        - name: auth-frontend
+          image: gcr.io/intense-clarity-448014-u7/auth-frontend:multiplatform
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+            - name: AUTH_BACKEND_URL
+              value: "http://api-gateway:8080/api/v1/auth"
+            - name: API_BASE_URL
+              value: "http://api-gateway:8080/api/v1"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-frontend
+  labels:
+    app: auth-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-frontend
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 3002

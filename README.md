@@ -1,16 +1,19 @@
 ---
 
-# Marketplace Application - v4
+# Marketplace Application
 
-This is the fourth version of the Marketplace application, providing CRUD functionalities using FastAPI, PostgreSQL, and NATS for messaging. The app also has a simple frontend to interact with in a more user-friendly manner.
-The register and login functionalities are on a very basic level due to the goal of using our group authentication service.
-Starting from this version, the project is integrated with the group's gateway and all the endpoints are configuired to use it.
+This is the final version of the Marketplace application, providing CRUD functionalities using FastAPI, PostgreSQL, and NATS for messaging. The app also has a simple frontend to interact with in a more user-friendly manner. The events are used by notification service for demonstration and displayed in the frontend.
+I also created auth-service and frontend that are now added to the docker compose together with the api gateway so creating the containers allows to interact with the full system.
+
 
 ## Features
 
 1. **Product Listings**: Add, view, and search product listings with detailed information, including ratings.
 2. **Transactions & Reviews**: Handle transactions and manage product reviews for a full marketplace experience.
 3. **Real-Time Messaging**: Uses NATS to demontrate the messaging possibilities.
+4. **Notifications**: The service listens to specified topics and shows the events to the user.
+5. **Auth**: Simple service and frontend, that are available for everyone and after login redirect to the inital applictaion.
+6. **User data**: User can update, export and delete their own data.
 
 ## Project Structure
 
@@ -33,39 +36,14 @@ Starting from this version, the project is integrated with the group's gateway a
    ```
 
 1.2. **Set Up Environment Variables**:
-   - Create a `.env` file with your configuration for the database, NATS server, and other settings.
+   - Create a `.env` file with configuration (available in my portfolio) for the database, NATS server, and other settings.
 
 1.3. **Run with Docker Compose**:
    ```bash
    docker-compose up --build
    ```
-   - This command builds and starts all the services in one network, including the FastAPI app, PostgreSQL, and NATS.
+   - This command builds and starts all the services in one network.
 
-2.1. **Pull docker image**:
-https://hub.docker.com/repository/docker/dverse/marketplace-api/tags
-
-### Running the Frontend
-
-1. **Navigate to the Frontend Directory**:
-   ```bash
-   cd marketplace-frontend
-   ```
-
-2. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Run the Frontend**:
-   ```bash
-   npm run dev
-   ```
-   - The frontend will be accessible at `http://localhost:3000`.
-
-## Usage
-
-- The API will be accessible at `http://localhost:5001`.
-- The frontend will be available at `http://localhost:3000`.
 
 ## Configuration
 
@@ -73,14 +51,3 @@ https://hub.docker.com/repository/docker/dverse/marketplace-api/tags
 - **Docker Compose**: Simplifies running and managing the entire application stack.
 - **Alembic**: Enables data migration.
 
-## Improvements in v4
-
-- **Tests**: Added comprehensive tests for all routes and components.
-- **CI/CD Pipeline**: Automated coverage report uploads (to Codacy) for Jest and Pytest.
-- **Docker Integration**: A new docker image of marketplace-api is being pushed with every merge into main.
-- **API Enhancements**: Standardized responses.
-
----
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/e5a921226d254a9c94924caa773ef630)](https://app.codacy.com?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/e5a921226d254a9c94924caa773ef630)](https://app.codacy.com?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
